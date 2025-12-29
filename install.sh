@@ -105,6 +105,11 @@ cp -r "$SCRIPT_DIR/.config/mako" "$HOME/.config/"
 # Copy wallpapers
 mkdir -p "$HOME/.config/hypr/wallpapers"
 cp -r "$SCRIPT_DIR/wallpapers/"* "$HOME/.config/hypr/wallpapers/"
+# Copy scripts
+echo "Copying scripts..."
+mkdir -p "$HOME/.config/hypr/scripts"
+cp -r "$SCRIPT_DIR/scripts/"* "$HOME/.config/hypr/scripts/"
+chmod +x "$HOME/.config/hypr/scripts/"*.sh
 
 echo ""
 echo -e "${GREEN}Step 4: Setting up environment...${NC}"
@@ -124,5 +129,6 @@ echo "  SUPER + Space        - Launcher (Fuzzel)"
 echo "  SUPER + Tab          - Window Switcher"
 echo "  SUPER + Q            - Close Window"
 echo "  SUPER + F            - Fullscreen"
+echo "  SUPER + W            - Cycle Wallpapers"
 echo "  SUPER + [1-9]        - Switch Workspace"
 echo ""

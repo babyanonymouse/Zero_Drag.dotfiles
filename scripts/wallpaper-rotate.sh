@@ -4,8 +4,15 @@
 
 # Get the directory where the script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# Wallpaper directory relative to script location
-WALLPAPER_DIR="$(dirname "$SCRIPT_DIR")/wallpapers"
+
+# Determine wallpaper directory
+# First try the installed location, then fallback to dev location
+if [ -d "$HOME/.config/hypr/wallpapers" ]; then
+    WALLPAPER_DIR="$HOME/.config/hypr/wallpapers"
+else
+    # Fallback to repository structure (for development)
+    WALLPAPER_DIR="$(dirname "$SCRIPT_DIR")/wallpapers"
+fi
 
 # State file to track current wallpaper
 STATE_FILE="/tmp/hyprpaper_current_wallpaper"
@@ -47,14 +54,22 @@ echo "$WALLPAPER" > "$STATE_FILE"
 # Set wallpaper using hyprpaper
 if command -v hyprctl &> /dev/null; then
     # Preload the new wallpaper
-    hyprctl hyprpaper preload "$WALLPAPER"
-    # Set wallpaper for all monitors
-    hyprctl hyprpaper wallpaper ",$WALLPAPER"
-    # Unload old wallpapers to save memory (optional)
-    if [ -n "$CURRENT_WALLPAPER" ] && [ "$CURRENT_WALLPAPER" != "$WALLPAPER" ]; then
-        hyprctl hyprpaper unload "$CURRENT_WALLPAPER" 2>/dev/null || true
+    if hyprctl hyprpaper preload "$WALLPAPER" 2>/dev/null; then
+        # Set wallpaper for all monitors
+        if hyprctl hyprpaper wallpaper ",$WALLPAPER" 2>/dev/null; then
+            # Unload old wallpapers to save memory (optional)
+            if [ -n "$CURRENT_WALLPAPER" ] && [ "$CURRENT_WALLPAPER" != "$WALLPAPER" ]; then
+                hyprctl hyprpaper unload "$CURRENT_WALLPAPER" 2>/dev/null || true
+            fi
+            notify-send "Wallpaper Changed" "$(basename "$WALLPAPER")"
+        else
+            notify-send "Error" "Failed to set wallpaper"
+            exit 1
+        fi
+    else
+        notify-send "Error" "Failed to preload wallpaper"
+        exit 1
     fi
-    notify-send "Wallpaper Changed" "$(basename "$WALLPAPER")"
 # Fallback to swww
 elif command -v swww &> /dev/null; then
     swww img "$WALLPAPER" --transition-type fade --transition-duration 2
