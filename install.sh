@@ -49,6 +49,7 @@ PACKAGES=(
     "wireplumber"
     "thunar"
     "ttf-jetbrains-mono-nerd"
+    "wlogout"
 )
 
 # Check if yay is available, otherwise use pacman

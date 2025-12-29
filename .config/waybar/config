@@ -3,37 +3,45 @@
     "position": "top",
     "height": 30,
     "spacing": 4,
-    "modules-left": ["hyprland/workspaces"],
-    "modules-center": ["clock"],
-    "modules-right": ["temperature", "cpu", "memory", "battery", "tray"],
-
+    "modules-left": [
+        "hyprland/workspaces"
+    ],
+    "modules-center": [
+        "clock"
+    ],
+    "modules-right": [
+        "network",
+        "cpu",
+        "temperature",
+        "battery",
+        "custom/power_governor",
+        "custom/power"
+    ],
     "hyprland/workspaces": {
         "disable-scroll": true,
         "all-outputs": true,
         "format": "{name}"
     },
-    
     "clock": {
         "format": "{:%H:%M}",
         "tooltip-format": "{:%Y-%m-%d}"
     },
-
+    "network": {
+        "format": "{bandwidthDownBytes} ⬇",
+        "format-disconnected": "⚠",
+        "interval": 2,
+        "tooltip": false
+    },
+    "cpu": {
+        "format": "{usage}%",
+        "on-click": "alacritty -e btop",
+        "tooltip": false
+    },
     "temperature": {
         "critical-threshold": 80,
         "format": "{temperatureC}°C",
         "format-critical": "{temperatureC}°C 🔥"
     },
-
-    "cpu": {
-        "format": "{usage}%",
-        "tooltip": false
-    },
-
-    "memory": {
-        "format": "{}%",
-        "tooltip": "RAM: {used:0.1f}G / {total:0.1f}G"
-    },
-
     "battery": {
         "states": {
             "warning": 30,
@@ -43,9 +51,15 @@
         "format-charging": "{capacity}% ⚡",
         "format-plugged": "{capacity}% 🔌"
     },
-
-    "tray": {
-        "icon-size": 16,
-        "spacing": 10
+    "custom/power_governor": {
+        "exec": "cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
+        "interval": 60,
+        "format": "⚡ {}",
+        "tooltip": false
+    },
+    "custom/power": {
+        "format": "⏻",
+        "on-click": "wlogout",
+        "tooltip": false
     }
 }

@@ -57,17 +57,22 @@ window#waybar {
 #clock,
 #battery,
 #cpu,
-#memory,
 #temperature,
-#tray {
+#network,
+#custom-power_governor,
+#custom-power {
   padding: 0 10px;
   margin: 0 4px;
-  background: @surface0;
+  background: transparent;
   color: @text;
 }
 
 #clock {
   color: @mauve;
+}
+
+#network {
+  color: @sapphire;
 }
 
 #battery {
@@ -86,27 +91,19 @@ window#waybar {
   color: @blue;
 }
 
-#memory {
-  color: @flamingo;
-}
-
-/* Heat-Safe Logic */
 #temperature {
   color: @teal;
 }
 
 #temperature.critical {
-  background: @red;
-  color: @base; /* White/Base text on Red background */
-  animation-name: blink;
-  animation-duration: 0.5s;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
+  color: @red;
 }
 
-@keyframes blink {
-  to {
-    background-color: @maroon;
-  }
+#custom-power_governor {
+  color: @yellow;
+}
+
+#custom-power {
+  color: @red;
+  margin-right: 15px;
 }
