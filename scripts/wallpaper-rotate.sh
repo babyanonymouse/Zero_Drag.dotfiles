@@ -76,7 +76,10 @@ elif command -v swww &> /dev/null; then
     notify-send "Wallpaper Changed" "$(basename "$WALLPAPER")"
 # Fallback to swaybg
 elif command -v swaybg &> /dev/null; then
-    killall swaybg 2>/dev/null || true
+    # Kill existing swaybg process if running
+    if pgrep -x swaybg > /dev/null; then
+        killall swaybg 2>/dev/null || true
+    fi
     swaybg -i "$WALLPAPER" -m fill &
     notify-send "Wallpaper Changed" "$(basename "$WALLPAPER")"
 else
