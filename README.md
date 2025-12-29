@@ -1,6 +1,7 @@
 # Zero-Drag Hyprland Dotfiles
 
 A high-performance, minimalist Hyprland configuration optimized for **CachyOS** and thermally constrained hardware.
+
 **Philosophy**: "Function over Flash". Precision, efficiency, and zero distractions.
 
 ## 🏁 Philosophy
@@ -26,20 +27,35 @@ Selected for startup speed and low footprint.
 
 ## 🎨 Design System
 
-- **Theme**: Catppuccin Mocha
-- **Font**: JetBrains Mono Nerd Font (Size 11)
-- **Rounding**: **0px** (Sharp corners)
-- **Decorations**: NONE (No blur, no shadows)
-- **Animations**: Disabled (or instant) for thermal control.
+- **Theme**: Catppuccin Mocha full integration.
+- **Font**: `JetBrains Mono Nerd Font` (Size 11).
+- **Rounding**: **0px** (Sharp corners).
+- **Decorations**: NONE. `blur=false`, `drop_shadow=false`.
+- **Animations**: Disabled for thermal control.
 
-## ⚙️ Key Features
+## ⚙️ Functional Requirements
 
-### "Heat-Safe" Status Bar
+### 1. "Heat-Safe" Status Bar
 
-The Waybar CPU temperature module is configured to turn **RED** (Critical) if the sensor exceeds **80°C**.
-Modules: Workspaces, Clock, CPU Temp, RAM, Battery.
+- **Logic**: The CPU Temp module turns **RED** (Critical class) if the sensor exceeds **80°C**.
+- **Modules**: Workspaces, Clock, CPU Temp, RAM, Battery.
 
-### Keybindings (Core Workflow)
+### 2. Window Management
+
+- **Layout**: Dwindle (Master is backup).
+- **Focus**: Mouse movement focuses, Click raises.
+- **Workspaces**:
+  1.  Coding (Terminal/Editor)
+  2.  Browser
+  3.  Social/Music
+  4.  General
+  5.  General
+
+### 3. Input Rules
+
+- **Numlock**: Forced `OFF` by default (`numlock_by_default = false`).
+
+### 4. Keybindings (Core Workflow)
 
 | Key                   | Action                    |
 | --------------------- | ------------------------- |
@@ -66,7 +82,7 @@ cd my_dotfiles
 ./install.sh
 ```
 
-The script will installed all required packages (`alacritty`, `fuzzel`, `hyprland`, etc.) and back up your existing configurations.
+The script will install all required packages (`alacritty`, `fuzzel`, `hyprland`, etc.) and back up your existing configurations.
 
 ## 📄 License
 
