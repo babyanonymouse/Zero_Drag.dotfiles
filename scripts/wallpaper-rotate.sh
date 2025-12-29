@@ -85,7 +85,7 @@ if command -v hyprctl &> /dev/null; then
     if hyprctl hyprpaper preload "$WALLPAPER" 2>/dev/null; then
         # Set wallpaper for all monitors
         if hyprctl hyprpaper wallpaper "",$WALLPAPER" 2>/dev/null; then
-            # Unload old wallpapers to save memory (optional)
+            # Unload old wallpapers to save memory
             if [ -n "$CURRENT_WALLPAPER" ] && [ "$CURRENT_WALLPAPER" != "$WALLPAPER" ]; then
                 hyprctl hyprpaper unload "$CURRENT_WALLPAPER" 2>/dev/null || true
             fi
