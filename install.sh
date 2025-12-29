@@ -50,6 +50,7 @@ PACKAGES=(
     "thunar"
     "ttf-jetbrains-mono-nerd"
     "wlogout"
+    "rofi-wayland"
 )
 
 # Check if yay is available, otherwise use pacman
