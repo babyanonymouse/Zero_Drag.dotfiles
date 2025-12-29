@@ -21,5 +21,14 @@ if [ -d "$SCRIPT_DIR/wallpapers" ]; then
     cp -r "$SCRIPT_DIR/wallpapers/"* "$HOME/.config/hypr/wallpapers/"
 fi
 
+# Copy scripts if they exist
+if [ -d "$SCRIPT_DIR/scripts" ]; then
+    mkdir -p "$HOME/.config/hypr/scripts"
+    cp -r "$SCRIPT_DIR/scripts/"* "$HOME/.config/hypr/scripts/"
+    if compgen -G "$HOME/.config/hypr/scripts/"'*.sh' > /dev/null; then
+        chmod +x "$HOME/.config/hypr/scripts/"*.sh
+    fi
+fi
+
 echo "Configurations updated successfully."
 echo "You may need to reload Hyprland (SUPER+M to exit or use hyprctl reload)"
