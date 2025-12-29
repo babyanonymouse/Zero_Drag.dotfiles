@@ -3,7 +3,7 @@ configuration {
     show-icons: true;
     terminal: "kitty";
     drun-display-format: "{icon} {name}";
-    locaction: 0;
+    location: 0;
     disable-history: false;
     hide-scrollbar: true;
     display-drun: "   Apps ";
