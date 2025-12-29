@@ -16,14 +16,15 @@ A high-performance, minimalist Hyprland configuration optimized for **CachyOS** 
 
 Selected for startup speed and low footprint.
 
-| Component     | Selection     | Why?                                         |
-| ------------- | ------------- | -------------------------------------------- |
-| **WM**        | **Hyprland**  | Lightweight, scriptable, no overhead.        |
-| **Terminal**  | **Alacritty** | Fastest startup, GPU acceleration, no bloat. |
-| **Launcher**  | **Fuzzel**    | Wayland-native, lightweight.                 |
-| **Bar**       | **Waybar**    | Stripped down with "Heat-Safe" logic.        |
-| **Wallpaper** | **Hyprpaper** | Efficient wallpaper daemon.                  |
-| **Notify**    | **Mako**      | Minimalist daemon.                           |
+| Component        | Selection     | Why?                                  |
+| ---------------- | ------------- | ------------------------------------- |
+| **WM**           | **Hyprland**  | Lightweight, scriptable, no overhead. |
+| **Terminal**     | **Kitty**     | GPU-accelerated, highly configurable. |
+| **Launcher**     | **Fuzzel**    | Wayland-native, lightweight.          |
+| **Bar**          | **Waybar**    | Stripped down with "Heat-Safe" logic. |
+| **File Manager** | **Nautilus**  | Clean, effective GNOME file manager.  |
+| **Wallpaper**    | **Hyprpaper** | Efficient wallpaper daemon.           |
+| **Notify**       | **Mako**      | Minimalist daemon.                    |
 
 ## 🎨 Design System
 
@@ -57,18 +58,16 @@ Selected for startup speed and low footprint.
 
 ### 4. Keybindings (Core Workflow)
 
-| Key                  | Action                      |
-| -------------------- | --------------------------- |
-| `SUPER + Return`     | Open Terminal (Alacritty)   |
-| `SUPER + Space`      | Open Launcher (Fuzzel)      |
-| `SUPER + Tab`        | Window Switcher             |
-| `SUPER + Q`          | Close Window                |
-| `SUPER + F`          | Fullscreen                  |
-| `SUPER + 1-9`        | Switch Workspace            |
-| `SUPER + Main + 1-9` | Move to Workspace           |
-| `ALT + Tab`          | Window Switcher (Graphical) |
-| `XF86Audio*`         | Volume Control              |
-| `XF86MonBrightness*` | Brightness Control          |
+> **Full List**: See [KEYBINDINGS.md](KEYBINDINGS.md) for a complete reference of shortcuts.
+
+**Essential Shortcuts:**
+
+| Key              | Action          |
+| :--------------- | :-------------- |
+| `SUPER + Return` | Open Terminal   |
+| `SUPER + Space`  | Launcher        |
+| `ALT + Tab`      | Window Switcher |
+| `SUPER + Q`      | Close Window    |
 
 ## 📦 Installation
 
