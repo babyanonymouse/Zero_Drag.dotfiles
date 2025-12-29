@@ -73,8 +73,8 @@ echo ""
 # Core packages
 check_package "hyprland"
 check_package "waybar"
-check_package "kitty"
-check_package "wofi"
+check_package "alacritty"
+check_package "fuzzel"
 check_package "mako"
 check_package "polkit-gnome"
 
@@ -109,8 +109,8 @@ echo ""
 
 check_dir "$HOME/.config/hypr"
 check_dir "$HOME/.config/waybar"
-check_dir "$HOME/.config/kitty"
-check_dir "$HOME/.config/wofi"
+check_dir "$HOME/.config/alacritty"
+check_dir "$HOME/.config/fuzzel"
 check_dir "$HOME/.config/mako"
 
 echo ""
@@ -118,12 +118,11 @@ echo -e "${BLUE}Checking configuration files...${NC}"
 echo ""
 
 check_config "$HOME/.config/hypr/hyprland.conf"
-check_config "$HOME/.config/hypr/keybinds.conf"
+
 check_config "$HOME/.config/waybar/config"
 check_config "$HOME/.config/waybar/style.css"
-check_config "$HOME/.config/kitty/kitty.conf"
-check_config "$HOME/.config/wofi/config"
-check_config "$HOME/.config/wofi/style.css"
+check_config "$HOME/.config/alacritty/alacritty.toml"
+check_config "$HOME/.config/fuzzel/fuzzel.ini"
 check_config "$HOME/.config/mako/config"
 
 echo ""
@@ -155,16 +154,7 @@ else
     ((WARNINGS++))
 fi
 
-# Check if keybindings file has content
-if [ -s "$HOME/.config/hypr/keybinds.conf" ]; then
-    KEYBIND_COUNT=$(grep -c "^bind" "$HOME/.config/hypr/keybinds.conf" 2>/dev/null || echo 0)
-    if [ "$KEYBIND_COUNT" -gt 0 ]; then
-        echo -e "${GREEN}✓${NC} Keybindings file has $KEYBIND_COUNT bindings"
-    else
-        echo -e "${RED}✗${NC} Keybindings file is empty or invalid"
-        ((ERRORS++))
-    fi
-fi
+
 
 echo ""
 echo -e "${BLUE}=========================================${NC}"
