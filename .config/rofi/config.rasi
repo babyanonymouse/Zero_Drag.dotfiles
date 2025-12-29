@@ -1,0 +1,119 @@
+configuration {
+    modi: "drun,run,window";
+    width: 50;
+    lines: 10;
+    columns: 1;
+    font: "JetBrainsMono Nerd Font 11";
+    show-icons: true;
+    icon-theme: "Papirus-Dark";
+    terminal: "kitty";
+    drun-display-format: "{name}";
+    location: 0;
+    disable-history: false;
+    hide-scrollbar: true;
+    display-drun: "  Apps";
+    display-run: "  Run";
+    display-window: " 﩯 Window";
+    sidebar-mode: true;
+}
+
+@theme "/dev/null"
+
+* {
+    bg: #1e1e2e;
+    bg-alt: #313244;
+    fg: #cdd6f4;
+    fg-alt: #7f849c;
+    
+    background-color: @bg;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    spacing: 0;
+}
+
+window {
+    width: 30%;
+    background-color: @bg;
+    border: 2px;
+    border-color: #89b4fa;
+    border-radius: 10px;
+}
+
+element {
+    padding: 8 12;
+    background-color: transparent;
+    text-color: @fg;
+}
+
+element selected {
+    text-color: @bg;
+    background-color: #89b4fa;
+    border-radius: 6px;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+    vertical-align: 0.5;
+}
+
+element-icon {
+    size: 24;
+    padding: 0 10 0 0;
+    background-color: transparent;
+}
+
+entry {
+    padding: 12;
+    background-color: @bg-alt;
+    text-color: @fg;
+    border-radius: 6px;
+}
+
+inputbar {
+    children: [prompt, entry];
+    background-color: @bg;
+    border-radius: 6px;
+    padding: 8;
+}
+
+listview {
+    background-color: @bg;
+    columns: 1;
+    lines: 8;
+    spacing: 4;
+    padding: 8;
+}
+
+mainbox {
+    background-color: @bg;
+    children: [inputbar, listview, mode-switcher];
+    padding: 12;
+}
+
+mode-switcher {
+    background-color: @bg-alt;
+    border-radius: 6px;
+    padding: 4;
+}
+
+button {
+    padding: 8;
+    background-color: @bg-alt;
+    text-color: @fg;
+    border-radius: 6px;
+}
+
+button selected {
+    background-color: #89b4fa;
+    text-color: @bg;
+}
+
+prompt {
+    background-color: @bg-alt;
+    text-color: @fg;
+    padding: 12;
+    border-radius: 6px;
+    margin: 0 8 0 0;
+}
