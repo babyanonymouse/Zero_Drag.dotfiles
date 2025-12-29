@@ -71,18 +71,54 @@ Selected for startup speed and low footprint.
 
 ### Prerequisites
 
-- CachyOS (or Arch Linux)
-- Git
+- **OS**: CachyOS (Recommended) or Arch Linux.
+- **Git** installed.
 
-### Quick Install
+### ⚡ Quick Install (Automated)
+
+The included script handles package installation, backups, and config symlinking.
 
 ```bash
 git clone https://github.com/babyanonymouse/my_dotfiles.git
 cd my_dotfiles
+chmod +x install.sh verify.sh
 ./install.sh
 ```
 
-The script will install all required packages (`alacritty`, `fuzzel`, `hyprland`, etc.) and back up your existing configurations.
+### 🛠️ Manual Installation
+
+If you prefer to install packages yourself:
+
+1.  **Install Packages**:
+
+    ```bash
+    yay -S hyprland waybar alacritty fuzzel hyprpaper mako polkit-gnome \
+           xdg-desktop-portal-hyprland qt5ct grim slurp wl-clipboard \
+           brightnessctl playerctl pamixer wireplumber thunar \
+           ttf-jetbrains-mono-nerd
+    ```
+
+2.  **Copy Configs**:
+    ```bash
+    cp -r .config/* ~/.config/
+    ```
+
+### ✅ Post-Installation
+
+1.  **Run Verification**:
+
+    ```bash
+    ./verify.sh
+    ```
+
+    This script checks for missing packages or config errors.
+
+2.  **Start Hyprland**:
+    - Log out of your current session.
+    - Select **Hyprland** from your display manager (SDDM/GDM).
+    - Log in.
+
+> **Note**: If you are on a laptop, ensure `brightnessctl` is working for backlight keys.
 
 ## 📄 License
 
