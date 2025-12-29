@@ -29,21 +29,50 @@ if [ ! -d "$WALLPAPER_DIR" ]; then
     exit 1
 fi
 
-# Get list of all wallpapers sorted (by extension), then validate they are real image files
-mapfile -t CANDIDATE_WALLPAPERS < <(find "$WALLPAPER_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) | sort)
+# Cache file for wallpaper list
+CACHE_FILE="$CACHE_DIR/hyprpaper_wallpaper_list"
+CACHE_TIMESTAMP_FILE="$CACHE_DIR/hyprpaper_wallpaper_list.timestamp"
 
-WALLPAPERS=()
-for candidate in "${CANDIDATE_WALLPAPERS[@]}"; do
-    if command -v file >/dev/null 2>&1; then
-        mime_type="$(file --mime-type -b "$candidate" 2>/dev/null || echo "")"
-        if [[ "$mime_type" == image/* ]]; then
+# Check if we need to regenerate the wallpaper list cache
+REGENERATE_CACHE=false
+if [ ! -f "$CACHE_FILE" ] || [ ! -f "$CACHE_TIMESTAMP_FILE" ]; then
+    REGENERATE_CACHE=true
+else
+    # Check if directory modification time is newer than cache
+    DIR_MTIME=$(stat -c %Y "$WALLPAPER_DIR" 2>/dev/null || stat -f %m "$WALLPAPER_DIR" 2>/dev/null)
+    CACHE_MTIME=$(cat "$CACHE_TIMESTAMP_FILE" 2>/dev/null || echo "0")
+    if [ "$DIR_MTIME" -gt "$CACHE_MTIME" ]; then
+        REGENERATE_CACHE=true
+    fi
+fi
+
+# Get list of all wallpapers sorted (by extension), then validate they are real image files
+if [ "$REGENERATE_CACHE" = true ]; then
+    mapfile -t CANDIDATE_WALLPAPERS < <(find "$WALLPAPER_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) | sort)
+    
+    WALLPAPERS=()
+    for candidate in "${CANDIDATE_WALLPAPERS[@]}"; do
+        if command -v file >/dev/null 2>&1; then
+            mime_type="$(file --mime-type -b "$candidate" 2>/dev/null || echo "")"
+            if [[ "$mime_type" == image/* ]]; then
+                WALLPAPERS+=("$candidate")
+            fi
+        else
+            # Fallback: if 'file' is not available, trust the extension-based filter
             WALLPAPERS+=("$candidate")
         fi
-    else
-        # Fallback: if 'file' is not available, trust the extension-based filter
-        WALLPAPERS+=("$candidate")
-    fi
-done
+    done
+    
+    # Save wallpaper list to cache
+    printf "%s\n" "${WALLPAPERS[@]}" > "$CACHE_FILE"
+    # Save current directory modification time
+    DIR_MTIME=$(stat -c %Y "$WALLPAPER_DIR" 2>/dev/null || stat -f %m "$WALLPAPER_DIR" 2>/dev/null)
+    echo "$DIR_MTIME" > "$CACHE_TIMESTAMP_FILE"
+else
+    # Load wallpaper list from cache
+    mapfile -t WALLPAPERS < "$CACHE_FILE"
+fi
+
 if [ ${#WALLPAPERS[@]} -eq 0 ]; then
     notify-send "Error" "No wallpapers found in $WALLPAPER_DIR"
     exit 1
@@ -84,7 +113,7 @@ if command -v hyprctl &> /dev/null; then
     # Preload the new wallpaper
     if hyprctl hyprpaper preload "$WALLPAPER" 2>/dev/null; then
         # Set wallpaper for all monitors
-        if hyprctl hyprpaper wallpaper "",$WALLPAPER" 2>/dev/null; then
+        if hyprctl hyprpaper wallpaper ",$WALLPAPER" 2>/dev/null; then
             # Unload old wallpapers to save memory
             if [ -n "$CURRENT_WALLPAPER" ] && [ "$CURRENT_WALLPAPER" != "$WALLPAPER" ]; then
                 hyprctl hyprpaper unload "$CURRENT_WALLPAPER" 2>/dev/null || true
