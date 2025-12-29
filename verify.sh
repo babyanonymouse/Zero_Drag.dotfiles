@@ -99,6 +99,7 @@ check_package "brightnessctl" true
 check_package "playerctl" true
 check_package "pamixer" true
 check_package "wireplumber"
+check_package "jq"
 
 echo ""
 echo -e "${BLUE}Checking optional packages...${NC}"
@@ -122,6 +123,7 @@ echo ""
 
 check_config "$HOME/.config/hypr/hyprland.conf"
 check_config "$HOME/.config/hypr/hyprpaper.conf"
+check_config "$HOME/.config/hypr/scripts/window_switcher.sh"
 
 check_config "$HOME/.config/waybar/config"
 check_config "$HOME/.config/waybar/style.css"

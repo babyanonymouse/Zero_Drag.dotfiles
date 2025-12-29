@@ -108,6 +108,9 @@ cp -r "$SCRIPT_DIR/.config/mako" "$HOME/.config/"
 mkdir -p "$HOME/.config/hypr/wallpapers"
 cp -r "$SCRIPT_DIR/wallpapers/"* "$HOME/.config/hypr/wallpapers/"
 
+# Ensure scripts are executable
+chmod +x "$HOME/.config/hypr/scripts/"*.sh
+
 echo ""
 echo -e "${GREEN}Step 4: Setting up environment...${NC}"
 echo ""
