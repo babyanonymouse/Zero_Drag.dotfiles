@@ -79,10 +79,18 @@ Selected for startup speed and low footprint.
 The included script handles package installation, backups, and config symlinking.
 
 ```bash
-git clone https://github.com/babyanonymouse/my_dotfiles.git
-cd my_dotfiles
-chmod +x install.sh verify.sh
+git clone https://github.com/babyanonymouse/Zero_Drag.dotfiles.git
+cd Zero_Drag.dotfiles
+chmod +x install.sh verify.sh update_configs.sh
 ./install.sh
+```
+
+### 🔄 Updating Configs
+
+To update your dotfiles without reinstalling all packages (useful after `git pull`):
+
+```bash
+./update_configs.sh
 ```
 
 ### 🛠️ Manual Installation
