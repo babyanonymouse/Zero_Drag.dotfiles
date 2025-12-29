@@ -73,7 +73,7 @@ echo ""
 # Core packages
 check_package "hyprland"
 check_package "waybar"
-check_package "alacritty"
+check_package "kitty"
 check_package "fuzzel"
 check_package "mako"
 check_package "polkit-gnome"
@@ -97,12 +97,13 @@ check_package "playerctl" true
 check_package "pamixer" true
 check_package "wireplumber"
 check_package "jq"
+check_package "xdg-utils"
 
 echo ""
 echo -e "${BLUE}Checking optional packages...${NC}"
 echo ""
 
-check_package "thunar" true
+check_package "nautilus" true
 
 echo ""
 echo -e "${BLUE}Checking configuration directories...${NC}"
@@ -110,7 +111,7 @@ echo ""
 
 check_dir "$HOME/.config/hypr"
 check_dir "$HOME/.config/waybar"
-check_dir "$HOME/.config/alacritty"
+check_dir "$HOME/.config/kitty"
 check_dir "$HOME/.config/fuzzel"
 check_dir "$HOME/.config/mako"
 
@@ -124,7 +125,7 @@ check_config "$HOME/.config/hypr/scripts/window_switcher.sh"
 
 check_config "$HOME/.config/waybar/config"
 check_config "$HOME/.config/waybar/style.css"
-check_config "$HOME/.config/alacritty/alacritty.toml"
+check_config "$HOME/.config/kitty/kitty.conf"
 check_config "$HOME/.config/fuzzel/fuzzel.ini"
 check_config "$HOME/.config/mako/config"
 

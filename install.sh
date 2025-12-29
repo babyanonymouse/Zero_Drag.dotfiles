@@ -33,7 +33,7 @@ echo ""
 PACKAGES=(
     "hyprland"
     "waybar"
-    "alacritty"
+    "kitty"
     "fuzzel"
     "hyprpaper"
     "mako"
@@ -47,7 +47,10 @@ PACKAGES=(
     "playerctl"
     "pamixer"
     "wireplumber"
-    "thunar"
+    "wireplumber"
+    "nautilus"
+    "xdg-utils"
+    "ttf-jetbrains-mono-nerd"
     "ttf-jetbrains-mono-nerd"
 )
 
@@ -79,7 +82,7 @@ BACKUP_DIR="$HOME/.config/hyprland-backup-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$BACKUP_DIR"
 
 # Backup existing configs
-for dir in hypr waybar alacritty fuzzel mako; do
+for dir in hypr waybar kitty fuzzel mako; do
     if [ -d "$HOME/.config/$dir" ]; then
         echo "Backing up $dir..."
         mv "$HOME/.config/$dir" "$BACKUP_DIR/"
@@ -99,7 +102,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "Copying configurations..."
 cp -r "$SCRIPT_DIR/.config/hypr" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/waybar" "$HOME/.config/"
-cp -r "$SCRIPT_DIR/.config/alacritty" "$HOME/.config/"
+cp -r "$SCRIPT_DIR/.config/kitty" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/fuzzel" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/mako" "$HOME/.config/"
 # Copy wallpapers
@@ -127,7 +130,8 @@ echo -e "${GREEN}Installation complete! Zero-Drag Enabled.${NC}"
 echo -e "${GREEN}=========================================${NC}"
 echo ""
 echo -e "${YELLOW}Keybindings quick reference:${NC}"
-echo "  SUPER + Return       - Open Terminal (Alacritty)"
+echo "  SUPER + Return       - Open Terminal (Kitty)"
+echo "  SUPER + E            - File Manager (Nautilus)"
 echo "  SUPER + Space        - Launcher (Fuzzel)"
 echo "  SUPER + Tab          - Window Switcher"
 echo "  SUPER + Q            - Close Window"
