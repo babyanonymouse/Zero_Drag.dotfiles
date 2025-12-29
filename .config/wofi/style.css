@@ -1,0 +1,46 @@
+/* Minimal Wofi Styling */
+window {
+    margin: 0px;
+    border: 2px solid #888888;
+    background-color: #1e1e1e;
+    opacity: 0.95;
+}
+
+#input {
+    margin: 8px;
+    border: 1px solid #888888;
+    color: #ffffff;
+    background-color: #2a2a2a;
+    padding: 8px;
+}
+
+#inner-box {
+    margin: 8px;
+    background-color: #1e1e1e;
+}
+
+#outer-box {
+    margin: 0px;
+    background-color: #1e1e1e;
+}
+
+#scroll {
+    margin: 0px;
+}
+
+#text {
+    margin: 5px;
+    color: #d0d0d0;
+}
+
+#entry:selected {
+    background-color: #3a3a3a;
+}
+
+#entry:selected #text {
+    color: #ffffff;
+}
+
+#text:selected {
+    color: #ffffff;
+}
