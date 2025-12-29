@@ -1,0 +1,37 @@
+# Minimal Mako Notification Daemon Configuration
+# Optimized for low resource usage
+
+# Position
+anchor=top-right
+margin=10
+
+# Size
+width=300
+height=100
+max-visible=3
+
+# Style
+font=JetBrains Mono 10
+background-color=#1e1e1eee
+text-color=#d0d0d0
+border-size=2
+border-color=#888888
+border-radius=5
+padding=10
+
+# Behavior
+default-timeout=5000
+ignore-timeout=0
+
+# Urgency levels
+[urgency=low]
+border-color=#a8e6cf
+default-timeout=3000
+
+[urgency=normal]
+border-color=#8ec6ff
+default-timeout=5000
+
+[urgency=critical]
+border-color=#ff6b6b
+default-timeout=0
