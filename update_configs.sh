@@ -25,7 +25,9 @@ fi
 if [ -d "$SCRIPT_DIR/scripts" ]; then
     mkdir -p "$HOME/.config/hypr/scripts"
     cp -r "$SCRIPT_DIR/scripts/"* "$HOME/.config/hypr/scripts/"
-    chmod +x "$HOME/.config/hypr/scripts/"*.sh
+    if compgen -G "$HOME/.config/hypr/scripts/"'*.sh' > /dev/null; then
+        chmod +x "$HOME/.config/hypr/scripts/"*.sh
+    fi
 fi
 
 echo "Configurations updated successfully."
