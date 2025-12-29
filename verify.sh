@@ -157,7 +157,7 @@ fi
 
 # Check if keybindings file has content
 if [ -s "$HOME/.config/hypr/keybinds.conf" ]; then
-    KEYBIND_COUNT=$(grep -c "^bind.*=" "$HOME/.config/hypr/keybinds.conf" 2>/dev/null || echo 0)
+    KEYBIND_COUNT=$(grep -c "^bind" "$HOME/.config/hypr/keybinds.conf" 2>/dev/null || echo 0)
     if [ "$KEYBIND_COUNT" -gt 0 ]; then
         echo -e "${GREEN}✓${NC} Keybindings file has $KEYBIND_COUNT bindings"
     else
