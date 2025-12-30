@@ -158,3 +158,17 @@ echo "  SUPER + F            - Fullscreen"
 echo "  SUPER + W            - Cycle Wallpapers"
 echo "  SUPER + [1-9]        - Switch Workspace"
 echo ""
+echo -e "${YELLOW}Optional: Install SDDM Theme (Catppuccin Mocha)?${NC}"
+echo "This will theme your login screen to match the desktop."
+echo "Requires sudo privileges."
+read -p "Install SDDM theme? (y/n) " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    if [ -f "$SCRIPT_DIR/install_sddm_theme.sh" ]; then
+        echo -e "${GREEN}Installing SDDM theme...${NC}"
+        sudo "$SCRIPT_DIR/install_sddm_theme.sh"
+    else
+        echo -e "${RED}Error: install_sddm_theme.sh not found${NC}"
+    fi
+fi
+echo ""
