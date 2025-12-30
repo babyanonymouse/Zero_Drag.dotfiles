@@ -80,6 +80,7 @@ check_package "polkit-gnome"
 check_package "hyprpaper"
 check_package "rofi-wayland"
 check_package "wlogout"
+check_package "starship"
 
 echo ""
 echo -e "${BLUE}Checking system integration packages...${NC}"
@@ -131,7 +132,10 @@ check_config "$HOME/.config/waybar/config"
 check_config "$HOME/.config/waybar/style.css"
 check_config "$HOME/.config/kitty/kitty.conf"
 check_config "$HOME/.config/fuzzel/fuzzel.ini"
-check_config "$HOME/.config/mako/config"
+
+check_config "$HOME/.zshrc"
+check_config "$HOME/.config/starship.toml"
+
 
 echo ""
 echo -e "${BLUE}Checking additional directories...${NC}"

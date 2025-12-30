@@ -53,7 +53,9 @@ PACKAGES=(
     "ttf-jetbrains-mono-nerd"
     "ttf-jetbrains-mono-nerd"
     "wlogout"
+    "wlogout"
     "rofi-wayland"
+    "starship"
 )
 
 # Check if yay is available, otherwise use pacman
@@ -107,6 +109,9 @@ cp -r "$SCRIPT_DIR/.config/waybar" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/kitty" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/fuzzel" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/mako" "$HOME/.config/"
+# Copy .zshrc
+echo "Copying .zshrc..."
+cp "$SCRIPT_DIR/.zshrc" "$HOME/.zshrc"
 # Copy wallpapers
 mkdir -p "$HOME/.config/hypr/wallpapers"
 cp -r "$SCRIPT_DIR/wallpapers/"* "$HOME/.config/hypr/wallpapers/"
