@@ -26,7 +26,7 @@ fi
 # Store the real user's home directory (in case script is run with sudo)
 if [ -n "$SUDO_USER" ]; then
     REAL_USER="$SUDO_USER"
-    REAL_HOME=$(eval echo ~$SUDO_USER)
+    REAL_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
 else
     REAL_USER="$USER"
     REAL_HOME="$HOME"
@@ -108,7 +108,7 @@ if [ -f "$WALLPAPER_SOURCE" ]; then
     
     if [ -f "$THEME_CONF" ]; then
         # Update the Background parameter to point to wall.jpg
-        sed -i 's|^Background=.*|Background=backgrounds/wall.jpg|g' "$THEME_CONF"
+        sed -i 's|^Background=.*|Background=backgrounds/wall.jpg|' "$THEME_CONF"
         echo "Updated theme configuration to use synced wallpaper"
     else
         echo -e "${YELLOW}Warning: theme.conf not found at $THEME_CONF${NC}"
@@ -118,7 +118,7 @@ else
     echo "The default theme wallpaper will be used."
     echo "You can manually copy your wallpaper later with:"
     echo "  sudo cp ~/.config/hypr/wallpapers/digital_art.jpg $WALLPAPER_DEST"
-    echo "  sudo sed -i 's|^Background=.*|Background=backgrounds/wall.jpg|g' /usr/share/sddm/themes/catppuccin-mocha/theme.conf"
+    echo "  sudo sed -i 's|^Background=.*|Background=backgrounds/wall.jpg|' /usr/share/sddm/themes/catppuccin-mocha/theme.conf"
 fi
 
 echo ""
