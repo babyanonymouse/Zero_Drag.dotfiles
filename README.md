@@ -41,6 +41,7 @@ Selected for startup speed and low footprint.
 
 - **Logic**: The CPU Temp module turns **RED** (Critical class) if the sensor exceeds **80°C**.
 - **Modules**: Workspaces, Clock, CPU Temp, RAM, Battery.
+- **Shell**: Fully modernized with `eza`, `bat`, `zoxide`, `ripgrep`, and `starship` prompt. Icons and syntax highlighting enabled.
 
 ### 2. Window Management
 
@@ -56,6 +57,9 @@ Selected for startup speed and low footprint.
 ### 3. Input Rules
 
 - **Numlock**: Forced `OFF` by default (`numlock_by_default = false`).
+- **Mouse**:
+  - `Drag` with **Left Button** to move/snap windows.
+  - `Drag` with **Right Button** to resize windows.
 
 ### 4. Keybindings (Core Workflow)
 
@@ -63,13 +67,15 @@ Selected for startup speed and low footprint.
 
 **Essential Shortcuts:**
 
-| Key              | Action           |
-| :--------------- | :--------------- |
-| `SUPER + Return` | Open Terminal    |
-| `SUPER + Space`  | Launcher         |
-| `ALT + Tab`      | Window Switcher  |
-| `SUPER + W`      | Cycle Wallpapers |
-| `SUPER + Q`      | Close Window     |
+| Key                    | Action               |
+| :--------------------- | :------------------- |
+| `SUPER + Return`       | Open Terminal        |
+| `SUPER + Space`        | Launcher             |
+| `ALT + Tab`            | Window Switcher      |
+| `SUPER + W`            | Cycle Wallpapers     |
+| `SUPER + Q`            | Close Window         |
+| `CTRL + ALT + Arrows`  | Move Window Position |
+| `SUPER + ALT + Arrows` | Resize Window        |
 
 ## 📦 Installation
 

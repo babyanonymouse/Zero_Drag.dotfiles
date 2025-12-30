@@ -13,6 +13,10 @@ A complete reference for Zero-Drag shortcuts.
 | `ALT + Tab`                  | Window Switcher (Fuzzel) |
 | `SUPER + Left/Right/Up/Down` | Move focus (Arrow keys)  |
 | `SUPER + H/J/K/L`            | Move focus (Vim keys)    |
+| `CTRL + ALT + Arrows`        | Move window position     |
+| `SUPER + ALT + Arrows`       | Resize window            |
+| `SUPER + Left Click`         | Drag window (Move)       |
+| `SUPER + Right Click`        | Drag window (Resize)     |
 
 ## 🚀 Applications
 

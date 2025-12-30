@@ -14,6 +14,9 @@ cp -r "$SCRIPT_DIR/.config/waybar" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/kitty" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/fuzzel" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/mako" "$HOME/.config/"
+# Copy .zshrc and starship.toml
+cp "$SCRIPT_DIR/.zshrc" "$HOME/.zshrc"
+cp "$SCRIPT_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
 
 # Copy wallpapers if they exist
 if [ -d "$SCRIPT_DIR/wallpapers" ]; then
