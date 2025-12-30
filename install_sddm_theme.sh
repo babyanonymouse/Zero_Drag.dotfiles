@@ -90,6 +90,8 @@ echo -e "${GREEN}Step 4: Syncing wallpaper with desktop...${NC}"
 echo ""
 
 # Check if the user's wallpaper exists
+# Note: Using digital_art.jpg as specified in the Zero-Drag configuration
+# Users can manually change this to sync a different wallpaper if needed
 WALLPAPER_SOURCE="$REAL_HOME/.config/hypr/wallpapers/digital_art.jpg"
 WALLPAPER_DEST="/usr/share/sddm/themes/catppuccin-mocha/backgrounds/wall.jpg"
 
