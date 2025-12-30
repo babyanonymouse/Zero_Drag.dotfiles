@@ -120,6 +120,8 @@ cp -r "$SCRIPT_DIR/.config/waybar" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/kitty" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/fuzzel" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/mako" "$HOME/.config/"
+# Copy starship config
+cp "$SCRIPT_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
 # Copy .zshrc
 echo "Copying .zshrc..."
 cp "$SCRIPT_DIR/.zshrc" "$HOME/.zshrc"

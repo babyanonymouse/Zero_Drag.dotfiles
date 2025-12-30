@@ -66,19 +66,23 @@ chromium # Alternative web browser
 ### Using yay (AUR helper)
 
 ```bash
-yay -S hyprland waybar kitty wofi mako polkit-gnome \
-       xdg-desktop-portal-hyprland qt5ct grim slurp \
-       wl-clipboard brightnessctl playerctl pamixer \
-       wireplumber thunar ttf-jetbrains-mono-nerd
+yay -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
+       xdg-desktop-portal-hyprland qt5ct grim slurp wl-clipboard \
+       brightnessctl playerctl pamixer wireplumber thunar \
+       ttf-jetbrains-mono-nerd wlogout rofi-wayland starship \
+       eza bat zoxide ripgrep fzf cliphist hyprlock hypridle \
+       zsh-syntax-highlighting zsh-autosuggestions zsh-completions
 ```
 
 ### Using pacman (official repos only)
 
 ```bash
-sudo pacman -S hyprland waybar kitty wofi mako polkit-gnome \
-               xdg-desktop-portal-hyprland qt5ct grim slurp \
-               wl-clipboard brightnessctl playerctl pamixer \
-               wireplumber thunar
+sudo pacman -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
+               xdg-desktop-portal-hyprland qt5ct grim slurp wl-clipboard \
+               brightnessctl playerctl pamixer wireplumber thunar \
+               wlogout rofi-wayland starship eza bat zoxide ripgrep fzf \
+               cliphist hyprlock hypridle zsh-syntax-highlighting \
+               zsh-autosuggestions zsh-completions
 ```
 
 ### Font installation (from AUR)
