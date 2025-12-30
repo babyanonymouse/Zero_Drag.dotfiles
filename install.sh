@@ -1,6 +1,6 @@
 #!/bin/bash
 # Installation script for Zero-Drag Hyprland dotfiles
-# Optimized for Alacritty, Fuzzel, and High Performance
+# Optimized for Kitty, Fuzzel, and High Performance
 
 set -e
 
