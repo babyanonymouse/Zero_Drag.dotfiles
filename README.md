@@ -102,9 +102,9 @@ If you prefer to install packages yourself:
 1.  **Install Packages**:
 
     ```bash
-    yay -S hyprland waybar alacritty fuzzel hyprpaper mako polkit-gnome \
+    yay -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
            xdg-desktop-portal-hyprland qt5ct grim slurp wl-clipboard \
-           brightnessctl playerctl pamixer wireplumber thunar \
+           brightnessctl playerctl pamixer wireplumber nautilus xdg-utils \
            ttf-jetbrains-mono-nerd
     ```
 
@@ -123,7 +123,21 @@ If you prefer to install packages yourself:
 
     This script checks for missing packages or config errors.
 
-2.  **Start Hyprland**:
+2.  **Set System Defaults** (Optional):
+
+    To ensure Nautilus and Kitty are system-wide defaults:
+
+    ```bash
+    # Set Nautilus as default file manager
+    xdg-mime default org.gnome.Nautilus.desktop inode/directory
+    
+    # Set Kitty as default terminal (verify schema first with: gsettings list-schemas | grep terminal)
+    # For GNOME-based systems:
+    # gsettings set org.gnome.desktop.default-applications.terminal exec kitty
+    # For alternatives, create/edit ~/.local/share/applications/mimeapps.list
+    ```
+
+3.  **Start Hyprland**:
     - Log out of your current session.
     - Select **Hyprland** from your display manager (SDDM/GDM).
     - Log in.
