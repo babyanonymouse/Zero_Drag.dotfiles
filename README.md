@@ -105,7 +105,7 @@ If you prefer to install packages yourself:
     yay -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
            xdg-desktop-portal-hyprland qt5ct grim slurp wl-clipboard \
            brightnessctl playerctl pamixer wireplumber nautilus xdg-utils \
-           ttf-jetbrains-mono-nerd
+           ttf-jetbrains-mono-nerd wlogout rofi-wayland
     ```
 
 2.  **Copy Configs**:

@@ -52,6 +52,8 @@ PACKAGES=(
     "xdg-utils"
     "ttf-jetbrains-mono-nerd"
     "ttf-jetbrains-mono-nerd"
+    "wlogout"
+    "rofi-wayland"
 )
 
 # Check if yay is available, otherwise use pacman
@@ -133,7 +135,8 @@ echo -e "${YELLOW}Keybindings quick reference:${NC}"
 echo "  SUPER + Return       - Open Terminal (Kitty)"
 echo "  SUPER + E            - File Manager (Nautilus)"
 echo "  SUPER + Space        - Launcher (Fuzzel)"
-echo "  SUPER + Tab          - Window Switcher"
+echo "  SUPER + Tab          - Window Switcher (Cycling)"
+echo "  ALT + Tab            - Window Switcher (Graphical)"
 echo "  SUPER + Q            - Close Window"
 echo "  SUPER + F            - Fullscreen"
 echo "  SUPER + W            - Cycle Wallpapers"
