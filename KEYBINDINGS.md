@@ -20,11 +20,15 @@ A complete reference for Zero-Drag shortcuts.
 
 ## 🚀 Applications
 
-| Key Binding      | Action                       |
-| :--------------- | :--------------------------- |
-| `SUPER + Return` | Open Terminal (Kitty)        |
-| `SUPER + E`      | Open File Manager (Nautilus) |
-| `SUPER + Space`  | Open Launcher (Fuzzel)       |
+| Key Binding      | Action                  |
+| :--------------- | :---------------------- |
+| `SUPER + Return` | Open Terminal (Kitty)   |
+| `SUPER + E`      | File Manager (Nautilus) |
+| `SUPER + V`      | Clipboard History       |
+| `SUPER + S`      | Screenshot (Region)     |
+| `Print`          | Screenshot (Region)     |
+| `SUPER + L`      | Lock Screen             |
+| `SUPER + Space`  | Open Launcher (Fuzzel)  |
 
 ## 📦 Workspaces
 

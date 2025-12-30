@@ -64,6 +64,9 @@ PACKAGES=(
     "zsh-syntax-highlighting"
     "zsh-autosuggestions"
     "zsh-completions"
+    "cliphist"
+    "hyprlock"
+    "hypridle"
 )
 
 # Check if yay is available, otherwise use pacman

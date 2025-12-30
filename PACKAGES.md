@@ -18,9 +18,12 @@ qt5ct # Qt5 configuration tool
 ## Utilities (Required)
 
 grim # Screenshot utility for Wayland
-slurp # Region selector for screenshots
+slurp # Select a region in a Wayland compositor
 wl-clipboard # Clipboard utilities for Wayland
-brightnessctl # Brightness control utility
+cliphist # Clipboard history manager
+hyprlock # Dynamic lock screen
+hypridle # Idle management daemon
+brightnessctl # Control screen brightnessctl # Brightness control utility
 playerctl # Media player control utility
 pamixer # PulseAudio mixer control
 wireplumber # Session/policy manager for PipeWire

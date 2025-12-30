@@ -109,6 +109,9 @@ echo ""
 check_package "grim"
 check_package "slurp"
 check_package "wl-clipboard"
+check_package "cliphist"
+check_package "hyprlock"
+check_package "hypridle"
 check_package "brightnessctl" true
 check_package "playerctl" true
 check_package "pamixer" true
@@ -138,6 +141,8 @@ echo ""
 
 check_config "$HOME/.config/hypr/hyprland.conf"
 check_config "$HOME/.config/hypr/hyprpaper.conf"
+check_config "$HOME/.config/hypr/hypridle.conf"
+check_config "$HOME/.config/hypr/hyprlock.conf"
 check_config "$HOME/.config/hypr/scripts/window_switcher.sh"
 check_config "$HOME/.config/hypr/scripts/wallpaper-rotate.sh"
 
