@@ -109,6 +109,10 @@ If you prefer to install packages yourself:
 
 1.  **Install Packages**:
 
+    > **See [PACKAGES.md](PACKAGES.md) for the complete list of packages and installation commands.**
+
+    Basic set:
+
     ```bash
     yay -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
            xdg-desktop-portal-hyprland qt5ct grim slurp wl-clipboard \
