@@ -62,12 +62,13 @@ Selected for startup speed and low footprint.
 
 **Essential Shortcuts:**
 
-| Key              | Action          |
-| :--------------- | :-------------- |
-| `SUPER + Return` | Open Terminal   |
-| `SUPER + Space`  | Launcher        |
-| `ALT + Tab`      | Window Switcher |
-| `SUPER + Q`      | Close Window    |
+| Key              | Action           |
+| :--------------- | :--------------- |
+| `SUPER + Return` | Open Terminal    |
+| `SUPER + Space`  | Launcher         |
+| `ALT + Tab`      | Window Switcher  |
+| `SUPER + W`      | Cycle Wallpapers |
+| `SUPER + Q`      | Close Window     |
 
 ## 📦 Installation
 
@@ -130,7 +131,7 @@ If you prefer to install packages yourself:
     ```bash
     # Set Nautilus as default file manager
     xdg-mime default org.gnome.Nautilus.desktop inode/directory
-    
+
     # Set Kitty as default terminal (verify schema first with: gsettings list-schemas | grep terminal)
     # For GNOME-based systems:
     # gsettings set org.gnome.desktop.default-applications.terminal exec kitty

@@ -22,9 +22,8 @@ if [ -d "$SCRIPT_DIR/wallpapers" ]; then
 fi
 
 # Copy scripts if they exist
-if [ -d "$SCRIPT_DIR/scripts" ]; then
-    mkdir -p "$HOME/.config/hypr/scripts"
-    cp -r "$SCRIPT_DIR/scripts/"* "$HOME/.config/hypr/scripts/"
+# Scripts are already copied with .config/hypr/scripts
+if [ -d "$HOME/.config/hypr/scripts" ]; then
     if compgen -G "$HOME/.config/hypr/scripts/"'*.sh' > /dev/null; then
         chmod +x "$HOME/.config/hypr/scripts/"*.sh
     fi

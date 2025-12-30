@@ -38,3 +38,4 @@ A complete reference for Zero-Drag shortcuts.
 | `XF86AudioMute`         | Toggle Mute           |
 | `XF86MonBrightnessUp`   | Brightness Up (+5%)   |
 | `XF86MonBrightnessDown` | Brightness Down (-5%) |
+| `SUPER + W`             | Cycle Wallpapers      |
