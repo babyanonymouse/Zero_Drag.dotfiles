@@ -73,3 +73,13 @@ setopt HIST_IGNORE_SPACE
 if command -v starship &> /dev/null; then
   eval "$(starship init zsh)"
 fi
+
+# 8. Transient Prompt
+# Collapses the prompt to a simple '➜' after command execution
+zle-line-finish() {
+  # %B = bold, %F{green} = green foreground, %f = reset color, %b = reset bold
+  PROMPT='%B%F{green}➜%f%b '
+  RPROMPT=''
+  zle reset-prompt
+}
+zle -N zle-line-finish
