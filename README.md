@@ -154,6 +154,62 @@ If you prefer to install packages yourself:
     - Select **Hyprland** from your display manager (SDDM/GDM).
     - Log in.
 
+### 🎨 SDDM Login Screen Theme (Optional)
+
+To apply the **Catppuccin Mocha** theme to your SDDM login screen:
+
+**Automated Installation:**
+
+```bash
+sudo ./install_sddm_theme.sh
+```
+
+This script will:
+- Install required Qt5 dependencies (`qt5-graphicaleffects`, `qt5-quickcontrols2`, `qt5-svg`)
+- Clone and install the Catppuccin Mocha SDDM theme
+- Configure SDDM to use the theme
+- Sync your desktop wallpaper to the login screen
+- Provide test commands for verification
+
+**Testing the Theme:**
+
+```bash
+# Test mode (may not work on all systems)
+sddm-greeter --test-mode --theme /usr/share/sddm/themes/catppuccin-mocha
+
+# Or simply reboot to see the login screen
+sudo reboot
+```
+
+**Manual Installation:**
+
+If you prefer to install manually:
+
+1.  **Install Dependencies:**
+    ```bash
+    sudo pacman -S --needed qt5-graphicaleffects qt5-quickcontrols2 qt5-svg sddm
+    ```
+
+2.  **Install Theme:**
+    ```bash
+    git clone https://github.com/catppuccin/sddm.git /tmp/catppuccin-sddm
+    sudo cp -r /tmp/catppuccin-sddm/src/catppuccin-mocha /usr/share/sddm/themes/
+    rm -rf /tmp/catppuccin-sddm
+    ```
+
+3.  **Configure SDDM:**
+    ```bash
+    sudo mkdir -p /etc/sddm.conf.d
+    echo -e "[Theme]\nCurrent=catppuccin-mocha" | sudo tee /etc/sddm.conf.d/theme.conf
+    ```
+
+4.  **Sync Wallpaper (Optional):**
+    ```bash
+    sudo mkdir -p /usr/share/sddm/themes/catppuccin-mocha/backgrounds
+    sudo cp ~/.config/hypr/wallpapers/digital_art.jpg /usr/share/sddm/themes/catppuccin-mocha/backgrounds/wall.jpg
+    sudo sed -i 's|^Background=.*|Background=backgrounds/wall.jpg|' /usr/share/sddm/themes/catppuccin-mocha/theme.conf
+    ```
+
 > **Note**: If you are on a laptop, ensure `brightnessctl` is working for backlight keys.
 
 ## 📄 License

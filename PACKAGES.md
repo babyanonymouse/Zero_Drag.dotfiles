@@ -54,6 +54,13 @@ alacritty # Alternative terminal emulator
 foot # Another minimal terminal option
 dunst # Alternative notification daemon
 
+## SDDM Theme (Login Screen)
+
+sddm # Simple Desktop Display Manager
+qt5-graphicaleffects # Qt5 graphical effects for SDDM themes
+qt5-quickcontrols2 # Qt5 quick controls for SDDM themes
+qt5-svg # Qt5 SVG support for SDDM themes
+
 ## Development Tools (Optional)
 
 neovim # Modal text editor
