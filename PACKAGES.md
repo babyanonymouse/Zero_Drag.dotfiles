@@ -29,6 +29,18 @@ wireplumber # Session/policy manager for PipeWire
 
 thunar # Lightweight file manager
 ttf-jetbrains-mono-nerd # Font with icon support for status bar
+eza # Modern, maintained replacement for ls
+bat # Cat clone with syntax highlighting
+zoxide # Smarter cd command
+ripgrep # Faster grep
+fzf # Command-line fuzzy finder
+starship # Customizable prompt for any shell
+
+## Shell Enhancements (Zsh)
+
+zsh-syntax-highlighting # Fish-like syntax highlighting
+zsh-autosuggestions # Fish-like autosuggestions
+zsh-completions # Additional completion definitions
 
 ## Optional Enhancements
 

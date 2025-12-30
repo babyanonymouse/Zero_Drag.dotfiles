@@ -56,6 +56,14 @@ PACKAGES=(
     "wlogout"
     "rofi-wayland"
     "starship"
+    "eza"
+    "bat"
+    "zoxide"
+    "ripgrep"
+    "fzf"
+    "zsh-syntax-highlighting"
+    "zsh-autosuggestions"
+    "zsh-completions"
 )
 
 # Check if yay is available, otherwise use pacman

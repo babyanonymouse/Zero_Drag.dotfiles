@@ -83,6 +83,19 @@ check_package "wlogout"
 check_package "starship"
 
 echo ""
+echo -e "${BLUE}Checking modern CLI tools...${NC}"
+echo ""
+
+check_package "eza"
+check_package "bat"
+check_package "zoxide"
+check_package "ripgrep"
+check_package "fzf"
+check_package "zsh-syntax-highlighting"
+check_package "zsh-autosuggestions"
+check_package "zsh-completions"
+
+echo ""
 echo -e "${BLUE}Checking system integration packages...${NC}"
 echo ""
 

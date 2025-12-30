@@ -16,15 +16,16 @@ A high-performance, minimalist Hyprland configuration optimized for **CachyOS** 
 
 Selected for startup speed and low footprint.
 
-| Component        | Selection     | Why?                                  |
-| ---------------- | ------------- | ------------------------------------- |
-| **WM**           | **Hyprland**  | Lightweight, scriptable, no overhead. |
-| **Terminal**     | **Kitty**     | GPU-accelerated, highly configurable. |
-| **Launcher**     | **Fuzzel**    | Wayland-native, lightweight.          |
-| **Bar**          | **Waybar**    | Stripped down with "Heat-Safe" logic. |
-| **File Manager** | **Nautilus**  | Clean, effective GNOME file manager.  |
-| **Wallpaper**    | **Hyprpaper** | Efficient wallpaper daemon.           |
-| **Notify**       | **Mako**      | Minimalist daemon.                    |
+| Component        | Selection      | Why?                                  |
+| ---------------- | -------------- | ------------------------------------- |
+| **WM**           | **Hyprland**   | Lightweight, scriptable, no overhead. |
+| **Terminal**     | **Kitty**      | GPU-accelerated, highly configurable. |
+| **Launcher**     | **Fuzzel**     | Wayland-native, lightweight.          |
+| **Bar**          | **Waybar**     | Stripped down with "Heat-Safe" logic. |
+| **File Manager** | **Nautilus**   | Clean, effective GNOME file manager.  |
+| **Wallpaper**    | **Hyprpaper**  | Efficient wallpaper daemon.           |
+| **Notify**       | **Mako**       | Minimalist daemon.                    |
+| **Shell**        | **Zsh + Rust** | eza, bat, zoxide, ripgrep, starship.  |
 
 ## 🎨 Design System
 
