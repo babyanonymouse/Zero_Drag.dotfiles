@@ -13,7 +13,8 @@ polkit-gnome # Authentication agent for GUI apps
 ## System Integration (Required)
 
 xdg-desktop-portal-hyprland # Screen sharing and file picker support
-qt5ct # Qt5 configuration tool
+qt5ct # QT5 configuration tool
+libappindicator-gtk3 # App indicator library for system tray icons
 
 ## SDDM Theme Dependencies (Optional)
 
@@ -29,7 +30,7 @@ wl-clipboard # Clipboard utilities for Wayland
 cliphist # Clipboard history manager
 hyprlock # Dynamic lock screen
 hypridle # Idle management daemon
-brightnessctl # Control screen brightnessctl # Brightness control utility
+brightnessctl # Brightness control utility
 playerctl # Media player control utility
 pamixer # PulseAudio mixer control
 wireplumber # Session/policy manager for PipeWire
@@ -76,7 +77,7 @@ chromium # Alternative web browser
 ### Using yay (AUR helper)
 
 yay -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
- xdg-desktop-portal-hyprland qt5ct grim slurp wl-clipboard \
+ xdg-desktop-portal-hyprland qt5ct libappindicator-gtk3 grim slurp wl-clipboard \
  brightnessctl playerctl pamixer wireplumber thunar \
  thunar-archive-plugin thunar-volman file-roller gvfs \
  catppuccin-gtk-theme-mocha papirus-icon-theme xdg-utils \
@@ -90,7 +91,7 @@ yay -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
 
 ```bash
 sudo pacman -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
-               xdg-desktop-portal-hyprland qt5ct grim slurp wl-clipboard \
+               xdg-desktop-portal-hyprland qt5ct libappindicator-gtk3 grim slurp wl-clipboard \
                brightnessctl playerctl pamixer wireplumber thunar \
                thunar-archive-plugin thunar-volman file-roller gvfs \
                catppuccin-gtk-theme-mocha papirus-icon-theme xdg-utils \

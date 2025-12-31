@@ -40,6 +40,7 @@ PACKAGES=(
     "polkit-gnome"
     "xdg-desktop-portal-hyprland"
     "qt5ct"
+    "libappindicator-gtk3"
     "grim"
     "slurp"
     "wl-clipboard"

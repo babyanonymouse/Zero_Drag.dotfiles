@@ -21,7 +21,7 @@ Selected for startup speed and low footprint.
 | **WM**           | **Hyprland**   | Lightweight, scriptable, no overhead. |
 | **Terminal**     | **Kitty**      | GPU-accelerated, highly configurable. |
 | **Launcher**     | **Fuzzel**     | Wayland-native, lightweight.          |
-| **Bar**          | **Waybar**     | Stripped down with "Heat-Safe" logic. |
+| **Bar**          | **Waybar**     | "Heat-Safe", System Tray support.     |
 | **File Manager** | **Thunar**     | Lightweight, fast, custom actions.    |
 | **Wallpaper**    | **Hyprpaper**  | Efficient wallpaper daemon.           |
 | **Notify**       | **Mako**       | Minimalist daemon.                    |

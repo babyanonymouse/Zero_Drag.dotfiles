@@ -14,7 +14,7 @@
         "cpu",
         "temperature",
         "battery",
-        "custom/power_governor",
+        "tray",
         "custom/power"
     ],
     "hyprland/workspaces": {
@@ -51,11 +51,9 @@
         "format-charging": "{capacity}% ⚡",
         "format-plugged": "{capacity}% 🔌"
     },
-    "custom/power_governor": {
-        "exec": "cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
-        "interval": 60,
-        "format": "⚡ {}",
-        "tooltip": false
+    "tray": {
+        "icon-size": 18,
+        "spacing": 10
     },
     "custom/power": {
         "format": "⏻",

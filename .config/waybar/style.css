@@ -59,7 +59,10 @@ window#waybar {
 #cpu,
 #temperature,
 #network,
-#custom-power_governor,
+#cpu,
+#temperature,
+#network,
+#tray,
 #custom-power {
   padding: 0 10px;
   margin: 0 4px;
@@ -99,8 +102,10 @@ window#waybar {
   color: @red;
 }
 
-#custom-power_governor {
-  color: @yellow;
+#tray {
+  background-color: @surface0;
+  border-radius: 15px;
+  padding: 0 10px;
 }
 
 #custom-power {
