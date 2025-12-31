@@ -14,6 +14,9 @@ cp -r "$SCRIPT_DIR/.config/waybar" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/kitty" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/fuzzel" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/mako" "$HOME/.config/"
+# Copy Thunar custom actions
+mkdir -p "$HOME/.config/Thunar"
+cp "$SCRIPT_DIR/.config/Thunar/uca.xml" "$HOME/.config/Thunar/uca.xml"
 # Copy .zshrc and starship.toml
 cp "$SCRIPT_DIR/.zshrc" "$HOME/.zshrc"
 cp "$SCRIPT_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
@@ -33,4 +36,6 @@ if [ -d "$HOME/.config/hypr/scripts" ]; then
 fi
 
 echo "Configurations updated successfully."
+echo "Reloading .zshrc..."
+source "$HOME/.zshrc"
 echo "You may need to reload Hyprland (SUPER+M to exit or use hyprctl reload)"

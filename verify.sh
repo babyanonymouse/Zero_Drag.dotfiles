@@ -123,7 +123,7 @@ echo ""
 echo -e "${BLUE}Checking optional packages...${NC}"
 echo ""
 
-check_package "nautilus" true
+check_package "thunar"
 
 echo ""
 echo -e "${BLUE}Checking configuration directories...${NC}"
@@ -150,6 +150,7 @@ check_config "$HOME/.config/waybar/config"
 check_config "$HOME/.config/waybar/style.css"
 check_config "$HOME/.config/kitty/kitty.conf"
 check_config "$HOME/.config/fuzzel/fuzzel.ini"
+check_config "$HOME/.config/Thunar/uca.xml"
 
 check_config "$HOME/.zshrc"
 check_config "$HOME/.config/starship.toml"

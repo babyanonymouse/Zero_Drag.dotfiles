@@ -22,7 +22,7 @@ Selected for startup speed and low footprint.
 | **Terminal**     | **Kitty**      | GPU-accelerated, highly configurable. |
 | **Launcher**     | **Fuzzel**     | Wayland-native, lightweight.          |
 | **Bar**          | **Waybar**     | Stripped down with "Heat-Safe" logic. |
-| **File Manager** | **Nautilus**   | Clean, effective GNOME file manager.  |
+| **File Manager** | **Thunar**     | Lightweight, fast, custom actions.    |
 | **Wallpaper**    | **Hyprpaper**  | Efficient wallpaper daemon.           |
 | **Notify**       | **Mako**       | Minimalist daemon.                    |
 | **Shell**        | **Zsh + Rust** | eza, bat, zoxide, ripgrep, starship.  |
@@ -116,7 +116,9 @@ If you prefer to install packages yourself:
     ```bash
     yay -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
            xdg-desktop-portal-hyprland qt5ct grim slurp wl-clipboard \
-           brightnessctl playerctl pamixer wireplumber nautilus \
+           brightnessctl playerctl pamixer wireplumber thunar \
+           thunar-archive-plugin thunar-volman file-roller gvfs \
+           catppuccin-gtk-theme-mocha papirus-icon-theme \
            ttf-jetbrains-mono-nerd wlogout rofi-wayland
     ```
 
@@ -140,8 +142,8 @@ If you prefer to install packages yourself:
     To ensure Nautilus and Kitty are system-wide defaults:
 
     ```bash
-    # Set Nautilus as default file manager
-    xdg-mime default org.gnome.Nautilus.desktop inode/directory
+    # Set Thunar as default file manager
+    xdg-mime default thunar.desktop inode/directory
 
     # Set Kitty as default terminal (verify schema first with: gsettings list-schemas | grep terminal)
     # For GNOME-based systems:

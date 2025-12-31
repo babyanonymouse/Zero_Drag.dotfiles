@@ -48,7 +48,14 @@ PACKAGES=(
     "pamixer"
     "wireplumber"
     "wireplumber"
-    "nautilus"
+    "wireplumber"
+    "thunar"
+    "thunar-archive-plugin"
+    "thunar-volman"
+    "file-roller"
+    "gvfs"
+    "catppuccin-gtk-theme-mocha"
+    "papirus-icon-theme"
     "xdg-utils"
     "ttf-jetbrains-mono-nerd"
     "ttf-jetbrains-mono-nerd"
@@ -85,6 +92,15 @@ $PKG_MANAGER -S --noconfirm cachyos-keyring 2>/dev/null || true
 
 # Perform full system upgrade to ensure compatibility
 $PKG_MANAGER -Su --noconfirm
+
+echo -e "${YELLOW}Step 1c: Removing conflicting file managers...${NC}"
+# Remove Nautilus and Dolphin if present
+for pkg in nautilus dolphin dolphin-plugins; do
+    if pacman -Qi $pkg &> /dev/null; then
+        echo "Removing $pkg..."
+        sudo pacman -Rns --noconfirm $pkg || true
+    fi
+done
 
 echo -e "${GREEN}Step 1b: Installing Zero-Drag packages...${NC}"
 $PKG_MANAGER -S --needed --noconfirm "${PACKAGES[@]}"
@@ -140,7 +156,15 @@ echo -e "${GREEN}Step 4: Setting up environment...${NC}"
 echo ""
 
 # Create Pictures directory for screenshots
+# Create Pictures directory for screenshots
 mkdir -p "$HOME/Pictures"
+
+# Set Thunar as default file manager
+xdg-mime default thunar.desktop inode/directory
+
+# Apply GTK Theme and Icon Theme
+gsettings set org.gnome.desktop.interface gtk-theme "Catppuccin-Mocha-Standard-Blue-Dark"
+gsettings set org.gnome.desktop.interface icon-theme "Papirus-Dark"
 
 echo ""
 echo -e "${GREEN}=========================================${NC}"

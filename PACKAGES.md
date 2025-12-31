@@ -36,7 +36,11 @@ wireplumber # Session/policy manager for PipeWire
 
 ## Applications (Recommended)
 
-nautilus # GNOME file manager
+thunar # Lightweight file manager
+thunar-archive-plugin # Archive plugin for Thunar
+thunar-volman # Volume manager for Thunar
+file-roller # Backend for archives
+gvfs # Virtual filesystem support
 ttf-jetbrains-mono-nerd # Font with icon support for status bar
 eza # Modern, maintained replacement for ls
 bat # Cat clone with syntax highlighting
@@ -73,7 +77,9 @@ chromium # Alternative web browser
 
 yay -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
  xdg-desktop-portal-hyprland qt5ct grim slurp wl-clipboard \
- brightnessctl playerctl pamixer wireplumber nautilus xdg-utils \
+ brightnessctl playerctl pamixer wireplumber thunar \
+ thunar-archive-plugin thunar-volman file-roller gvfs \
+ catppuccin-gtk-theme-mocha papirus-icon-theme xdg-utils \
  ttf-jetbrains-mono-nerd wlogout rofi-wayland starship \
  eza bat zoxide ripgrep fzf cliphist hyprlock hypridle \
  zsh-syntax-highlighting zsh-autosuggestions zsh-completions
@@ -85,7 +91,9 @@ yay -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
 ```bash
 sudo pacman -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
                xdg-desktop-portal-hyprland qt5ct grim slurp wl-clipboard \
-               brightnessctl playerctl pamixer wireplumber nautilus xdg-utils \
+               brightnessctl playerctl pamixer wireplumber thunar \
+               thunar-archive-plugin thunar-volman file-roller gvfs \
+               catppuccin-gtk-theme-mocha papirus-icon-theme xdg-utils \
                wlogout rofi-wayland starship eza bat zoxide ripgrep fzf \
                cliphist hyprlock hypridle zsh-syntax-highlighting \
                zsh-autosuggestions zsh-completions
