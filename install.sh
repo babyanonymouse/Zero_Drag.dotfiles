@@ -48,8 +48,6 @@ PACKAGES=(
     "playerctl"
     "pamixer"
     "wireplumber"
-    "wireplumber"
-    "wireplumber"
     "thunar"
     "thunar-archive-plugin"
     "thunar-volman"
@@ -59,9 +57,8 @@ PACKAGES=(
     "papirus-icon-theme"
     "xdg-utils"
     "ttf-jetbrains-mono-nerd"
-    "ttf-jetbrains-mono-nerd"
     "wlogout"
-    "wlogout"
+    "batsignal"
     "rofi-wayland"
     "starship"
     "eza"
@@ -114,7 +111,7 @@ BACKUP_DIR="$HOME/.config/hyprland-backup-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$BACKUP_DIR"
 
 # Backup existing configs
-for dir in hypr waybar kitty fuzzel mako; do
+for dir in hypr waybar kitty fuzzel mako wlogout; do
     if [ -d "$HOME/.config/$dir" ]; then
         echo "Backing up $dir..."
         mv "$HOME/.config/$dir" "$BACKUP_DIR/"
@@ -137,6 +134,7 @@ cp -r "$SCRIPT_DIR/.config/waybar" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/kitty" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/fuzzel" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/mako" "$HOME/.config/"
+cp -r "$SCRIPT_DIR/.config/wlogout" "$HOME/.config/"
 # Copy starship config
 cp "$SCRIPT_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
 # Copy .zshrc
