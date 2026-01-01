@@ -9,10 +9,36 @@
   min-height: 0;
 }
 
-window#waybar {
-  background: @base;
-  color: @text;
-}
+@define-color base   @background;
+@define-color mantle @color0;
+@define-color crust  @color0;
+
+@define-color text     @foreground;
+@define-color subtext0 @color7;
+@define-color subtext1 @color7;
+
+@define-color surface0 @color1;
+@define-color surface1 @color2;
+@define-color surface2 @color3;
+
+@define-color overlay0 @color4;
+@define-color overlay1 @color5;
+@define-color overlay2 @color6;
+
+@define-color blue      @color4;
+@define-color lavender  @color6;
+@define-color sapphire  @color5;
+@define-color sky       @color5;
+@define-color teal      @color6;
+@define-color green     @color2;
+@define-color yellow    @color3;
+@define-color peach     @color3;
+@define-color maroon    @color1;
+@define-color red       @color1;
+@define-color mauve     @color5;
+@define-color pink      @color5;
+@define-color flamingo  @color1;
+@define-color rosewater @color6;
 
 #workspaces button {
   padding: 0 5px;

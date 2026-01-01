@@ -12,6 +12,9 @@ WALLPAPER="$DIR/$RANDOM_PIC"
 hyprctl hyprpaper preload "$WALLPAPER"
 hyprctl hyprpaper wallpaper ",$WALLPAPER"
 
+# 3. Update Wallust Colors
+wallust run "$WALLPAPER"
+
 # 3. Save memory (Unload the old one after a brief pause)
 sleep 1
 hyprctl hyprpaper unload unused
