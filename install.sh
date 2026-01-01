@@ -104,6 +104,26 @@ echo -e "${GREEN}Step 1b: Installing Zero-Drag packages...${NC}"
 $PKG_MANAGER -S --needed --noconfirm "${PACKAGES[@]}"
 
 echo ""
+echo -e "${GREEN}Step 1c: Installing Wallust (Theming)...${NC}"
+if ! command -v wallust &> /dev/null; then
+    if command -v yay &> /dev/null; then
+        yay -S --noconfirm wallust
+    elif command -v cargo &> /dev/null; then
+        echo "Installing wallust via cargo..."
+        cargo install wallust
+    else
+        echo "Installing wallust-bin from AUR manually..."
+        git clone https://aur.archlinux.org/wallust-bin.git /tmp/wallust-bin
+        cd /tmp/wallust-bin
+        makepkg -si --noconfirm
+        cd -
+        rm -rf /tmp/wallust-bin
+    fi
+else
+    echo "Wallust is already installed."
+fi
+
+echo ""
 echo -e "${GREEN}Step 2: Backing up existing configurations...${NC}"
 echo ""
 
@@ -111,7 +131,7 @@ BACKUP_DIR="$HOME/.config/hyprland-backup-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$BACKUP_DIR"
 
 # Backup existing configs
-for dir in hypr waybar kitty fuzzel mako wlogout; do
+for dir in hypr waybar kitty fuzzel mako wlogout wallust rofi; do
     if [ -d "$HOME/.config/$dir" ]; then
         echo "Backing up $dir..."
         mv "$HOME/.config/$dir" "$BACKUP_DIR/"
@@ -135,6 +155,8 @@ cp -r "$SCRIPT_DIR/.config/kitty" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/fuzzel" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/mako" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/wlogout" "$HOME/.config/"
+cp -r "$SCRIPT_DIR/.config/wallust" "$HOME/.config/"
+cp -r "$SCRIPT_DIR/.config/rofi" "$HOME/.config/"
 # Copy starship config
 cp "$SCRIPT_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
 # Copy .zshrc
