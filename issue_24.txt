@@ -1,0 +1,34 @@
+title:	Feature: Battery Safety Daemon & Styled Power Menu
+state:	OPEN
+author:	babyanonymouse
+labels:	enhancement, security
+comments:	0
+assignees:	babyanonymouse
+projects:	
+milestone:	v1.0 Zero-Drag Core
+number:	24
+--
+**Context**
+The system is currently unsafe (no low-battery shutdown) and the logout menu is unstyled (bare text). We need a safety daemon and a visual overhaul for the power menu.
+*(Note: Waybar cleanup is handled in #22)*
+
+**Instructions**
+Please generate the code/scripts to perform the following:
+
+**1. Battery Safety (`batsignal`)**
+* **Install:** `batsignal`.
+* **Hyprland Config:** Add `exec-once = batsignal -w 15 -c 5 -d 2 -p` to `hyprland.conf`.
+    * Warn at 15%, Critical at 5%, Suspend at 2%.
+
+**2. Visual Power Menu (`wlogout`)**
+* **Install:** `wlogout`.
+* **Layout (`layout`):** Configure standard buttons: `lock`, `logout`, `suspend`, `hibernate`, `reboot`, `shutdown`.
+* **Style (`style.css`):**
+    * **Theme:** Match Catppuccin Mocha.
+    * **Background:** Semi-transparent black overlay.
+    * **Buttons:** Use CSS `background-image: image(url("..."))` to load icons instead of text labels.
+    * **Hover:** Add a simple hover effect (lighten background).
+
+**Definition of Done:**
+* Laptop notifies and beeps at 15% battery.
+* Clicking the power button opens a graphical icon grid.
