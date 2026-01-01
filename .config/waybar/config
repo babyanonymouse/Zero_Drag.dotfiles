@@ -27,19 +27,22 @@
         "tooltip-format": "{:%Y-%m-%d}"
     },
     "network": {
+        "format-wifi": "{essid} ({signalStrength}%) ",
+        "format-ethernet": "{ifname} ",
+        "format-linked": "{ifname} (No IP) ",
+        "format-disconnected": "Disconnected ⚠",
         "format": "{bandwidthDownBytes} ⬇",
-        "format-disconnected": "⚠",
         "interval": 2,
         "tooltip": false
     },
     "cpu": {
-        "format": "{usage}%",
+        "format": "{usage}% ",
         "on-click": "alacritty -e btop",
         "tooltip": false
     },
     "temperature": {
         "critical-threshold": 80,
-        "format": "{temperatureC}°C",
+        "format": "{temperatureC}°C ",
         "format-critical": "{temperatureC}°C 🔥"
     },
     "battery": {
@@ -47,9 +50,16 @@
             "warning": 30,
             "critical": 15
         },
-        "format": "{capacity}%",
-        "format-charging": "{capacity}% ⚡",
-        "format-plugged": "{capacity}% 🔌"
+        "format": "{capacity}% {icon}",
+        "format-icons": [
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "format-charging": "{capacity}% ",
+        "format-plugged": "{capacity}% "
     },
     "tray": {
         "icon-size": 18,
