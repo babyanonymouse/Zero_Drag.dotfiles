@@ -53,13 +53,13 @@ PACKAGES=(
     "thunar-volman"
     "file-roller"
     "gvfs"
-    "catppuccin-gtk-theme-mocha"
+    "gvfs"
     "papirus-icon-theme"
     "xdg-utils"
     "ttf-jetbrains-mono-nerd"
     "wlogout"
     "batsignal"
-    "rofi-wayland"
+    "batsignal"
     "starship"
     "eza"
     "bat"
@@ -114,7 +114,7 @@ BACKUP_DIR="$HOME/.config/hyprland-backup-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$BACKUP_DIR"
 
 # Backup existing configs
-for dir in hypr waybar kitty fuzzel mako wlogout rofi; do
+for dir in hypr waybar kitty fuzzel mako wlogout; do
     if [ -d "$HOME/.config/$dir" ]; then
         echo "Backing up $dir..."
         mv "$HOME/.config/$dir" "$BACKUP_DIR/"
@@ -139,7 +139,7 @@ cp -r "$SCRIPT_DIR/.config/fuzzel" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/mako" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/wlogout" "$HOME/.config/"
 
-cp -r "$SCRIPT_DIR/.config/rofi" "$HOME/.config/"
+
 # Copy starship config
 cp "$SCRIPT_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
 # Copy .zshrc
@@ -177,7 +177,7 @@ echo -e "${GREEN}=========================================${NC}"
 echo ""
 echo -e "${YELLOW}Keybindings quick reference:${NC}"
 echo "  SUPER + Return       - Open Terminal (Kitty)"
-echo "  SUPER + E            - File Manager (Nautilus)"
+echo "  SUPER + E            - File Manager (Thunar)"
 echo "  SUPER + Space        - Launcher (Fuzzel)"
 echo "  SUPER + Tab          - Window Switcher (Cycling)"
 echo "  ALT + Tab            - Window Switcher (Graphical)"
