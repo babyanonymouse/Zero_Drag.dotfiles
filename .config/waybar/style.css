@@ -30,6 +30,13 @@
 @define-color flamingo  #f2cdcd;
 @define-color rosewater #f5e0dc;
 
+window#waybar {
+  background-color: @base;
+  color: @text;
+  transition-property: background-color;
+  transition-duration: 0.5s;
+}
+
 #workspaces button {
   padding: 0 5px;
   background: transparent;
