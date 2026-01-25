@@ -61,6 +61,11 @@ Selected for startup speed and low footprint.
   - `Drag` with **Left Button** to move/snap windows.
   - `Drag` with **Right Button** to resize windows.
 
+### 5. Media & Utilities
+
+- **Screenshots**: Automatically saved to `~/Pictures/Screenshots` and copied to clipboard (`Print` or `Super+S`).
+- **Clipboard**: History accessed via `Super+V`.
+
 ### 4. Keybindings (Core Workflow)
 
 > **Full List**: See [KEYBINDINGS.md](KEYBINDINGS.md) for a complete reference of shortcuts.
@@ -139,7 +144,7 @@ If you prefer to install packages yourself:
 
 2.  **Set System Defaults** (Optional):
 
-    To ensure Nautilus and Kitty are system-wide defaults:
+    To ensure Thunar and Kitty are system-wide defaults:
 
     ```bash
     # Set Thunar as default file manager
