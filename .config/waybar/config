@@ -1,73 +1,115 @@
+// -*- mode: jsonc -*-
 {
     "layer": "top",
     "position": "top",
-    "height": 30,
-    "spacing": 4,
+    "height": 32,
+    "spacing": 0,
     "modules-left": [
-        "hyprland/workspaces"
+        "custom/notification",
+        "clock",
+        "custom/weather"
     ],
     "modules-center": [
-        "clock"
+        "hyprland/workspaces"
     ],
     "modules-right": [
-        "network",
-        "cpu",
-        "temperature",
+        "pulseaudio",
         "battery",
+        "network",
         "tray",
         "custom/power"
     ],
     "hyprland/workspaces": {
-        "disable-scroll": true,
-        "all-outputs": true,
-        "format": "{name}"
+        "format": "{icon}",
+        "format-icons": {
+            "1": "",
+            "2": "",
+            "3": "",
+            "4": "",
+            "5": ""
+        },
+        "persistent-workspaces": {
+            "*": 5
+        }
     },
     "clock": {
-        "format": "{:%H:%M}",
-        "tooltip-format": "{:%Y-%m-%d}"
+        "interval": 60,
+        "format": "  {:%I:%M %p}",
+        "max-length": 25
     },
-    "network": {
-        "format-wifi": "{essid} ({signalStrength}%) ",
-        "format-ethernet": "{ifname} ",
-        "format-linked": "{ifname} (No IP) ",
-        "format-disconnected": "Disconnected ⚠",
-        "format": "{bandwidthDownBytes} ⬇",
-        "interval": 2,
-        "tooltip": false
+    "custom/weather": {
+        "exec": "${HOME}/.config/waybar/scripts/get_weather.sh",
+        "return-type": "json",
+        "format": "{}",
+        "tooltip": true,
+        "interval": 3600
     },
-    "cpu": {
-        "format": "{usage}% ",
-        "on-click": "alacritty -e btop",
-        "tooltip": false
+    "custom/notification": {
+        "tooltip": true,
+        "format": "{icon}",
+        "format-icons": {
+            "notification": "",
+            "none": "",
+            "dnd-notification": "",
+            "dnd-none": "",
+            "inhibited-notification": "",
+            "inhibited-none": "",
+            "dnd-inhibited-notification": "",
+            "dnd-inhibited-none": ""
+        },
+        "return-type": "json",
+        "exec-if": "which swaync-client",
+        "exec": "swaync-client -swb",
+        "on-click": "swaync-client -t -sw",
+        "on-click-right": "swaync-client -d -sw",
+        "escape": true
     },
-    "temperature": {
-        "critical-threshold": 80,
-        "format": "{temperatureC}°C ",
-        "format-critical": "{temperatureC}°C 🔥"
+    "pulseaudio": {
+        "format": "{icon}  {volume}%",
+        "format-bluetooth": "{volume}% {icon}",
+        "format-bluetooth-muted": " {icon}",
+        "format-muted": "",
+        "format-source": "{volume}% ",
+        "format-source-muted": "",
+        "format-icons": {
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": ["", "", ""]
+        },
+        "on-click": "pavucontrol"
     },
     "battery": {
         "states": {
             "warning": 30,
             "critical": 15
         },
-        "format": "{capacity}% {icon}",
-        "format-icons": [
-            "",
-            "",
-            "",
-            "",
-            ""
-        ],
-        "format-charging": "{capacity}% ",
-        "format-plugged": "{capacity}% "
+        "format": "{icon}  {capacity}%",
+        "format-full": "{icon}  {capacity}%",
+        "format-charging": "  {capacity}%",
+        "format-plugged": "  {capacity}%",
+        "format-alt": "{time} {icon}",
+        "format-icons": ["", "", "", "", ""]
+    },
+    "network": {
+        "format-wifi": "  Network",
+        "format-ethernet": "{ipaddr}/{cidr} ",
+        "tooltip-format": "{ifname} via {gwaddr} ",
+        "format-linked": "{ifname} (No IP) ",
+        "format-disconnected": "Disconnected ⚠",
+        "format-alt": "  Network",
+        "on-click": "nm-connection-editor"
     },
     "tray": {
         "icon-size": 18,
         "spacing": 10
     },
     "custom/power": {
-        "format": "⏻",
-        "on-click": "wlogout",
-        "tooltip": false
+        "format": "",
+        "tooltip": false,
+        "on-click": "wlogout"
     }
 }
