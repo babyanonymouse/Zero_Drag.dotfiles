@@ -1,101 +1,128 @@
-/* Catppuccin Mocha Colors */
-@define-color base   #1e1e2e;
-@define-color mantle #181825;
-@define-color crust  #11111b;
+@import url("~/.config/waybar/colors/colors.css");
 
-@define-color text     #cdd6f4;
-@define-color subtext0 #a6adc8;
-@define-color subtext1 #bac2de;
+* {
+    font-family: "JetBrainsMono Nerd Font", "Font Awesome", sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+}
 
-@define-color surface0 #313244;
-@define-color surface1 #45475a;
-@define-color surface2 #585b70;
+window#waybar {
+    background-color: transparent;
+    color: #ffffff;
+}
 
-@define-color overlay0 #6c7086;
-@define-color overlay1 #7f849c;
-@define-color overlay2 #9399b2;
-
-@define-color blue      #89b4fa;
-@define-color lavender  #b4befe;
-@define-color sapphire  #74c7ec;
-@define-color sky       #89dceb;
-@define-color teal      #94e2d5;
-@define-color green     #a6e3a1;
-@define-color yellow    #f9e2af;
-@define-color peach     #fab387;
-@define-color maroon    #eba0ac;
-@define-color red       #f38ba8;
-@define-color mauve     #cba6f7;
-@define-color pink      #f5c2e7;
-@define-color flamingo  #f2cdcd;
-@define-color rosewater #f5e0dc;
+#workspaces {
+    padding: 10px 10px;
+    background-color: @bg0;
+    margin: 7px 0;
+    border-radius: 25px;
+}
 
 #workspaces button {
-  padding: 0 5px;
-  background: transparent;
-  color: @subtext0;
+    transition: all 0.2s ease-in-out;
+    padding: 0 8px;
+    background-color: @bg2;
+    border-radius: 20px;
+    min-width: 50px;
+    margin: 0 3px;
+    color: transparent;
+}
+
+#workspaces button:hover {
+    background: @fg;
+    color: @bg2;
 }
 
 #workspaces button.active {
-  color: @lavender;
-  border-bottom: 2px solid @lavender;
+    transition: all 0.3s ease-in-out;
+    min-width: 80px;
+    background-color: @blue;
+    color: @bg2;
+}
+
+#workspaces button.urgent {
+    background-color: @red;
 }
 
 #clock,
+#custom-weather,
 #battery,
-#cpu,
-#temperature,
 #network,
-#cpu,
-#temperature,
-#network,
+#custom-power,
+#custom-notification,
 #tray,
-#custom-power {
-  padding: 0 10px;
-  margin: 0 4px;
-  background: transparent;
-  color: @text;
+#pulseaudio {
+    padding: 0 14px;
+    background-color: @bg0;
+    border-radius: 50px;
+    margin: 11px 5px;
 }
 
-#clock {
-  color: @mauve;
-}
-
-#network {
-  color: @sapphire;
-}
-
-#battery {
-  color: @green;
-}
-
-#battery.warning {
-  color: @yellow;
-}
-
-#battery.critical {
-  color: @red;
-}
-
-#cpu {
-  color: @blue;
-}
-
-#temperature {
-  color: @teal;
-}
-
-#temperature.critical {
-  color: @red;
+#custom-weather {
+    transition: all 0.2s ease-in-out;
+    color: @grey1;
 }
 
 #tray {
-  background-color: @surface0;
-  border-radius: 15px;
-  padding: 0 10px;
+    transition: all 0.2s ease-in-out;
+    color: @purple;
+}
+
+#custom-notification {
+    transition: all 0.2s ease-in-out;
+    color: @blue;
 }
 
 #custom-power {
-  color: @red;
-  margin-right: 15px;
+    transition: all 0.2s ease-in-out;
+    color: @red;
+}
+
+#clock {
+    transition: all 0.2s ease-in-out;
+    color: @blue;
+}
+
+#battery {
+    transition: all 0.2s ease-in-out;
+    color: @green;
+}
+
+#battery.charging, #battery.plugged {
+    transition: all 0.2s ease-in-out;
+    color: @green;
+}
+
+#battery.warning:not(.charging) {
+    color: @yellow;
+}
+
+#battery.critical:not(.charging) {
+    transition: all 0.2s ease-in-out;
+    color: @red;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: steps(12);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+#network {
+    transition: all 0.2s ease-in-out;
+    color: @aqua;
+}
+
+#network.disconnected {
+    transition: all 0.2s ease-in-out;
+    color: @grey0;
+}
+
+#pulseaudio {
+    transition: all 0.2s ease-in-out;
+    color: @orange;
+}
+
+#pulseaudio.muted {
+    transition: all 0.2s ease-in-out;
+    color: @grey0;
 }
