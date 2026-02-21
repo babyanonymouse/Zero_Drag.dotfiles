@@ -1,73 +1,127 @@
 {
     "layer": "top",
     "position": "top",
-    "height": 30,
-    "spacing": 4,
+    "height": 38,
+    "spacing": 0,
     "modules-left": [
-        "hyprland/workspaces"
-    ],
-    "modules-center": [
+        "custom/notification",
         "clock"
     ],
+    "modules-center": [
+        "hyprland/workspaces"
+    ],
     "modules-right": [
-        "network",
-        "cpu",
+        "pulseaudio",
         "temperature",
         "battery",
-        "tray",
+        "network",
         "custom/power"
     ],
     "hyprland/workspaces": {
-        "disable-scroll": true,
-        "all-outputs": true,
-        "format": "{name}"
+        "format": "{icon}",
+        "format-icons": {
+            "1": "",
+            "2": "",
+            "3": "",
+            "4": "",
+            "5": ""
+        },
+        "persistent-workspaces": {
+            "*": 5
+        }
     },
     "clock": {
-        "format": "{:%H:%M}",
-        "tooltip-format": "{:%Y-%m-%d}"
+        "interval": 60,
+        "format": "  {:%I:%M %p}",
+        "tooltip-format": "{:%A, %B %d, %Y}",
+        "max-length": 25
     },
-    "network": {
-        "format-wifi": "{essid} ({signalStrength}%) ",
-        "format-ethernet": "{ifname} ",
-        "format-linked": "{ifname} (No IP) ",
-        "format-disconnected": "Disconnected ⚠",
-        "format": "{bandwidthDownBytes} ⬇",
-        "interval": 2,
-        "tooltip": false
+    "custom/notification": {
+        "tooltip": true,
+        "format": "{icon}",
+        "format-icons": {
+            "notification": "",
+            "none": "",
+            "dnd-notification": "",
+            "dnd-none": "",
+            "inhibited-notification": "",
+            "inhibited-none": "",
+            "dnd-inhibited-notification": "",
+            "dnd-inhibited-none": ""
+        },
+        "return-type": "json",
+        "exec-if": "which swaync-client",
+        "exec": "swaync-client -swb",
+        "on-click": "swaync-client -t -sw",
+        "on-click-right": "swaync-client -d -sw",
+        "escape": true
     },
-    "cpu": {
-        "format": "{usage}% ",
-        "on-click": "alacritty -e btop",
-        "tooltip": false
-    },
-    "temperature": {
-        "critical-threshold": 80,
-        "format": "{temperatureC}°C ",
-        "format-critical": "{temperatureC}°C 🔥"
+    "pulseaudio": {
+        "format": "{icon}  {volume}%",
+        "format-bluetooth": "\uf294 {icon} {volume}%",
+        "format-bluetooth-muted": "\uf6a9 \uf294",
+        "format-muted": "\uf6a9 {volume}%",
+        "format-source": "\uf130 {volume}%",
+        "format-source-muted": "\uf131",
+        "format-icons": {
+            "headphone": "\uf025",
+            "hands-free": "\uf590",
+            "headset": "\uf590",
+            "phone": "\uf095",
+            "portable": "\uf095",
+            "car": "\uf1b9",
+            "default": [
+                "\uf026",
+                "\uf027",
+                "\uf028"
+            ]
+        },
+        "on-click": "pavucontrol"
     },
     "battery": {
         "states": {
             "warning": 30,
             "critical": 15
         },
-        "format": "{capacity}% {icon}",
+        "format": "{icon} {capacity}%",
+        "format-full": "{icon} {capacity}%",
+        "format-charging": "\uf5e7 {capacity}%",
+        "format-plugged": "\uf1e6 {capacity}%",
+        "format-alt": "{icon} {time}",
         "format-icons": [
-            "",
-            "",
-            "",
-            "",
-            ""
-        ],
-        "format-charging": "{capacity}% ",
-        "format-plugged": "{capacity}% "
+            "\uf244",
+            "\uf243",
+            "\uf242",
+            "\uf241",
+            "\uf240"
+        ]
+    },
+    "network": {
+        "format-wifi": "\uf1eb  {essid}",
+        "format-ethernet": "\uf796  {ipaddr}",
+        "tooltip-format": "{ifname} via {gwaddr}",
+        "format-linked": "\uf796  {ifname} (No IP)",
+        "format-disconnected": "\u26a0  Disconnected",
+        "format-alt": "\uf6ff  {bandwidthDownBits}  {bandwidthUpBits}",
+        "on-click": "nm-connection-editor"
     },
     "tray": {
         "icon-size": 18,
         "spacing": 10
     },
     "custom/power": {
-        "format": "⏻",
-        "on-click": "wlogout",
-        "tooltip": false
+        "format": "\uf011",
+        "tooltip": false,
+        "on-click": "wlogout"
+    },
+    "temperature": {
+        "critical-threshold": 80,
+        "format": "{icon} {temperatureC}\u00b0C",
+        "format-icons": [
+            "\uf2cb",
+            "\uf2c9",
+            "\uf2c7"
+        ],
+        "on-click": "kitty btop &"
     }
 }
