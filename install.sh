@@ -72,6 +72,8 @@ PACKAGES=(
     "cliphist"
     "hyprlock"
     "hypridle"
+    "gthumb"
+    "hyprpicker"
 )
 
 # Check if yay is available, otherwise use pacman

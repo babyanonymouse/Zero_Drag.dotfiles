@@ -34,6 +34,8 @@ brightnessctl # Brightness control utility
 playerctl # Media player control utility
 pamixer # PulseAudio mixer control
 wireplumber # Session/policy manager for PipeWire
+gthumb # Image viewer and browser
+hyprpicker # Color picker
 
 ## Applications (Recommended)
 
@@ -83,7 +85,7 @@ yay -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
  catppuccin-gtk-theme-mocha papirus-icon-theme xdg-utils \
  ttf-jetbrains-mono-nerd wlogout starship \
  eza bat zoxide ripgrep fzf cliphist hyprlock hypridle \
- zsh-syntax-highlighting zsh-autosuggestions zsh-completions
+ zsh-syntax-highlighting zsh-autosuggestions zsh-completions gthumb hyprpicker
 
 ````
 
@@ -97,7 +99,7 @@ sudo pacman -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
                catppuccin-gtk-theme-mocha papirus-icon-theme xdg-utils \
                wlogout starship eza bat zoxide ripgrep fzf \
                cliphist hyprlock hypridle zsh-syntax-highlighting \
-               zsh-autosuggestions zsh-completions
+               zsh-autosuggestions zsh-completions gthumb hyprpicker
 ````
 
 ### Font installation (from AUR)
