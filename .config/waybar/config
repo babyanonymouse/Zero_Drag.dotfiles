@@ -1,3 +1,4 @@
+// -*- mode: jsonc -*-
 {
     "layer": "top",
     "position": "top",
@@ -5,7 +6,8 @@
     "spacing": 0,
     "modules-left": [
         "custom/notification",
-        "clock"
+        "clock",
+        "custom/weather"
     ],
     "modules-center": [
         "hyprland/workspaces"
@@ -15,16 +17,17 @@
         "temperature",
         "battery",
         "network",
+        "tray",
         "custom/power"
     ],
     "hyprland/workspaces": {
         "format": "{icon}",
         "format-icons": {
-            "1": "",
-            "2": "",
-            "3": "",
-            "4": "",
-            "5": ""
+            "1": "一",
+            "2": "二",
+            "3": "三",
+            "4": "四",
+            "5": "五"
         },
         "persistent-workspaces": {
             "*": 5
@@ -36,18 +39,25 @@
         "tooltip-format": "{:%A, %B %d, %Y}",
         "max-length": 25
     },
+    "custom/weather": {
+        "exec": "${HOME}/.config/waybar/scripts/get_weather.sh",
+        "return-type": "json",
+        "format": "{}",
+        "tooltip": true,
+        "interval": 3600
+    },
     "custom/notification": {
         "tooltip": true,
         "format": "{icon}",
         "format-icons": {
-            "notification": "",
-            "none": "",
-            "dnd-notification": "",
-            "dnd-none": "",
-            "inhibited-notification": "",
-            "inhibited-none": "",
-            "dnd-inhibited-notification": "",
-            "dnd-inhibited-none": ""
+            "notification": "",
+            "none": "",
+            "dnd-notification": "",
+            "dnd-none": "",
+            "inhibited-notification": "",
+            "inhibited-none": "",
+            "dnd-inhibited-notification": "",
+            "dnd-inhibited-none": ""
         },
         "return-type": "json",
         "exec-if": "which swaync-client",
