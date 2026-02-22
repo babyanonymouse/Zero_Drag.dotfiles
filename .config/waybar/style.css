@@ -74,6 +74,15 @@ window#waybar {
   color: @purple;
 }
 
+#tray > .passive {
+  -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+  -gtk-icon-effect: highlight;
+  background-color: @red;
+}
+
 #custom-notification {
   transition: all 0.2s ease-in-out;
   color: @blue;

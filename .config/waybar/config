@@ -27,7 +27,7 @@
             "urgent": ""
         },
         "persistent-workspaces": {
-            "*": 5
+            "*": 4
         }
     },
     "clock": {
