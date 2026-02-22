@@ -5,7 +5,6 @@
     "height": 38,
     "spacing": 0,
     "modules-left": [
-        "custom/notification",
         "clock"
     ],
     "modules-center": [
@@ -16,6 +15,7 @@
         "temperature",
         "battery",
         "network",
+        "custom/notification",
         "tray",
         "custom/power"
     ],
