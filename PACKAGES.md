@@ -6,7 +6,7 @@ hyprland # Dynamic tiling Wayland compositor
 waybar # Highly customizable status bar
 kitty # Fast, feature-rich terminal emulator
 fuzzel # Wayland-native application launcher
-rofi-wayland # Window switcher (Alt+Tab)
+
 mako # Minimal notification daemon
 polkit-gnome # Authentication agent for GUI apps
 
@@ -34,6 +34,8 @@ brightnessctl # Brightness control utility
 playerctl # Media player control utility
 pamixer # PulseAudio mixer control
 wireplumber # Session/policy manager for PipeWire
+gthumb # Image viewer and browser
+hyprpicker # Color picker
 
 ## Applications (Recommended)
 
@@ -81,9 +83,9 @@ yay -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
  brightnessctl playerctl pamixer wireplumber thunar \
  thunar-archive-plugin thunar-volman file-roller gvfs \
  catppuccin-gtk-theme-mocha papirus-icon-theme xdg-utils \
- ttf-jetbrains-mono-nerd wlogout rofi-wayland starship \
+ ttf-jetbrains-mono-nerd wlogout starship \
  eza bat zoxide ripgrep fzf cliphist hyprlock hypridle \
- zsh-syntax-highlighting zsh-autosuggestions zsh-completions
+ zsh-syntax-highlighting zsh-autosuggestions zsh-completions gthumb hyprpicker
 
 ````
 
@@ -95,9 +97,9 @@ sudo pacman -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
                brightnessctl playerctl pamixer wireplumber thunar \
                thunar-archive-plugin thunar-volman file-roller gvfs \
                catppuccin-gtk-theme-mocha papirus-icon-theme xdg-utils \
-               wlogout rofi-wayland starship eza bat zoxide ripgrep fzf \
+               wlogout starship eza bat zoxide ripgrep fzf \
                cliphist hyprlock hypridle zsh-syntax-highlighting \
-               zsh-autosuggestions zsh-completions
+               zsh-autosuggestions zsh-completions gthumb hyprpicker
 ````
 
 ### Font installation (from AUR)

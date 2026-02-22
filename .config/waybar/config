@@ -2,7 +2,7 @@
 {
     "layer": "top",
     "position": "top",
-    "height": 32,
+    "height": 38,
     "spacing": 0,
     "modules-left": [
         "custom/notification",
@@ -14,6 +14,7 @@
     ],
     "modules-right": [
         "pulseaudio",
+        "temperature",
         "battery",
         "network",
         "tray",
@@ -22,11 +23,11 @@
     "hyprland/workspaces": {
         "format": "{icon}",
         "format-icons": {
-            "1": "",
-            "2": "",
-            "3": "",
-            "4": "",
-            "5": ""
+            "1": "一",
+            "2": "二",
+            "3": "三",
+            "4": "四",
+            "5": "五"
         },
         "persistent-workspaces": {
             "*": 5
@@ -35,6 +36,7 @@
     "clock": {
         "interval": 60,
         "format": "  {:%I:%M %p}",
+        "tooltip-format": "{:%A, %B %d, %Y}",
         "max-length": 25
     },
     "custom/weather": {
@@ -48,14 +50,14 @@
         "tooltip": true,
         "format": "{icon}",
         "format-icons": {
-            "notification": "",
-            "none": "",
-            "dnd-notification": "",
-            "dnd-none": "",
-            "inhibited-notification": "",
-            "inhibited-none": "",
-            "dnd-inhibited-notification": "",
-            "dnd-inhibited-none": ""
+            "notification": "",
+            "none": "",
+            "dnd-notification": "",
+            "dnd-none": "",
+            "inhibited-notification": "",
+            "inhibited-none": "",
+            "dnd-inhibited-notification": "",
+            "dnd-inhibited-none": ""
         },
         "return-type": "json",
         "exec-if": "which swaync-client",
@@ -66,19 +68,23 @@
     },
     "pulseaudio": {
         "format": "{icon}  {volume}%",
-        "format-bluetooth": "{volume}% {icon}",
-        "format-bluetooth-muted": " {icon}",
-        "format-muted": "",
-        "format-source": "{volume}% ",
-        "format-source-muted": "",
+        "format-bluetooth": "\uf294 {icon} {volume}%",
+        "format-bluetooth-muted": "\uf6a9 \uf294",
+        "format-muted": "\uf6a9 {volume}%",
+        "format-source": "\uf130 {volume}%",
+        "format-source-muted": "\uf131",
         "format-icons": {
-            "headphone": "",
-            "hands-free": "",
-            "headset": "",
-            "phone": "",
-            "portable": "",
-            "car": "",
-            "default": ["", "", ""]
+            "headphone": "\uf025",
+            "hands-free": "\uf590",
+            "headset": "\uf590",
+            "phone": "\uf095",
+            "portable": "\uf095",
+            "car": "\uf1b9",
+            "default": [
+                "\uf026",
+                "\uf027",
+                "\uf028"
+            ]
         },
         "on-click": "pavucontrol"
     },
@@ -87,20 +93,26 @@
             "warning": 30,
             "critical": 15
         },
-        "format": "{icon}  {capacity}%",
-        "format-full": "{icon}  {capacity}%",
-        "format-charging": "  {capacity}%",
-        "format-plugged": "  {capacity}%",
-        "format-alt": "{time} {icon}",
-        "format-icons": ["", "", "", "", ""]
+        "format": "{icon} {capacity}%",
+        "format-full": "{icon} {capacity}%",
+        "format-charging": "\uf5e7 {capacity}%",
+        "format-plugged": "\uf1e6 {capacity}%",
+        "format-alt": "{icon} {time}",
+        "format-icons": [
+            "\uf244",
+            "\uf243",
+            "\uf242",
+            "\uf241",
+            "\uf240"
+        ]
     },
     "network": {
-        "format-wifi": "  Network",
-        "format-ethernet": "{ipaddr}/{cidr} ",
-        "tooltip-format": "{ifname} via {gwaddr} ",
-        "format-linked": "{ifname} (No IP) ",
-        "format-disconnected": "Disconnected ⚠",
-        "format-alt": "  Network",
+        "format-wifi": "\uf1eb  {essid}",
+        "format-ethernet": "\uf796  {ipaddr}",
+        "tooltip-format": "{ifname} via {gwaddr}",
+        "format-linked": "\uf796  {ifname} (No IP)",
+        "format-disconnected": "\u26a0  Disconnected",
+        "format-alt": "\uf6ff  {bandwidthDownBits}  {bandwidthUpBits}",
         "on-click": "nm-connection-editor"
     },
     "tray": {
@@ -108,8 +120,18 @@
         "spacing": 10
     },
     "custom/power": {
-        "format": "",
+        "format": "\uf011",
         "tooltip": false,
         "on-click": "wlogout"
+    },
+    "temperature": {
+        "critical-threshold": 80,
+        "format": "{icon} {temperatureC}\u00b0C",
+        "format-icons": [
+            "\uf2cb",
+            "\uf2c9",
+            "\uf2c7"
+        ],
+        "on-click": "kitty btop &"
     }
 }

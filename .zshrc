@@ -76,12 +76,22 @@ if command -v starship &> /dev/null; then
   eval "$(starship init zsh)"
 fi
 
-# 8. Transient Prompt
-# Collapses the prompt to a simple '➜' after command execution
+# 8. Zero-Drag Transient Prompt
+# Save the original Starship prompt into a backup variable
+_STARSHIP_FULL_PROMPT=$PROMPT
+
+# Hook 1: When you hit Enter, collapse the current line
 zle-line-finish() {
-  # %B = bold, %F{green} = green foreground, %f = reset color, %b = reset bold
-  PROMPT='%B%F{green}➜%f%b '
-  RPROMPT=''
+  # We use Zsh's native color codes here for 0ms latency
+  PROMPT="%B%F{green}➜%f%b "
+  RPROMPT=""
   zle reset-prompt
 }
 zle -N zle-line-finish
+
+# Hook 2: Before drawing the NEXT line, restore the full Starship prompt
+precmd_restore_prompt() {
+  PROMPT=$_STARSHIP_FULL_PROMPT
+}
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd precmd_restore_prompt

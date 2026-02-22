@@ -78,7 +78,6 @@ check_package "fuzzel"
 check_package "mako"
 check_package "polkit-gnome"
 check_package "hyprpaper"
-check_package "rofi-wayland"
 check_package "wlogout"
 check_package "starship"
 
