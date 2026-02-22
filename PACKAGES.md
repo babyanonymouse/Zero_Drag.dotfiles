@@ -7,7 +7,7 @@ waybar # Highly customizable status bar
 kitty # Fast, feature-rich terminal emulator
 fuzzel # Wayland-native application launcher
 
-mako # Minimal notification daemon
+swaync # Notification daemon
 polkit-gnome # Authentication agent for GUI apps
 
 ## System Integration (Required)
@@ -78,7 +78,7 @@ chromium # Alternative web browser
 
 ### Using yay (AUR helper)
 
-yay -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
+yay -S hyprland waybar kitty fuzzel hyprpaper swaync polkit-gnome \
  xdg-desktop-portal-hyprland qt5ct libappindicator-gtk3 grim slurp wl-clipboard \
  brightnessctl playerctl pamixer wireplumber thunar \
  thunar-archive-plugin thunar-volman file-roller gvfs \
@@ -92,7 +92,7 @@ yay -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
 ### Using pacman (official repos only)
 
 ```bash
-sudo pacman -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
+sudo pacman -S hyprland waybar kitty fuzzel hyprpaper swaync polkit-gnome \
                xdg-desktop-portal-hyprland qt5ct libappindicator-gtk3 grim slurp wl-clipboard \
                brightnessctl playerctl pamixer wireplumber thunar \
                thunar-archive-plugin thunar-volman file-roller gvfs \

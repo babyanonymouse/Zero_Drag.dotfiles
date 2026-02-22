@@ -36,7 +36,7 @@ PACKAGES=(
     "kitty"
     "fuzzel"
     "hyprpaper"
-    "mako"
+    "swaync"
     "polkit-gnome"
     "xdg-desktop-portal-hyprland"
     "qt5ct"
@@ -116,7 +116,7 @@ BACKUP_DIR="$HOME/.config/hyprland-backup-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$BACKUP_DIR"
 
 # Backup existing configs
-for dir in hypr waybar kitty fuzzel mako wlogout; do
+for dir in hypr waybar kitty fuzzel swaync wlogout; do
     if [ -d "$HOME/.config/$dir" ]; then
         echo "Backing up $dir..."
         mv "$HOME/.config/$dir" "$BACKUP_DIR/"
@@ -138,7 +138,7 @@ cp -r "$SCRIPT_DIR/.config/hypr" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/waybar" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/kitty" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/fuzzel" "$HOME/.config/"
-cp -r "$SCRIPT_DIR/.config/mako" "$HOME/.config/"
+cp -r "$SCRIPT_DIR/.config/swaync" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/wlogout" "$HOME/.config/"
 
 
