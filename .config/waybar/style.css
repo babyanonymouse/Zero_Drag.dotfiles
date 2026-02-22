@@ -25,7 +25,7 @@ window#waybar {
   border-radius: 20px;
   min-width: 50px;
   margin: 0 3px;
-  color: transparent;
+  color: @fg;
 }
 
 #workspaces button:hover {
