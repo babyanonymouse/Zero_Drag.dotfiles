@@ -14,7 +14,6 @@
         "pulseaudio",
         "temperature",
         "battery",
-        "network",
         "custom/notification",
         "tray",
         "custom/power"
