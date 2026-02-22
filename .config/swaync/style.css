@@ -1,0 +1,156 @@
+@import url("mocha.css");
+
+* {
+  font-family: "JetBrainsMono Nerd Font";
+}
+
+.control-center .notification-row:focus,
+.control-center .notification-row:hover {
+  opacity: 1;
+  background: @mantle;
+}
+
+.notification-row {
+  outline: none;
+  margin: 10px;
+  padding: 0;
+}
+
+.notification {
+  background: @base;
+  padding: 0;
+  margin: 0px;
+}
+
+.notification-content {
+  background: @base;
+  padding: 10px;
+  border-radius: 12px;
+  border: 2px solid @surface1;
+  margin: 0;
+}
+
+.close-button {
+  background: @red;
+  color: @base;
+  text-shadow: none;
+  padding: 0;
+  border-radius: 6px;
+  margin-top: 5px;
+  margin-right: 5px;
+}
+
+.close-button:hover {
+  box-shadow: none;
+  background: @peach;
+  transition: all 0.15s ease-in-out;
+  border: none;
+}
+
+.notification-action {
+  border: 2px solid @blue;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+}
+
+.notification-default-action {
+  margin: 0;
+  padding: 0;
+  border-radius: 12px;
+}
+
+.notification-default-action:hover,
+.notification-action:hover {
+  color: @base;
+  background: @blue;
+}
+
+.summary {
+  font-size: 16px;
+  font-weight: 700;
+  color: @text;
+}
+
+.time {
+  font-size: 14px;
+  font-weight: 700;
+  color: @subtext0;
+  margin-right: 24px;
+}
+
+.body {
+  font-size: 15px;
+  font-weight: 400;
+  color: @subtext0;
+}
+
+.control-center {
+  background: alpha(@crust, 0.8);
+  border: 2px solid @surface1;
+  border-radius: 12px;
+}
+
+.control-center-list {
+  background: transparent;
+}
+
+.control-center-list-placeholder {
+  opacity: 0.5;
+}
+
+.floating-notifications {
+  background: transparent;
+}
+
+.blank-window {
+  background: alpha(black, 0);
+}
+
+.widget-title {
+  color: @text;
+  background: @base;
+  padding: 10px;
+  margin: 10px;
+  font-size: 24px;
+  border-radius: 12px;
+}
+
+.widget-title > button {
+  font-size: 16px;
+  color: @text;
+  text-shadow: none;
+  background: @surface0;
+  box-shadow: none;
+  border-radius: 8px;
+}
+
+.widget-title > button:hover {
+  background: @red;
+  color: @base;
+}
+
+.widget-dnd {
+  background: @base;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 12px;
+  font-size: 16px;
+  color: @text;
+}
+
+.widget-dnd > switch {
+  font-size: 14px;
+  border-radius: 8px;
+  background: @surface0;
+  color: @text;
+  box-shadow: none;
+}
+
+.widget-dnd > switch:checked {
+  background: @blue;
+}
+
+.widget-dnd > switch slider {
+  background: @base;
+  border-radius: 6px;
+}

@@ -35,13 +35,7 @@
         "tooltip-format": "{:%A, %B %d, %Y}",
         "max-length": 25
     },
-    "custom/weather": {
-        "exec": "${HOME}/.config/waybar/scripts/get_weather.sh",
-        "return-type": "json",
-        "format": "{}",
-        "tooltip": true,
-        "interval": 3600
-    },
+
     "custom/notification": {
         "tooltip": true,
         "format": "{icon}",
@@ -102,15 +96,7 @@
             "\uf240"
         ]
     },
-    "network": {
-        "format-wifi": "\uf1eb  {essid}",
-        "format-ethernet": "\uf796  {ipaddr}",
-        "tooltip-format": "{ifname} via {gwaddr}",
-        "format-linked": "\uf796  {ifname} (No IP)",
-        "format-disconnected": "\u26a0  Disconnected",
-        "format-alt": "\uf6ff  {bandwidthDownBits}  {bandwidthUpBits}",
-        "on-click": "nm-connection-editor"
-    },
+
     "tray": {
         "icon-size": 18,
         "spacing": 10
