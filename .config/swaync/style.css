@@ -7,87 +7,87 @@
 .control-center .notification-row:focus,
 .control-center .notification-row:hover {
   opacity: 1;
-  background: @mantle;
+  background: @surface0;
 }
 
 .notification-row {
   outline: none;
-  margin: 10px;
+  margin: 8px;
   padding: 0;
 }
 
 .notification {
-  background: @base;
-  padding: 0;
+  background: transparent;
   margin: 0px;
 }
 
 .notification-content {
   background: @base;
-  padding: 10px;
-  border-radius: 12px;
+  padding: 14px;
+  border-radius: 14px;
   border: 2px solid @surface1;
   margin: 0;
 }
 
 .close-button {
-  background: @red;
-  color: @base;
+  background: @surface1;
+  color: @text;
   text-shadow: none;
   padding: 0;
-  border-radius: 6px;
-  margin-top: 5px;
-  margin-right: 5px;
+  border-radius: 8px;
+  margin-top: 8px;
+  margin-right: 8px;
 }
 
 .close-button:hover {
-  box-shadow: none;
-  background: @peach;
+  background: @red;
+  color: @crust;
   transition: all 0.15s ease-in-out;
   border: none;
 }
 
 .notification-action {
-  border: 2px solid @blue;
+  border: 2px solid @surface1;
   border-top: none;
-  border-radius: 0 0 12px 12px;
+  border-radius: 0 0 14px 14px;
 }
 
 .notification-default-action {
   margin: 0;
   padding: 0;
-  border-radius: 12px;
+  border-radius: 14px;
 }
 
 .notification-default-action:hover,
 .notification-action:hover {
-  color: @base;
-  background: @blue;
+  color: @text;
+  background: @surface0;
 }
 
 .summary {
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 900;
   color: @text;
 }
 
 .time {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: bold;
   color: @subtext0;
   margin-right: 24px;
 }
 
 .body {
-  font-size: 15px;
-  font-weight: 400;
-  color: @subtext0;
+  font-size: 14px;
+  font-weight: normal;
+  color: @subtext1;
+  margin-top: 4px;
 }
 
 .control-center {
-  background: alpha(@crust, 0.8);
+  background: @crust;
   border: 2px solid @surface1;
-  border-radius: 12px;
+  border-radius: 16px;
 }
 
 .control-center-list {
@@ -95,7 +95,9 @@
 }
 
 .control-center-list-placeholder {
-  opacity: 0.5;
+  opacity: 1;
+  color: @overlay0;
+  font-size: 18px;
 }
 
 .floating-notifications {
@@ -103,45 +105,48 @@
 }
 
 .blank-window {
-  background: alpha(black, 0);
+  background: transparent;
 }
 
 .widget-title {
   color: @text;
   background: @base;
-  padding: 10px;
-  margin: 10px;
-  font-size: 24px;
-  border-radius: 12px;
+  padding: 12px;
+  margin: 12px;
+  font-size: 20px;
+  border-radius: 14px;
+  border: 2px solid @surface1;
 }
 
 .widget-title > button {
-  font-size: 16px;
+  font-size: 14px;
   color: @text;
   text-shadow: none;
-  background: @surface0;
+  background: @surface1;
   box-shadow: none;
-  border-radius: 8px;
+  border-radius: 10px;
+  padding: 4px 12px;
 }
 
 .widget-title > button:hover {
   background: @red;
-  color: @base;
+  color: @crust;
 }
 
 .widget-dnd {
   background: @base;
-  padding: 10px;
-  margin: 10px;
-  border-radius: 12px;
+  padding: 12px;
+  margin: 12px;
+  border-radius: 14px;
+  border: 2px solid @surface1;
   font-size: 16px;
   color: @text;
 }
 
 .widget-dnd > switch {
   font-size: 14px;
-  border-radius: 8px;
-  background: @surface0;
+  border-radius: 10px;
+  background: @surface1;
   color: @text;
   box-shadow: none;
 }
@@ -151,6 +156,6 @@
 }
 
 .widget-dnd > switch slider {
-  background: @base;
-  border-radius: 6px;
+  background: @text;
+  border-radius: 8px;
 }

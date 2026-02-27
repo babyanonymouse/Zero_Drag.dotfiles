@@ -1,4 +1,3 @@
-// -*- mode: jsonc -*-
 {
     "layer": "top",
     "position": "top",
@@ -35,7 +34,6 @@
         "tooltip-format": "{:%A, %B %d, %Y}",
         "max-length": 25
     },
-
     "custom/notification": {
         "tooltip": true,
         "format": "{icon}",
@@ -96,7 +94,6 @@
             "\uf240"
         ]
     },
-
     "tray": {
         "icon-size": 18,
         "spacing": 10
