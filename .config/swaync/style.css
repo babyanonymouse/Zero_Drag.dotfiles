@@ -22,8 +22,8 @@
   --border-radius: 12px;
   --notification-shadow: 0 0 0 0px rgba(0, 0, 0, 0.0),
     0 1px 3px 1px rgba(0, 0, 0, 0.7), 0 2px 6px 2px rgba(0, 0, 0, 0.3);
-  --font-size-body: 15px;
-  --font-size-summary: 16px;
+  --font-size-body: 13px;
+  --font-size-summary: 14px;
   /* Deprecated variables. Keeping them around for backwards compatibility. */
   --hover-tranistion: background 0.15s ease-in-out;
   --group-collapse-tranistion: opacity 400ms ease-in-out;
@@ -68,12 +68,17 @@ notificationwindow, blankwindow, blankwindow {
   border: none;
   min-width: 24px;
   min-height: 24px;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out, background 0.15s ease-in-out;
+}
+
+.notification-row:hover .close-button {
+  opacity: 1;
 }
 
 .close-button:hover {
   box-shadow: none;
   background: var(--noti-close-bg-hover);
-  transition: var(--hover-tranistion);
   border: none;
 }
 
@@ -94,8 +99,12 @@ notificationwindow, blankwindow, blankwindow {
   border-radius: var(--border-radius);
   border: var(--border);
   padding: 0;
-  transition: var(--hover-tranistion);
+  transition: all 0.2s ease-in-out;
   background: rgba(var(--noti-bg), var(--noti-bg-alpha));
+}
+
+.notification-row .notification-background .notification:hover {
+  border: 1px solid rgb(203, 166, 247);
 }
 
 .notification-row .notification-background .notification .notification-default-action {
@@ -110,12 +119,10 @@ notificationwindow, blankwindow, blankwindow {
 }
 
 .mpris {
-    background: rgba(0, 0, 0, 0.25);
+    background: #1e1e2e;
     border-radius: 12px;
-    margin: 8px;
-    padding: 8px;
-    transform: scale(0.8);
-    transform-origin: top center;
+    margin: 10px 10px 15px 10px;
+    padding: 12px;
 }
 
 .mpris-player {
@@ -126,31 +133,33 @@ notificationwindow, blankwindow, blankwindow {
 }
 
 .mpris-title {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: bold;
     color: white;
 }
 
 .mpris-artist {
-    font-size: 10px;
-    color: rgba(255, 255, 255, 0.7);
+    font-size: 11px;
+    color: #a6adc8;
 }
 
 .mpris-controls {
     display: flex;
     justify-content: center;
-    margin-top: 6px;
-    gap: 10px;
+    margin-top: 10px;
+    gap: 15px;
 }
 
 .mpris-button {
-    font-size: 18px;
+    font-size: 20px;
     color: white;
     opacity: 0.8;
+    transition: all 0.2s ease;
 }
 
 .mpris-button:hover {
     opacity: 1;
+    color: rgb(203, 166, 247);
 }
 
 .mpris,
@@ -195,29 +204,32 @@ notificationwindow, blankwindow, blankwindow {
     margin-left: 3px;
     margin-right: 3px;
     color: var(--text-color);
+    font-size: 15px;
+    font-weight: bold;
 }
 
 .widget-title > button {
     color: var(--text-color);
-    background: var(--noti-close-bg);
+    background: transparent;
     border: none;
     box-shadow: none;
     border-radius: 8px;
-    padding: 2px 8px;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.widget-title > button:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .widget-mpris {
-    margin-bottom: 0px; 
-    margin-top: -3px;
-    margin-left: -8px;
-    margin-right: -8px;
+    margin: 0px;
 }
 
 .widget-notifications {
-    margin-bottom: 0px;
-    margin-top: -15px;
-    margin-left: -10px;
-    margin-right: -10px
+    margin: 0px;
 }
 
 .notification-group.collapsed .notification {
