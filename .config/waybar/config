@@ -13,9 +13,8 @@
         "pulseaudio",
         "temperature",
         "battery",
-        "custom/notification",
         "tray",
-        "custom/power"
+        "custom/notification"
     ],
     "hyprland/workspaces": {
         "format": "{icon}",
@@ -36,7 +35,7 @@
     },
     "custom/notification": {
         "tooltip": true,
-        "format": "{icon}",
+        "format": "{icon}  ",
         "format-icons": {
             "notification": "",
             "none": "",
@@ -97,11 +96,6 @@
     "tray": {
         "icon-size": 18,
         "spacing": 10
-    },
-    "custom/power": {
-        "format": "\uf011",
-        "tooltip": false,
-        "on-click": "wlogout"
     },
     "temperature": {
         "critical-threshold": 80,
