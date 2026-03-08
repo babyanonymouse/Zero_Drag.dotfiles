@@ -119,7 +119,7 @@ If you prefer to install packages yourself:
     Basic set:
 
     ```bash
-    yay -S hyprland waybar kitty fuzzel hyprpaper mako polkit-gnome \
+    yay -S hyprland waybar kitty fuzzel hyprpaper swaync polkit-gnome \
            xdg-desktop-portal-hyprland qt5ct grim slurp wl-clipboard \
            brightnessctl playerctl pamixer wireplumber thunar \
            thunar-archive-plugin thunar-volman file-roller gvfs \

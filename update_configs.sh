@@ -13,7 +13,7 @@ cp -r "$SCRIPT_DIR/.config/hypr" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/waybar" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/kitty" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/fuzzel" "$HOME/.config/"
-cp -r "$SCRIPT_DIR/.config/mako" "$HOME/.config/"
+cp -r "$SCRIPT_DIR/.config/swaync" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/wlogout" "$HOME/.config/"
 
 # Copy Thunar custom actions

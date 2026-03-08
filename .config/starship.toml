@@ -1,63 +1,62 @@
-# Load the palette
+"$schema" = 'https://starship.rs/config-schema.json'
+
 palette = "catppuccin_mocha"
 
-# Layout: Directory -> Git -> Language -> End
+# A modern, clean 2-line prompt
+# Combines the directory, git info, and all contextual environments (Python, Node, Docker, etc)
 format = """
-$directory\
-$git_branch\
-$git_status\
-$nodejs\
-$rust\
-$golang\
-$php\
-$line_break\
-$character"""
+[╭─](bold lavender)$directory$git_branch$git_status$fill$all
+[╰─](bold lavender)$character"""
 
-# 1. The Directory (Blue Pill)
+# This fills the space between the left prompt and right prompt natively
+[fill]
+symbol = " "
+
 [directory]
-style = "fg:#1e1e2e bg:#89b4fa"  # Dark text on Blue bg
-format = '[  $path ]($style)'
+style = "bold blue"
+read_only = " ��"
+read_only_style = "bold red"
+format = "[  $path ]($style)[$read_only]($read_only_style) "
 truncation_length = 3
 truncation_symbol = "…/"
 
-# 2. The Git Branch (Mauve Pill)
 [git_branch]
-style = "fg:#1e1e2e bg:#cba6f7"  # Dark text on Mauve bg
-format = '[ $symbol$branch ]($style)'
 symbol = " "
+style = "bold mauve"
+format = "[$symbol$branch]($style) "
 
-# 3. Git Status (Red Pill - only shows if dirty)
 [git_status]
-style = "fg:#1e1e2e bg:#f38ba8"
-format = '[ $all_status$ahead_behind ]($style)'
+style = "bold red"
+format = "[$all_status$ahead_behind]($style) "
 
-# 4. Language Runtime (Green Pill)
+# Python environments (virtualenv, conda)
+[python]
+symbol = " "
+style = "bold yellow"
+format = '[$symbol$py_version (\($virtualenv\))]($style) '
+
+# Node environments
 [nodejs]
 symbol = " "
-style = "fg:#1e1e2e bg:#a6e3a1"
-format = '[ $symbol($version) ]($style)'
+style = "bold green"
+format = '[$symbol$version]($style) '
 
+# Rust environments
 [rust]
 symbol = " "
-style = "fg:#1e1e2e bg:#a6e3a1"
-format = '[ $symbol($version) ]($style)'
+style = "bold peach"
+format = '[$symbol$version]($style) '
 
-[golang]
-symbol = "ﳑ "
-style = "fg:#1e1e2e bg:#a6e3a1"
-format = '[ $symbol($version) ]($style)'
+# Package version
+[package]
+symbol = "󰏗 "
+style = "bold text"
+format = '[$symbol$version]($style) '
 
-[php]
-symbol = " "
-style = "fg:#1e1e2e bg:#a6e3a1"
-format = '[ $symbol($version) ]($style)'
-
-# 5. The Prompt Character (Clean arrow on new line)
 [character]
-success_symbol = "[ ➜](bold green)"
-error_symbol = "[ ✗](bold red)"
-vimcmd_symbol = "[ ❮](bold green)"
-
+success_symbol = "[❯](bold green)"
+error_symbol = "[✗](bold red)"
+vimcmd_symbol = "[❮](bold green)"
 
 # --- PALETTE DEFINITION ---
 [palettes.catppuccin_mocha]

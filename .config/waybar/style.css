@@ -25,7 +25,7 @@ window#waybar {
   border-radius: 20px;
   min-width: 50px;
   margin: 0 3px;
-  color: transparent;
+  color: @fg;
 }
 
 #workspaces button:hover {
@@ -72,6 +72,15 @@ window#waybar {
 #tray {
   transition: all 0.2s ease-in-out;
   color: @purple;
+}
+
+#tray > .passive {
+  -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+  -gtk-icon-effect: highlight;
+  background-color: @red;
 }
 
 #custom-notification {
