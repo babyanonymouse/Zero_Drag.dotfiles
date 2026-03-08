@@ -62,19 +62,9 @@ wallpaper = ,~/.config/hypr/wallpapers/your-wallpaper.jpg
 Edit `~/.config/waybar/config` and modify the `modules-left`, `modules-center`, or `modules-right` arrays:
 
 ```jsonc
-"modules-left": ["custom/notification", "clock", "custom/weather"],
+"modules-left": ["clock"],
 "modules-center": ["hyprland/workspaces"],
-"modules-right": ["pulseaudio", "battery", "network", "tray", "custom/power"]
-```
-
-### Weather City
-
-Change the city for the weather widget:
-
-```jsonc
-"custom/weather": {
-    "exec": "${HOME}/.config/waybar/scripts/get_weather.sh Paris+France"
-}
+"modules-right": ["pulseaudio", "temperature", "battery", "tray", "custom/notification"]
 ```
 
 ### Timezone
