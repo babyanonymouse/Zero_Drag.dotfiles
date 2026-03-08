@@ -56,7 +56,7 @@ After pulling new changes:
 
 ## 📚 Documentation
 
-Full documentation lives in the [Wiki](docs/wiki/):
+Full documentation lives in the [Wiki](https://github.com/babyanonymouse/Zero_Drag.dotfiles/wiki):
 
 | Page | Description |
 | :--- | :---------- |
