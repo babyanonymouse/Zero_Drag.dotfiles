@@ -2,96 +2,38 @@
 
 A high-performance, minimalist Hyprland configuration optimized for **CachyOS** and thermally constrained hardware.
 
-**Philosophy**: "Function over Flash". Precision, efficiency, and zero distractions.
+> **Philosophy**: *"I am the guy in the garage tuning a race car engine that's running hot. I need precision, efficiency, and zero distractions."*
 
-## 🏁 Philosophy
+---
 
-> "I am the guy in the garage tuning a race car engine that’s running hot. I need precision, efficiency, and zero distractions."
+## 🏁 Design Principles
 
-- **Visuals**: Catppuccin Mocha, High Contrast, Sharp Corners.
-- **Performance**: Zero Blur, Zero Shadows, Zero Bloat.
-- **Thermal Safety**: Critical red-line indicators for CPU heat.
+| Principle | Details |
+| :-------- | :------ |
+| **Visuals** | Catppuccin Mocha, High Contrast, Sharp Corners (0px rounding) |
+| **Performance** | Zero Blur, Zero Shadows, Zero Animations, Zero Bloat |
+| **Thermal Safety** | Critical red-line CPU temperature indicators on the status bar |
+| **Ergonomics** | Vim-style navigation, modern Rust-powered CLI tools |
+
+---
 
 ## 🛠️ Software Stack
 
-Selected for startup speed and low footprint.
+| Component | Tool | Purpose |
+| :-------- | :--- | :------ |
+| **Window Manager** | Hyprland | Dynamic tiling Wayland compositor |
+| **Terminal** | Kitty | GPU-accelerated terminal |
+| **Launcher** | Fuzzel | Wayland-native app launcher |
+| **Status Bar** | Waybar | Heat-safe system bar |
+| **Notifications** | swaync | Control Center with MPRIS, sliders, and power controls |
+| **File Manager** | Thunar | Lightweight GTK file manager |
+| **Wallpaper** | Hyprpaper | Efficient wallpaper daemon |
+| **Lock Screen** | Hyprlock | Wayland lock screen |
+| **Shell** | Zsh + Starship | Modern shell with Rust-powered tools |
 
-| Component        | Selection      | Why?                                  |
-| ---------------- | -------------- | ------------------------------------- |
-| **WM**           | **Hyprland**   | Lightweight, scriptable, no overhead. |
-| **Terminal**     | **Kitty**      | GPU-accelerated, highly configurable. |
-| **Launcher**     | **Fuzzel**     | Wayland-native, lightweight.          |
-| **Bar**          | **Waybar**     | "Heat-Safe", System Tray support.     |
-| **File Manager** | **Thunar**     | Lightweight, fast, custom actions.    |
-| **Wallpaper**    | **Hyprpaper**  | Efficient wallpaper daemon.           |
-| **Notify**       | **Mako**       | Minimalist daemon.                    |
-| **Shell**        | **Zsh + Rust** | eza, bat, zoxide, ripgrep, starship.  |
+---
 
-## 🎨 Design System
-
-- **Theme**: Catppuccin Mocha full integration.
-- **Font**: `JetBrains Mono Nerd Font` (Size 11).
-- **Rounding**: **0px** (Sharp corners).
-- **Decorations**: NONE. `blur=false`, `drop_shadow=false`.
-- **Animations**: Disabled for thermal control.
-
-## ⚙️ Functional Requirements
-
-### 1. "Heat-Safe" Status Bar
-
-- **Logic**: The CPU Temp module turns **RED** (Critical class) if the sensor exceeds **80°C**.
-- **Modules**: Workspaces, Clock, CPU Temp, RAM, Battery.
-- **Shell**: Fully modernized with `eza`, `bat`, `zoxide`, `ripgrep`, and `starship` prompt. Icons and syntax highlighting enabled.
-
-### 2. Window Management
-
-- **Layout**: Dwindle (Master is backup).
-- **Focus**: Mouse movement focuses, Click raises.
-- **Workspaces**:
-  1.  Coding (Terminal/Editor)
-  2.  Browser
-  3.  Social/Music
-  4.  General
-  5.  General
-
-### 3. Input Rules
-
-- **Numlock**: Forced `OFF` by default (`numlock_by_default = false`).
-- **Mouse**:
-  - `Drag` with **Left Button** to move/snap windows.
-  - `Drag` with **Right Button** to resize windows.
-
-### 5. Media & Utilities
-
-- **Screenshots**: Automatically saved to `~/Pictures/Screenshots` and copied to clipboard (`Print` or `Super+S`).
-- **Clipboard**: History accessed via `Super+V`.
-
-### 4. Keybindings (Core Workflow)
-
-> **Full List**: See [KEYBINDINGS.md](KEYBINDINGS.md) for a complete reference of shortcuts.
-
-**Essential Shortcuts:**
-
-| Key                    | Action               |
-| :--------------------- | :------------------- |
-| `SUPER + Return`       | Open Terminal        |
-| `SUPER + Space`        | Launcher             |
-| `ALT + Tab`            | Window Switcher      |
-| `SUPER + W`            | Cycle Wallpapers     |
-| `SUPER + Q`            | Close Window         |
-| `CTRL + ALT + Arrows`  | Move Window Position |
-| `SUPER + ALT + Arrows` | Resize Window        |
-
-## 📦 Installation
-
-### Prerequisites
-
-- **OS**: CachyOS (Recommended) or Arch Linux.
-- **Git** installed.
-
-### ⚡ Quick Install (Automated)
-
-The included script handles package installation, backups, and config symlinking.
+## ⚡ Quick Install
 
 ```bash
 git clone https://github.com/babyanonymouse/Zero_Drag.dotfiles.git
@@ -100,68 +42,33 @@ chmod +x install.sh verify.sh update_configs.sh
 ./install.sh
 ```
 
-### 🔄 Updating Configs
+---
 
-To update your dotfiles without reinstalling all packages (useful after `git pull`):
+## 🔄 Updating Configs
+
+After pulling new changes:
 
 ```bash
 ./update_configs.sh
 ```
 
-### 🛠️ Manual Installation
+---
 
-If you prefer to install packages yourself:
+## 📚 Documentation
 
-1.  **Install Packages**:
+Full documentation lives in the [Wiki](docs/wiki/):
 
-    > **See [PACKAGES.md](PACKAGES.md) for the complete list of packages and installation commands.**
+| Page | Description |
+| :--- | :---------- |
+| [Installation](docs/wiki/Installation.md) | How to install and set up the dotfiles |
+| [Configuration](docs/wiki/Configuration.md) | Reference for all configuration files |
+| [Keybindings](docs/wiki/Keybindings.md) | Complete keybinding reference |
+| [Components](docs/wiki/Components.md) | Software stack and component details |
+| [Customization](docs/wiki/Customization.md) | How to customize your setup |
+| [Shell Setup](docs/wiki/Shell-Setup.md) | Zsh shell configuration details |
+| [Troubleshooting](docs/wiki/Troubleshooting.md) | Common issues and solutions |
 
-    Basic set:
-
-    ```bash
-    yay -S hyprland waybar kitty fuzzel hyprpaper swaync polkit-gnome \
-           xdg-desktop-portal-hyprland qt5ct grim slurp wl-clipboard \
-           brightnessctl playerctl pamixer wireplumber thunar \
-           thunar-archive-plugin thunar-volman file-roller gvfs \
-           catppuccin-gtk-theme-mocha papirus-icon-theme \
-           ttf-jetbrains-mono-nerd wlogout rofi-wayland
-    ```
-
-2.  **Copy Configs**:
-    ```bash
-    cp -r .config/* ~/.config/
-    ```
-
-### ✅ Post-Installation
-
-1.  **Run Verification**:
-
-    ```bash
-    ./verify.sh
-    ```
-
-    This script checks for missing packages or config errors.
-
-2.  **Set System Defaults** (Optional):
-
-    To ensure Thunar and Kitty are system-wide defaults:
-
-    ```bash
-    # Set Thunar as default file manager
-    xdg-mime default thunar.desktop inode/directory
-
-    # Set Kitty as default terminal (verify schema first with: gsettings list-schemas | grep terminal)
-    # For GNOME-based systems:
-    # gsettings set org.gnome.desktop.default-applications.terminal exec kitty
-    # For alternatives, create/edit ~/.local/share/applications/mimeapps.list
-    ```
-
-3.  **Start Hyprland**:
-    - Log out of your current session.
-    - Select **Hyprland** from your display manager (SDDM/GDM).
-    - Log in.
-
-> **Note**: If you are on a laptop, ensure `brightnessctl` is working for backlight keys.
+---
 
 ## 📄 License
 
