@@ -159,13 +159,39 @@ See the [Components](Components.md) page for the full Waybar module breakdown.
 | Font | `JetBrainsMono Nerd Font` |
 | Colors | Catppuccin Mocha (via `colors/colors.css`) |
 
+**Current module layout:**
+
+| Position | Modules |
+| :------- | :------ |
+| **Left** | Clock |
+| **Center** | Hyprland Workspaces |
+| **Right** | PulseAudio · Temperature · Battery · System Tray · Power+Notification button |
+
 ---
 
-## Notifications (`swaync/config.json`)
+## Notifications & Control Center (`swaync/config.json` + `swaync/style.css`)
 
-swaync is used for notifications with a panel accessible via the Waybar notification widget (click) or `SUPER + N`.
+swaync is used for a full **Control Center** panel accessible via the rightmost Waybar button (` `) or `SUPER+N`.
 
-The style matches Catppuccin Mocha. Custom icons are stored in `.config/swaync/icons/` and `.config/swaync/images/`.
+### Key config values
+
+| Key | Value | Description |
+| :-- | :---- | :---------- |
+| `control-center-width` | `350` | Fixed panel width |
+| `control-center-height` | `600` | Fixed panel height |
+| `control-center-margin-top/right` | `7` | Float gap from screen edges |
+| `fit-to-screen` | `false` | Prevents full-screen stretching |
+| `timeout` | `3` | Normal popups auto-dismiss after 3s |
+| `timeout-low` | `3` | Low-priority popups also auto-dismiss after 3s |
+| `timeout-critical` | `0` | Critical popups persist indefinitely |
+
+### Widget order
+
+```json
+"widgets": ["mpris", "title", "volume", "backlight", "notifications", "buttons-grid"]
+```
+
+Custom icons are stored in `.config/swaync/icons/` and `.config/swaync/images/`.
 
 ---
 

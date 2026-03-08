@@ -28,23 +28,17 @@ Highly customizable Wayland status bar. Styled as a transparent bar with rounded
 
 | Position | Modules |
 | :------- | :------ |
-| **Left** | Notification bell (swaync toggle), Clock, Weather |
-| **Center** | Hyprland workspaces (5 persistent, icon-based) |
-| **Right** | Volume (PulseAudio), Battery, Network, System Tray, Power menu |
+| **Left** | Clock |
+| **Center** | Hyprland workspaces (4 persistent, icon-based) |
+| **Right** | Volume (PulseAudio), Temperature, Battery, System Tray, Power+Notification button |
+
+### Notification & Power Button
+
+The rightmost Waybar module (` `) is a combined **notification count + power menu** toggle. A single click opens the SwayNC Control Center. A right-click toggles Do-Not-Disturb mode.
 
 ### Heat-Safe CPU Module
 
 The Waybar config monitors CPU temperature. When the sensor exceeds **80°C**, the CPU temperature module switches to the `critical` CSS class and turns **red** — a visual alert that the system is thermal-throttling.
-
-### Weather Widget
-
-Live weather is fetched from [wttr.in](https://wttr.in) via `scripts/get_weather.sh`. To set your city, edit the `custom/weather` exec line in `~/.config/waybar/config`:
-
-```jsonc
-"exec": "${HOME}/.config/waybar/scripts/get_weather.sh London+UK"
-```
-
-Replace spaces with `+` (e.g., `New+York+USA`).
 
 ---
 
@@ -90,11 +84,28 @@ The `wallpaper-rotate.sh` script randomly selects a wallpaper from `~/.config/hy
 
 ---
 
-## 🔔 swaync (Notifications)
+## 🔔 swaync (Notification & Control Center)
 
 **Package**: `swaync`
 
-Notification daemon with a slide-out notification center. Accessed via the Waybar notification bell or by clicking the bell widget. Styled with Catppuccin Mocha colors.
+Notification daemon with a full slide-out **Control Center**, accessible via the Waybar ` ` button or `SUPER+N`. Styled with an opaque Catppuccin Mocha card design.
+
+### Widget Stack (top to bottom)
+
+| Widget | Description |
+| :----- | :---------- |
+| **MPRIS** | Currently-playing music card. Shows track title, artist, and playback controls. Auto-hides when nothing is playing. |
+| **Title** | Panel header with "Notifications" label and a **Clear All** ghost button. |
+| **Volume** | Live volume slider (PulseAudio). |
+| **Backlight** | Screen brightness slider (brightnessctl). |
+| **Notifications** | Scrollable notification list. |
+| **Buttons Grid** | Power action row: Lock ·  Suspend · Logout · Reboot · Shutdown. |
+
+### Notification Popup Behaviour
+
+- **Normal / Low** notifications auto-dismiss after **3 seconds**.
+- **Critical** notifications persist until manually dismissed.
+- Close buttons are hidden by default and fade in on hover.
 
 ---
 
@@ -171,6 +182,14 @@ Access clipboard history with `SUPER+V`.
 **Package**: `hyprpicker`
 
 Screen color picker. Press `SUPER+Shift+C` to activate, click anywhere on screen to copy the hex color to clipboard.
+
+---
+
+## 🖼️ imv (Image Viewer)
+
+**Package**: `imv`
+
+Lightweight Wayland-native image viewer. Set as the default XDG handler for common image types (PNG, JPG, WEBP, GIF, BMP, TIFF, ICO, SVG). Supports transparency checking.
 
 ---
 

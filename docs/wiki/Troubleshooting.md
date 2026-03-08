@@ -91,16 +91,6 @@ fc-cache -f -v
 
 Then restart Waybar.
 
-### Weather widget shows nothing
-
-1. Check internet connectivity.
-2. Test the script manually:
-   ```bash
-   ~/.config/waybar/scripts/get_weather.sh London+UK
-   ```
-3. Ensure `curl` is installed: `sudo pacman -S curl`
-4. Update the city in `~/.config/waybar/config`.
-
 ### CPU temp always showing 0 or wrong value
 
 The temperature module path may differ on your hardware. Check available sensors:
