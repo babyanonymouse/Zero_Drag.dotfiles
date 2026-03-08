@@ -5,6 +5,7 @@ on:
       - main
     paths:
       - 'docs/wiki/**'
+  workflow_dispatch:
 
 jobs:
   update-wiki:
