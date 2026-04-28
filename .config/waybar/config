@@ -10,6 +10,7 @@
         "hyprland/workspaces"
     ],
     "modules-right": [
+        "idle_inhibitor",
         "pulseaudio",
         "temperature",
         "battery",
@@ -25,6 +26,13 @@
         },
         "persistent-workspaces": {
             "*": 4
+        }
+    },
+    "idle_inhibitor": {
+        "format": "{icon}",
+        "format-icons": {
+            "activated": "",
+            "deactivated": ""
         }
     },
     "clock": {

@@ -45,6 +45,7 @@ window#waybar {
 }
 
 #clock,
+#idle_inhibitor,
 #temperature,
 #custom-weather,
 #battery,
@@ -62,6 +63,15 @@ window#waybar {
 #custom-weather {
   transition: all 0.2s ease-in-out;
   color: @grey1;
+}
+
+#idle_inhibitor {
+  transition: all 0.2s ease-in-out;
+  color: @grey1;
+}
+
+#idle_inhibitor.activated {
+  color: @yellow;
 }
 
 #temperature {
