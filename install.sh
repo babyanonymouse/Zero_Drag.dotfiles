@@ -75,6 +75,7 @@ PACKAGES=(
     "hypridle"
     "gthumb"
     "hyprpicker"
+    "imagemagick"
 )
 
 # Check if yay is available, otherwise use pacman
