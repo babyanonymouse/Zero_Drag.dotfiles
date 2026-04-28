@@ -291,10 +291,58 @@ pamixer -d 5    # Decrease volume by 5%
 
 This setup is designed to minimize thermal load. If you are still experiencing overheating:
 
-1. Confirm animations are disabled: `animations { enabled = false }` in `hyprland.conf`.
-2. Confirm blur is disabled: `blur { enabled = false }`.
+1. Confirm blur is disabled: `blur { enabled = false }`.
+2. Confirm animations are snap-only (≤100ms): in `hyprland.conf` verify `bezier = snap` is defined and window/workspace animations reference it (e.g. `animation = windows, 1, 1, snap, slide`). Fade, border, and layer animations should be set to `0`.
 3. Enable `vfr = true` in the `misc` block.
 4. Consider reducing the number of autostart applications in `hyprland.conf`.
+
+---
+
+## 🎵 Album Art Not Showing on Lock Screen
+
+The lock screen album art widget reads `/tmp/album_art.png`, which is populated by `extract_album_art.sh`.
+
+### `extract_album_art.sh` not running
+
+Check that the script is autostarted:
+
+```bash
+pgrep -f extract_album_art.sh || ~/.config/hypr/scripts/extract_album_art.sh &
+```
+
+### No album art even when music is playing
+
+Ensure `playerctl` is installed and a media player is detected:
+
+```bash
+playerctl status
+playerctl metadata mpris:artUrl
+```
+
+Install playerctl if missing:
+
+```bash
+sudo pacman -S playerctl
+```
+
+If the art URL is a local file, verify the file exists. If it is a remote URL, verify `curl` is installed (`sudo pacman -S curl`).
+
+---
+
+## 🌙 System Suspending While Music Plays
+
+`suspend_gatekeeper.sh` prevents suspend when a media player is active or system load is above 0.8. If the system still suspends:
+
+1. Verify `playerctl` detects the player: `playerctl status` should return `Playing`.
+2. Check the script is executable:
+   ```bash
+   chmod +x ~/.config/hypr/scripts/suspend_gatekeeper.sh
+   ```
+3. Test the script manually:
+   ```bash
+   ~/.config/hypr/scripts/suspend_gatekeeper.sh; echo "exit: $?"
+   ```
+   A non-zero exit code means suspend was blocked.
 
 ---
 

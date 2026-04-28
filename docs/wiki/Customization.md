@@ -162,6 +162,12 @@ background {
 }
 ```
 
+### Album Art on Lock Screen
+
+The lock screen shows the currently playing track's album art. This is powered by `extract_album_art.sh` (autostarted by Hyprland) which writes album art to `/tmp/album_art.png`. The `image` block in `hyprlock.conf` reloads that file every 2 seconds.
+
+To disable the album art widget, remove or comment out the `image { ... }` block (marked `# MEDIA ALBUM ART`) and the `label { ... }` block below it (marked `# MEDIA INFO`) in `~/.config/hypr/hyprlock.conf`.
+
 ---
 
 ## 🌸 GTK Theme
@@ -206,17 +212,28 @@ Use `exec-once` for applications that should start only once per session, and `e
 
 ## 🔔 Idle Timeouts
 
-Edit `~/.config/hypr/hypridle.conf` to change screen-off and suspend timeouts:
+Edit `~/.config/hypr/hypridle.conf` to change dimming, lock, screen-off, and suspend timeouts:
 
 ```conf
 listener {
-    timeout = 300    # seconds until screen off (currently 5 min)
+    timeout = 420    # seconds until backlight dims (currently 7 min)
+    on-timeout = brightnessctl -s set 10
+    on-resume = brightnessctl -r
+}
+
+listener {
+    timeout = 600    # seconds until lock screen (currently 10 min)
+    on-timeout = loginctl lock-session
+}
+
+listener {
+    timeout = 630    # seconds until screen off (currently 10.5 min)
     on-timeout = hyprctl dispatch dpms off
     on-resume = hyprctl dispatch dpms on
 }
 
 listener {
-    timeout = 600    # seconds until suspend (currently 10 min)
-    on-timeout = systemctl suspend
+    timeout = 900    # seconds until smart suspend (currently 15 min)
+    on-timeout = ~/.config/hypr/scripts/suspend_gatekeeper.sh
 }
 ```

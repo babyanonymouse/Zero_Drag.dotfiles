@@ -117,6 +117,8 @@ Wayland lock screen. Minimal design with:
 - Time and date display.
 - Password input field (Catppuccin Lavender border).
 - No blur (zero GPU cost).
+- **Media album art**: Shows the current track's album art (`/tmp/album_art.png`, reloaded every 2 seconds) with a Lavender border, populated by `extract_album_art.sh`.
+- **Media info label**: Displays `title - artist` from `playerctl` below the album art.
 
 Triggered by `SUPER+L` or automatically by `hypridle` after inactivity.
 
@@ -126,12 +128,28 @@ Triggered by `SUPER+L` or automatically by `hypridle` after inactivity.
 
 **Package**: `hypridle`
 
-Manages screen timeout and system suspend:
+Manages screen dimming, locking, and smart suspend. Also locks before system sleep and restores the display on resume.
 
 | Timeout | Action |
 | :------ | :----- |
-| 5 minutes | Screen off (`dpms off`) |
-| 10 minutes | Suspend (`systemctl suspend`) |
+| 7 minutes | Dim backlight to 10% (`brightnessctl -s set 10`); restore on resume |
+| 10 minutes | Lock screen (`loginctl lock-session`) |
+| 10.5 minutes | Turn off display (`dpms off`); turn on on resume |
+| 15 minutes | Smart suspend via `suspend_gatekeeper.sh` |
+
+---
+
+## 📜 Hypr Scripts
+
+Custom shell scripts in `.config/hypr/scripts/`:
+
+| Script | Trigger | Description |
+| :----- | :------ | :---------- |
+| `wallpaper-rotate.sh` | Startup, `SUPER+W` | Picks a random wallpaper from `~/.config/hypr/wallpapers/` and applies it via `hyprctl`. |
+| `screenshot.sh` | `SUPER+S`, `Print` | Region-select screenshot with `slurp`/`grim`; saves to `~/Pictures/Screenshots` and copies to clipboard. |
+| `window_switcher.sh` | `ALT+Tab` | Fuzzel-based graphical window picker. |
+| `extract_album_art.sh` | Startup (autostart) | Follows `playerctl` metadata; copies album art to `/tmp/album_art.png` for Hyprlock to display. |
+| `suspend_gatekeeper.sh` | Hypridle (15 min) | Smart suspend — skips suspend if music is playing or system load > 0.8. |
 
 ---
 
