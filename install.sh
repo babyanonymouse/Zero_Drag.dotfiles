@@ -54,6 +54,7 @@ PACKAGES=(
     "file-roller"
     "gvfs"
     "gvfs"
+    "flat-remix-gtk"
     "papirus-icon-theme"
     "xdg-utils"
     "ttf-jetbrains-mono-nerd"
@@ -140,6 +141,8 @@ cp -r "$SCRIPT_DIR/.config/kitty" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/fuzzel" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/swaync" "$HOME/.config/"
 cp -r "$SCRIPT_DIR/.config/wlogout" "$HOME/.config/"
+cp -r "$SCRIPT_DIR/.config/gtk-3.0" "$HOME/.config/"
+cp -r "$SCRIPT_DIR/.config/gtk-4.0" "$HOME/.config/"
 
 
 # Copy starship config
@@ -169,7 +172,7 @@ mkdir -p "$HOME/Pictures"
 xdg-mime default thunar.desktop inode/directory
 
 # Apply GTK Theme and Icon Theme
-gsettings set org.gnome.desktop.interface gtk-theme "Catppuccin-Mocha-Standard-Blue-Dark"
+gsettings set org.gnome.desktop.interface gtk-theme "Flat-Remix-GTK-Blue-Dark"
 gsettings set org.gnome.desktop.interface icon-theme "Papirus-Dark"
 
 echo ""
