@@ -113,12 +113,17 @@ Notification daemon with a full slide-out **Control Center**, accessible via the
 
 **Package**: `hyprlock`
 
-Wayland lock screen. Minimal design with:
+Wayland lock screen with a full media player widget. Features:
 - Time and date display.
 - Password input field (Catppuccin Lavender border).
-- No blur (zero GPU cost).
-- **Media album art**: Shows the current track's album art (`/tmp/album_art.png`, reloaded every 2 seconds) with a Lavender border, populated by `extract_album_art.sh`.
-- **Media info label**: Displays `title - artist` from `playerctl` below the album art.
+- Frosted glass background blur (2 passes).
+- **Music widget**: A semi-transparent rounded card at the bottom of the screen containing:
+  - Square-cropped album art (cached in `$HOME/.cache/hyprlock-art/`, reloaded every 2 seconds).
+  - Song title and artist name.
+  - Active player name with icon (Spotify, Firefox, mpv, VLC, etc.).
+  - Clickable ⏮ / ▶/⏸ / ⏭ playback controls via `playerctl`.
+  - Pango-markup progress bar with current position and total track length.
+- All media data is fetched on-demand by `hyprlock-music.sh` — no background daemon needed.
 
 Triggered by `SUPER+L` or automatically by `hypridle` after inactivity.
 
@@ -148,7 +153,7 @@ Custom shell scripts in `.config/hypr/scripts/`:
 | `wallpaper-rotate.sh` | Startup, `SUPER+W` | Picks a random wallpaper from `~/.config/hypr/wallpapers/` and applies it via `hyprctl`. |
 | `screenshot.sh` | `SUPER+S`, `Print` | Region-select screenshot with `slurp`/`grim`; saves to `~/Pictures/Screenshots` and copies to clipboard. |
 | `window_switcher.sh` | `ALT+Tab` | Fuzzel-based graphical window picker. |
-| `extract_album_art.sh` | Startup (autostart) | Follows `playerctl` metadata; copies album art to `/tmp/album_art.png` for Hyprlock to display. |
+| `hyprlock-music.sh` | Called by Hyprlock | All-in-one music integration for the lock screen. Accepts flags: `--title`, `--artist`, `--status`, `--length`, `--position`, `--progress-bar`, `--art`, `--player`. Fetches album art from `playerctl` and caches a square-cropped copy in `$HOME/.cache/hyprlock-art/`. Requires `playerctl`; uses `curl` for remote art and `ImageMagick` (`convert`) for cropping. |
 | `suspend_gatekeeper.sh` | Hypridle (15 min) | Smart suspend — skips suspend if music is playing or system load > 0.8. |
 
 ---

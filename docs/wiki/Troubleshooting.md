@@ -300,14 +300,12 @@ This setup is designed to minimize thermal load. If you are still experiencing o
 
 ## 🎵 Album Art Not Showing on Lock Screen
 
-The lock screen album art widget reads `/tmp/album_art.png`, which is populated by `extract_album_art.sh`.
+The lock screen album art widget calls `hyprlock-music.sh --art` directly — no background daemon is needed. If album art is missing:
 
-### `extract_album_art.sh` not running
-
-Check that the script is autostarted:
+### `hyprlock-music.sh` not executable
 
 ```bash
-pgrep -f extract_album_art.sh || ~/.config/hypr/scripts/extract_album_art.sh &
+chmod +x ~/.config/hypr/scripts/hyprlock-music.sh
 ```
 
 ### No album art even when music is playing
@@ -326,6 +324,18 @@ sudo pacman -S playerctl
 ```
 
 If the art URL is a local file, verify the file exists. If it is a remote URL, verify `curl` is installed (`sudo pacman -S curl`).
+
+For square cropping, `ImageMagick` is used. Verify it is installed:
+
+```bash
+which convert || sudo pacman -S imagemagick
+```
+
+The cropped art is cached in `$HOME/.cache/hyprlock-art/`. To force a refresh, clear the cache:
+
+```bash
+rm -rf ~/.cache/hyprlock-art/
+```
 
 ---
 

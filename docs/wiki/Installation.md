@@ -69,7 +69,8 @@ yay -S hyprland waybar kitty fuzzel hyprpaper swaync polkit-gnome \
        catppuccin-gtk-theme-mocha papirus-icon-theme xdg-utils \
        ttf-jetbrains-mono-nerd wlogout starship \
        eza bat zoxide ripgrep fzf cliphist hyprlock hypridle \
-       zsh-syntax-highlighting zsh-autosuggestions zsh-completions gthumb hyprpicker
+       zsh-syntax-highlighting zsh-autosuggestions zsh-completions gthumb hyprpicker \
+       imagemagick
 ```
 
 **Using pacman (official repos only):**
@@ -81,7 +82,8 @@ sudo pacman -S hyprland waybar kitty fuzzel hyprpaper swaync polkit-gnome \
                catppuccin-gtk-theme-mocha papirus-icon-theme xdg-utils \
                wlogout starship eza bat zoxide ripgrep fzf \
                cliphist hyprlock hypridle zsh-syntax-highlighting \
-               zsh-autosuggestions zsh-completions gthumb hyprpicker
+               zsh-autosuggestions zsh-completions gthumb hyprpicker \
+               imagemagick
 ```
 
 **Install the Nerd Font (AUR):**
@@ -182,3 +184,4 @@ yay -S qt5-graphicaleffects qt5-quickcontrols2 qt5-svg
 - **Numlock**: Forced **OFF** by default (`numlock_by_default = false` in `hyprland.conf`). Change this in `~/.config/hypr/hyprland.conf` if needed.
 - **Weather widget**: Set your city in `~/.config/waybar/config` — see the [Customization](Customization.md) page.
 - **Hyprlock background**: Update the path in `~/.config/hypr/hyprlock.conf` to point to your wallpaper.
+- **Album art cropping**: `imagemagick` is required for square album art crops on the lock screen. It is included in the package lists above.

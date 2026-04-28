@@ -18,7 +18,7 @@ An overview of all configuration files and their key settings.
 │   │       ├── wallpaper-rotate.sh     # Cycle through wallpapers
 │   │       ├── screenshot.sh           # Screenshot utility
 │   │       ├── window_switcher.sh      # ALT+Tab window switcher
-│   │       ├── extract_album_art.sh    # Extract playerctl album art to /tmp/album_art.png
+│   │       ├── hyprlock-music.sh       # All-in-one music info + album art for Hyprlock
 │   │       └── suspend_gatekeeper.sh   # Smart suspend (skip if music playing or load > 0.8)
 │   ├── waybar/
 │   │   ├── config                # Waybar module config (JSONC)
@@ -74,7 +74,6 @@ Auto-detects monitor with preferred resolution and scale `1`. For HiDPI screens,
 | `wallpaper-rotate.sh` | Initial random wallpaper |
 | `hypridle` | Idle/suspend management |
 | `batsignal` | Battery level notifications |
-| `extract_album_art.sh` | Follows playerctl to provide album art for Hyprlock |
 | `wl-paste … cliphist store` | Clipboard history (text + images) |
 
 ### General Settings
@@ -134,20 +133,25 @@ animations {
 
 ## Lock Screen (`hyprlock.conf`)
 
-Minimal lock screen with Catppuccin Mocha styling.
+Catppuccin Mocha-styled lock screen with a full media player widget.
 
 | Element | Description |
 | :------ | :---------- |
-| **Background** | Wallpaper image or `rgba(30,30,46)` base color |
-| **Blur** | `0 passes` — disabled for performance |
-| **Clock** | 64px `HH:MM`, centered, updates every second |
+| **Background** | Wallpaper image with frosted glass blur (2 passes) |
+| **Clock** | 80px `HH:MM`, Lavender, near top of screen |
 | **Date** | 24px `Day, Month DD`, centered below clock |
-| **Input field** | 250×50px, lavender outline, base fill |
-| **Album art** | 150px image from `/tmp/album_art.png`, reloaded every 2s, Lavender border |
-| **Media info** | `title - artist` label from `playerctl`, shown below album art |
+| **Input field** | 250×50px, Lavender outline, Base fill |
+| **Music widget** | Semi-transparent rounded card (500×140px) anchored to the bottom |
+| **Album art** | 100px square-cropped image from `$HOME/.cache/hyprlock-art/current.jpg`, reloaded every 2s via `hyprlock-music.sh --art`, Lavender border |
+| **Song title** | Track title from `hyprlock-music.sh --title` (truncated to 29 chars) |
+| **Artist** | Artist name from `hyprlock-music.sh --artist` |
+| **Player source** | Active player name + icon from `hyprlock-music.sh --player` |
+| **Playback controls** | Clickable ⏮ / ▶/⏸ / ⏭ buttons via `playerctl` |
+| **Progress bar** | Pango-markup progress bar from `hyprlock-music.sh --progress-bar` |
+| **Position / Length** | Current position and total length from `hyprlock-music.sh --position/--length` |
 
 > **Note**: Update the `path` in the background block to point to your wallpaper file.
-> The album art widget requires `extract_album_art.sh` to be running (autostarted by `hyprland.conf`). See the [Troubleshooting](Troubleshooting.md#-album-art-not-showing-on-lock-screen) page if album art does not appear.
+> Album art is fetched on-demand by `hyprlock-music.sh` — no background daemon is required. See the [Troubleshooting](Troubleshooting.md#-album-art-not-showing-on-lock-screen) page if album art does not appear.
 
 ---
 
