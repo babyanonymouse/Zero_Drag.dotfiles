@@ -113,10 +113,17 @@ Notification daemon with a full slide-out **Control Center**, accessible via the
 
 **Package**: `hyprlock`
 
-Wayland lock screen. Minimal design with:
+Wayland lock screen with a full media player widget. Features:
 - Time and date display.
 - Password input field (Catppuccin Lavender border).
-- No blur (zero GPU cost).
+- Frosted glass background blur (2 passes).
+- **Music widget**: A semi-transparent rounded card at the bottom of the screen containing:
+  - Square-cropped album art (cached in `$HOME/.cache/hyprlock-art/`, reloaded every 2 seconds).
+  - Song title and artist name.
+  - Active player name with icon (Spotify, Firefox, mpv, VLC, etc.).
+  - Clickable ⏮ / ▶/⏸ / ⏭ playback controls via `playerctl`.
+  - Pango-markup progress bar with current position and total track length.
+- All media data is fetched on-demand by `hyprlock-music.sh` — no background daemon needed.
 
 Triggered by `SUPER+L` or automatically by `hypridle` after inactivity.
 
@@ -126,12 +133,28 @@ Triggered by `SUPER+L` or automatically by `hypridle` after inactivity.
 
 **Package**: `hypridle`
 
-Manages screen timeout and system suspend:
+Manages screen dimming, locking, and smart suspend. Also locks before system sleep and restores the display on resume.
 
 | Timeout | Action |
 | :------ | :----- |
-| 5 minutes | Screen off (`dpms off`) |
-| 10 minutes | Suspend (`systemctl suspend`) |
+| 7 minutes | Dim backlight to 10% (`brightnessctl -s set 10`); restore on resume |
+| 10 minutes | Lock screen (`loginctl lock-session`) |
+| 10.5 minutes | Turn off display (`dpms off`); turn on on resume |
+| 15 minutes | Smart suspend via `suspend_gatekeeper.sh` |
+
+---
+
+## 📜 Hypr Scripts
+
+Custom shell scripts in `.config/hypr/scripts/`:
+
+| Script | Trigger | Description |
+| :----- | :------ | :---------- |
+| `wallpaper-rotate.sh` | Startup, `SUPER+W` | Picks a random wallpaper from `~/.config/hypr/wallpapers/` and applies it via `hyprctl`. |
+| `screenshot.sh` | `SUPER+S`, `Print` | Region-select screenshot with `slurp`/`grim`; saves to `~/Pictures/Screenshots` and copies to clipboard. |
+| `window_switcher.sh` | `ALT+Tab` | Fuzzel-based graphical window picker. |
+| `hyprlock-music.sh` | Called by Hyprlock | All-in-one music integration for the lock screen. Accepts flags: `--title`, `--artist`, `--status`, `--length`, `--position`, `--progress-bar`, `--art`, `--player`. Fetches album art from `playerctl` and caches a square-cropped copy in `$HOME/.cache/hyprlock-art/`. Requires `playerctl`; uses `curl` for remote art and `ImageMagick` (`convert`) for cropping. |
+| `suspend_gatekeeper.sh` | Hypridle (15 min) | Smart suspend — skips suspend if music is playing or system load > 0.8. |
 
 ---
 
