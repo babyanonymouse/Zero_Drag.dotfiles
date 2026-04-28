@@ -58,7 +58,7 @@ git pull
 
 ### Step 1 — Install Packages
 
-See [PACKAGES.md](../../PACKAGES.md) for the complete package list.
+See the commands below for the complete package list.
 
 **Using yay:**
 ```bash
