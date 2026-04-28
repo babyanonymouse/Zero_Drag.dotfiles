@@ -164,9 +164,9 @@ background {
 
 ### Album Art on Lock Screen
 
-The lock screen shows the currently playing track's album art. This is powered by `extract_album_art.sh` (autostarted by Hyprland) which writes album art to `/tmp/album_art.png`. The `image` block in `hyprlock.conf` reloads that file every 2 seconds.
+The lock screen shows the currently playing track's album art. This is powered by `hyprlock-music.sh`, which is called directly by Hyprlock's `reload_cmd` — no background daemon is required. The script fetches album art from `playerctl`, downloads remote art via `curl` if needed, and caches a square-cropped version (via ImageMagick) in `$HOME/.cache/hyprlock-art/`.
 
-To disable the album art widget, remove or comment out the `image { ... }` block (marked `# MEDIA ALBUM ART`) and the `label { ... }` block below it (marked `# MEDIA INFO`) in `~/.config/hypr/hyprlock.conf`.
+To disable the media widget, remove or comment out the `shape { ... }`, `image { ... }`, and all media `label { ... }` blocks in `~/.config/hypr/hyprlock.conf` (everything below `# MUSIC WIDGET BACKGROUND`).
 
 ---
 
