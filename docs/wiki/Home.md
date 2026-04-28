@@ -26,7 +26,7 @@ Welcome to the **Zero-Drag Hyprland Dotfiles** wiki — a high-performance, mini
 | Principle | Details |
 | :-------- | :------ |
 | **Visuals** | Catppuccin Mocha, High Contrast, Sharp Corners (0px rounding) |
-| **Performance** | Zero Blur, Zero Shadows, Zero Animations, Zero Bloat |
+| **Performance** | Zero Blur, Zero Shadows, Snap-Only Animations (≤100ms), Zero Bloat |
 | **Thermal Safety** | Critical red-line CPU temperature indicators on the status bar |
 | **Ergonomics** | Vim-style navigation, modern Rust-powered CLI tools |
 
