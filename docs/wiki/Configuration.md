@@ -15,9 +15,11 @@ An overview of all configuration files and their key settings.
 │   │   ├── hypridle.conf         # Idle/suspend config
 │   │   ├── hyprpaper.conf        # Wallpaper config
 │   │   └── scripts/
-│   │       ├── wallpaper-rotate.sh  # Cycle through wallpapers
-│   │       ├── screenshot.sh        # Screenshot utility
-│   │       └── window_switcher.sh   # ALT+Tab window switcher
+│   │       ├── wallpaper-rotate.sh     # Cycle through wallpapers
+│   │       ├── screenshot.sh           # Screenshot utility
+│   │       ├── window_switcher.sh      # ALT+Tab window switcher
+│   │       ├── hyprlock-music.sh       # All-in-one music info + album art for Hyprlock
+│   │       └── suspend_gatekeeper.sh   # Smart suspend (skip if music playing or load > 0.8)
 │   ├── waybar/
 │   │   ├── config                # Waybar module config (JSONC)
 │   │   ├── style.css             # Waybar appearance
@@ -85,9 +87,9 @@ Auto-detects monitor with preferred resolution and scale `1`. For HiDPI screens,
 | `col.inactive_border` | `rgba(6c7086ff)` | Surface1 inactive border |
 | `layout` | `dwindle` | Default tiling layout |
 
-### Decoration
+### Decoration & Animations
 
-All decorations are **disabled** for performance and thermal control:
+All blur and shadow decorations are **disabled** for performance and thermal control. Animations are enabled but capped to ultra-fast 100ms snap transitions to preserve responsiveness without perceptible delay:
 
 ```conf
 decoration {
@@ -95,7 +97,18 @@ decoration {
     blur { enabled = false }
     shadow { enabled = false }
 }
-animations { enabled = false }
+animations {
+    enabled = true
+    # "snap" bezier: 100ms instant-feel slide — perceptually near-zero
+    bezier = snap, 0.12, 0.96, 0.18, 1.0
+    animation = windows, 1, 1, snap, slide
+    animation = workspaces, 1, 1, snap, slidefade 10%
+    # fade/border/layers disabled — no visual overhead
+    animation = fade, 0
+    animation = border, 0
+    animation = borderangle, 0
+    animation = layers, 0
+}
 ```
 
 ### Input
@@ -120,17 +133,25 @@ animations { enabled = false }
 
 ## Lock Screen (`hyprlock.conf`)
 
-Minimal lock screen with Catppuccin Mocha styling.
+Catppuccin Mocha-styled lock screen with a full media player widget.
 
 | Element | Description |
 | :------ | :---------- |
-| **Background** | Wallpaper image or `rgba(30,30,46)` base color |
-| **Blur** | `0 passes` — disabled for performance |
-| **Clock** | 64px `HH:MM`, centered, updates every second |
+| **Background** | Wallpaper image with frosted glass blur (2 passes) |
+| **Clock** | 80px `HH:MM`, Lavender, near top of screen |
 | **Date** | 24px `Day, Month DD`, centered below clock |
-| **Input field** | 250×50px, lavender outline, base fill |
+| **Input field** | 250×50px, Lavender outline, Base fill |
+| **Music widget** | Semi-transparent rounded card (500×140px) anchored to the bottom |
+| **Album art** | 100px square-cropped image from `$HOME/.cache/hyprlock-art/current.jpg`, reloaded every 2s via `hyprlock-music.sh --art`, Lavender border |
+| **Song title** | Track title from `hyprlock-music.sh --title` (truncated to 29 chars) |
+| **Artist** | Artist name from `hyprlock-music.sh --artist` |
+| **Player source** | Active player name + icon from `hyprlock-music.sh --player` |
+| **Playback controls** | Clickable ⏮ / ▶/⏸ / ⏭ buttons via `playerctl` |
+| **Progress bar** | Pango-markup progress bar from `hyprlock-music.sh --progress-bar` |
+| **Position / Length** | Current position and total length from `hyprlock-music.sh --position/--length` |
 
 > **Note**: Update the `path` in the background block to point to your wallpaper file.
+> Album art is fetched on-demand by `hyprlock-music.sh` — no background daemon is required. See the [Troubleshooting](Troubleshooting.md#-album-art-not-showing-on-lock-screen) page if album art does not appear.
 
 ---
 
@@ -138,10 +159,12 @@ Minimal lock screen with Catppuccin Mocha styling.
 
 | Timeout | Action |
 | :------ | :----- |
-| **5 minutes** | Turn off display (`dpms off`) |
-| **10 minutes** | Suspend system (`systemctl suspend`) |
+| **7 minutes** | Dim backlight to 10% (`brightnessctl -s set 10`); restore on resume |
+| **10 minutes** | Lock screen (`loginctl lock-session`) |
+| **10.5 minutes** | Turn off display (`dpms off`); turn on on resume |
+| **15 minutes** | Smart suspend via `suspend_gatekeeper.sh` |
 
-The lock command (`hyprlock`) is triggered via `loginctl lock-session` (e.g., `SUPER + L`).
+The `general {}` block locks the session before the system sleeps (`before_sleep_cmd`) and re-enables the display on wake (`after_sleep_cmd`).
 
 ---
 
