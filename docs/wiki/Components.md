@@ -14,7 +14,7 @@ A dynamic tiling Wayland compositor. Chosen for its lightweight footprint, scrip
 - **Layout**: Dwindle (Master layout available as backup).
 - **Rounding**: `0px` — sharp corners, no GPU rounding cost.
 - **Blur / Shadows / Animations**: All disabled — maximum thermal and performance headroom.
-- **VFR**: Enabled — variable framerate reduces idle GPU load.
+- **VFR**: Enabled via the `debug` block in Hyprland v0.55+.
 
 ---
 

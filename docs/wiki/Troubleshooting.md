@@ -293,7 +293,7 @@ This setup is designed to minimize thermal load. If you are still experiencing o
 
 1. Confirm blur is disabled: `blur { enabled = false }`.
 2. Confirm animations are snap-only (≤100ms): in `hyprland.conf` verify `bezier = snap` is defined and window/workspace animations reference it (e.g. `animation = windows, 1, 1, snap, slide`). Fade, border, and layer animations should be set to `0`.
-3. Enable `vfr = true` in the `misc` block.
+3. Enable `vfr = true` in the `debug` block.
 4. Consider reducing the number of autostart applications in `hyprland.conf`.
 
 ---
