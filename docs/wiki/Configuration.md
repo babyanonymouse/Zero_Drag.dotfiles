@@ -87,6 +87,12 @@ Auto-detects monitor with preferred resolution and scale `1`. For HiDPI screens,
 | `col.inactive_border` | `rgba(6c7086ff)` | Surface1 inactive border |
 | `layout` | `dwindle` | Default tiling layout |
 
+### Dwindle
+
+| Setting | Value | Description |
+| :------ | :---- | :---------- |
+| `preserve_split` | `true` | Keep split direction stable when arranging windows |
+
 ### Decoration & Animations
 
 All blur and shadow decorations are **disabled** for performance and thermal control. Animations are enabled but capped to ultra-fast 100ms snap transitions to preserve responsiveness without perceptible delay:
@@ -125,9 +131,14 @@ animations {
 
 | Setting | Value | Description |
 | :------ | :---- | :---------- |
-| `vfr` | `true` | Variable framerate (power saving) |
 | `disable_hyprland_logo` | `true` | No default wallpaper |
 | `disable_splash_rendering` | `true` | No splash screen |
+
+### Debug
+
+| Setting | Value | Description |
+| :------ | :---- | :---------- |
+| `vfr` | `true` | Variable framerate toggle in Hyprland v0.55+ |
 
 ---
 
