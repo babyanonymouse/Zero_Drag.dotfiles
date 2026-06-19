@@ -1,5 +1,5 @@
 #!/bin/bash
-# Verification script for minimal Hyprland dotfiles
+# Verification script for Zero-Drag Hyprland Lua dotfiles
 # Checks if all required packages and configurations are properly installed
 
 set -e
@@ -72,13 +72,10 @@ echo ""
 
 # Core packages
 check_package "hyprland"
-check_package "waybar"
+check_package "quickshell-git"
 check_package "kitty"
-check_package "fuzzel"
-check_package "swaync"
-check_package "polkit-gnome"
-check_package "hyprpaper"
-check_package "wlogout"
+check_package "swww"
+check_package "wallust"
 check_package "starship"
 
 echo ""
@@ -116,48 +113,44 @@ check_package "playerctl" true
 check_package "pamixer" true
 check_package "wireplumber"
 check_package "jq"
+check_package "xdotool"
+check_package "xorg-xrandr"
 check_package "xdg-utils"
-
-echo ""
-echo -e "${BLUE}Checking optional packages...${NC}"
-echo ""
-
-check_package "thunar"
 
 echo ""
 echo -e "${BLUE}Checking configuration directories...${NC}"
 echo ""
 
 check_dir "$HOME/.config/hypr"
-check_dir "$HOME/.config/waybar"
+check_dir "$HOME/.config/quickshell"
 check_dir "$HOME/.config/kitty"
-check_dir "$HOME/.config/fuzzel"
-check_dir "$HOME/.config/swaync"
+check_dir "$HOME/.config/wallust"
+check_dir "$HOME/.config/fastfetch"
+check_dir "$HOME/.config/systemd"
 
 echo ""
 echo -e "${BLUE}Checking configuration files...${NC}"
 echo ""
 
-check_config "$HOME/.config/hypr/hyprland.conf"
-check_config "$HOME/.config/hypr/hyprpaper.conf"
+check_config "$HOME/.config/hypr/hyprland.lua"
 check_config "$HOME/.config/hypr/hypridle.conf"
 check_config "$HOME/.config/hypr/hyprlock.conf"
-check_config "$HOME/.config/hypr/scripts/window_switcher.sh"
-check_config "$HOME/.config/hypr/scripts/wallpaper-rotate.sh"
-
-check_config "$HOME/.config/waybar/config"
-check_config "$HOME/.config/waybar/style.css"
 check_config "$HOME/.config/kitty/kitty.conf"
-check_config "$HOME/.config/fuzzel/fuzzel.ini"
-check_config "$HOME/.config/Thunar/uca.xml"
-
+check_config "$HOME/.config/wallust/wallust.toml"
 check_config "$HOME/.zshrc"
-check_config "$HOME/.config/starship.toml"
-
 
 echo ""
-echo -e "${BLUE}Checking additional directories...${NC}"
+echo -e "${BLUE}Checking script and files...${NC}"
 echo ""
+
+if [ -f "$HOME/scripts/torii-greeting.sh" ]; then
+    echo -e "${GREEN}✓${NC} $HOME/scripts/torii-greeting.sh exists"
+elif [ -f "$HOME/.config/hypr/scripts/torii-greeting.sh" ]; then
+    echo -e "${GREEN}✓${NC} $HOME/.config/hypr/scripts/torii-greeting.sh exists"
+else
+    echo -e "${RED}✗${NC} torii-greeting.sh greeting script is missing"
+    ((ERRORS++))
+fi
 
 if [ ! -d "$HOME/Pictures" ]; then
     echo -e "${YELLOW}⚠${NC} $HOME/Pictures directory doesn't exist (creating...)"
@@ -168,25 +161,6 @@ else
 fi
 
 echo ""
-echo -e "${BLUE}Validating configuration syntax...${NC}"
-echo ""
-
-# Check if Waybar config is valid JSON
-if command -v python3 &> /dev/null; then
-    if python3 -m json.tool "$HOME/.config/waybar/config" > /dev/null 2>&1; then
-        echo -e "${GREEN}✓${NC} Waybar config is valid JSON"
-    else
-        echo -e "${RED}✗${NC} Waybar config has JSON syntax errors"
-        ((ERRORS++))
-    fi
-else
-    echo -e "${YELLOW}⚠${NC} Cannot validate Waybar config (python3 not found)"
-    ((WARNINGS++))
-fi
-
-
-
-echo ""
 echo -e "${BLUE}=========================================${NC}"
 echo -e "${BLUE}Verification Summary${NC}"
 echo -e "${BLUE}=========================================${NC}"
@@ -194,12 +168,12 @@ echo ""
 
 if [ $ERRORS -eq 0 ] && [ $WARNINGS -eq 0 ]; then
     echo -e "${GREEN}✓ All checks passed!${NC}"
-    echo -e "${GREEN}Your Hyprland setup is ready to use.${NC}"
+    echo -e "${GREEN}Your Zero-Drag Hyprland Lua setup is ready to use.${NC}"
     echo ""
     echo -e "To start using Hyprland:"
     echo -e "1. Log out of your current session"
-    echo -e "2. Select 'Hyprland' from your display manager"
-    echo -e "3. Log in and enjoy!"
+    echo -e "2. Select 'Hyprland' from your SDDM display manager"
+    echo -e "3. Log in and enjoy your custom Quickshell dynamic island setup!"
     exit 0
 elif [ $ERRORS -eq 0 ]; then
     echo -e "${YELLOW}⚠ Verification completed with $WARNINGS warning(s)${NC}"
