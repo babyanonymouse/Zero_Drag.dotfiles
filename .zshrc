@@ -95,3 +95,13 @@ precmd_restore_prompt() {
 }
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd precmd_restore_prompt
+
+# 9. Torii Greeting
+if [[ -f "$HOME/.config/hypr/scripts/torii-greeting.sh" ]]; then
+  bash "$HOME/.config/hypr/scripts/torii-greeting.sh"
+elif [[ -f "$HOME/scripts/torii-greeting.sh" ]]; then
+  bash "$HOME/scripts/torii-greeting.sh"
+fi
+
+# Alias for fastfetch
+alias ff="fastfetch"
