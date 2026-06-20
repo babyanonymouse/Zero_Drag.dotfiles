@@ -38,6 +38,7 @@ hl.bind(mod .. " + SUPER_L",    hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/h
 hl.bind(mod .. " + SHIFT + L",  hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/lock.sh"))
 hl.bind(mod .. " + B",          hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/wallpaper.sh"))
 hl.bind(mod .. " + C",          hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/wallpaper-picker.sh"))
+hl.bind(mod .. " + E",          hl.dsp.exec_cmd("thunar"))
 
 -- Color picker
 hl.bind(mod .. " + SHIFT + C",  hl.dsp.exec_cmd("hyprpicker -a"))
