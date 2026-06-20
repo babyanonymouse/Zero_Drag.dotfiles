@@ -111,10 +111,10 @@ $PKG_MANAGER -S --needed --noconfirm "${PACKAGES[@]}"
 
 # Install quickshell-git from AUR if yay is available
 if [ "$PKG_MANAGER" = "yay" ]; then
-    echo -e "${GREEN}Step 1d: Installing quickshell-git from the AUR...${NC}"
-    yay -S --needed --noconfirm quickshell-git
+    echo -e "${GREEN}Step 1d: Installing quickshell...${NC}"
+    yay -S --needed --noconfirm quickshell || yay -S --needed --noconfirm quickshell-git
 else
-    echo -e "${YELLOW}Warning: yay not found. Please install quickshell-git manually from the AUR.${NC}"
+    echo -e "${YELLOW}Warning: yay not found. Please install quickshell manually.${NC}"
 fi
 
 # Set up swww (awww) symlinks so the wallpaper transition scripts work flawlessly

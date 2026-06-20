@@ -2,7 +2,7 @@ local mod = "SUPER"
 
 -- Core Window Management (User's workflow)
 hl.bind(mod .. " + Return",    hl.dsp.exec_cmd("kitty"))
-hl.bind(mod .. " + Q",         hl.dsp.window.kill())
+hl.bind(mod .. " + Q",         hl.dsp.window.close())
 hl.bind(mod .. " + F",         hl.dsp.window.fullscreen())
 hl.bind(mod .. " + T",         hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mod .. " + M",         hl.dsp.exec_cmd("hyprctl dispatch exit"))

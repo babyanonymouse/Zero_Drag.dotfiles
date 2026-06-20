@@ -72,7 +72,12 @@ echo ""
 
 # Core packages
 check_package "hyprland"
-check_package "quickshell-git"
+if pacman -Qi "quickshell" &> /dev/null || pacman -Qi "quickshell-git" &> /dev/null; then
+    echo -e "${GREEN}✓${NC} quickshell is installed"
+else
+    echo -e "${RED}✗${NC} quickshell is not installed (required)"
+    ((ERRORS++))
+fi
 check_package "kitty"
 check_package "swww"
 check_package "wallust"
