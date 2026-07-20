@@ -36,7 +36,7 @@ Item {
 
     readonly property string currentUserName: {
         if (!hasSddm)
-            return "erik"
+            return "user"
         var n = userProbe.fieldAt(currentUserIndex, "name")
         return n.length > 0 ? n : "user"
     }
@@ -855,7 +855,7 @@ Item {
         entries: {
             var list = []
             if (!root.hasSddm)
-                return ["erik"]
+                return ["user"]
             for (var i = 0; i < userProbe.count; i++) {
                 var rn = userProbe.fieldAt(i, "realName")
                 var nm = userProbe.fieldAt(i, "name")

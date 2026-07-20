@@ -6,12 +6,18 @@ import Quickshell.Hyprland
 import "Singletons"
 
 /**
- * Workspace dots for one monitor. Fixed per-monitor range always shows every
- * dot (DP-1 gets [1,2,3,4,5], HDMI-A-1 gets [6,7,8,9,10]), no numbers, no
- * icons. Active one is a larger filled vermillion dot; the rest are small and
- * dim, brightening on hover. Clicking a dot focuses that workspace via the
- * Hyprland-lua dispatcher. Active marker tracks the monitor's live active
- * workspace name from the Hyprland model.
+ * Workspace dots for one monitor. No numbers, no icons. Active one is a larger
+ * filled vermillion dot; the rest are small and dim, brightening on hover.
+ * Clicking a dot focuses that workspace via the Hyprland-lua dispatcher. Active
+ * marker tracks the monitor's live active workspace name from the Hyprland
+ * model.
+ *
+ * The dot range comes from this monitor's workspace rules ([[Workspacerules]]),
+ * so a rule-driven setup (e.g. monitors.lua splitting 1-5 / 6-10 across two
+ * screens) always shows every assigned dot. A setup with no rules (the usual
+ * single-monitor case) falls back to the workspaces Hyprland currently has on
+ * this monitor plus the active one, so dots still appear and grow as new
+ * workspaces are visited.
  */
 Item {
     id: workspaces
@@ -23,9 +29,25 @@ Item {
     property real gap: 4 * s
 
     readonly property var range: {
-        if (screenName === "DP-1") return [1, 2, 3, 4, 5];
-        if (screenName === "HDMI-A-1") return [6, 7, 8, 9, 10];
-        return [];
+        var ruled = Workspacerules.byMonitor[screenName];
+        if (ruled && ruled.length)
+            return ruled;
+
+        var out = [];
+        var seen = ({});
+        var wss = Hyprland.workspaces.values;
+        for (var i = 0; i < wss.length; i++) {
+            var w = wss[i];
+            if (w.id >= 1 && w.monitor && w.monitor.name === screenName && !seen[w.id]) {
+                seen[w.id] = true;
+                out.push(w.id);
+            }
+        }
+        var a = parseInt(activeName);
+        if (a >= 1 && !seen[a])
+            out.push(a);
+        out.sort(function (x, y) { return x - y; });
+        return out;
     }
 
     readonly property string activeName: {
@@ -56,12 +78,6 @@ Item {
         void workspaces.activeName;
         void workspaces.width;
         return Qt.point(slotCenterX(Math.max(0, activeIndex)), height / 2);
-    }
-    readonly property point hoverDotPoint: {
-        void workspaces.activeName;
-        void workspaces.width;
-        void workspaces.hoverIndex;
-        return Qt.point(slotCenterX(Math.max(0, hoverIndex)), height / 2);
     }
 
     implicitWidth: row.implicitWidth

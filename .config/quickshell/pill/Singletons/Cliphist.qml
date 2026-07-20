@@ -154,7 +154,6 @@ Singleton {
                         id: id,
                         preview: preview,
                         isImage: isImage,
-                        meta: isImage ? m[1] : "",
                         label: label,
                         sizeLabel: sizeLabel,
                         thumb: isImage ? root.thumbDir + id + ".png" : ""

@@ -15,6 +15,7 @@ Item {
     property real value: 0.5
     property string valueLabel: ""
     property string subLabel: ""
+    property bool subPersistent: true
     property bool focused: false
 
     signal moved(real v)
@@ -38,7 +39,7 @@ Item {
     }
 
     implicitWidth: 54 * s
-    implicitHeight: trackH + (subLabel.length ? 52 : 44) * s
+    implicitHeight: trackH + (subLabel.length ? 56 : 44) * s
 
     /**
      * Nudge the value by a signed percentage (e.g. +1 / -1), clamped to 0..100%,
@@ -141,14 +142,16 @@ Item {
 
     Text {
         visible: root.subLabel.length > 0
+        opacity: root.subPersistent || root.lit ? 1 : 0
         anchors.top: iconBox.bottom
         anchors.topMargin: 1 * root.s
         anchors.horizontalCenter: parent.horizontalCenter
         text: root.subLabel
-        color: root.lit ? Theme.subtle : Theme.faint
+        color: root.lit ? Theme.cream : Theme.faint
         font.family: Theme.font
-        font.pixelSize: 7 * root.s
+        font.pixelSize: 9 * root.s
         font.weight: Font.DemiBold
-        font.letterSpacing: 0.6 * root.s
+        font.letterSpacing: 0.3 * root.s
+        Behavior on opacity { NumberAnimation { duration: Motion.fast } }
     }
 }

@@ -74,7 +74,7 @@ Item {
                     height: 16 * tray.s
                     fillMode: Image.PreserveAspectFit
                     smooth: true
-                    mipmap: true
+                    cache: true
                     asynchronous: true
                 }
 
@@ -98,6 +98,13 @@ Item {
                     onWheel: (wheel) => {
                         slot.modelData.scroll(wheel.angleDelta.y, false);
                     }
+                }
+
+                Tooltip {
+                    s: tray.s
+                    placement: "below"
+                    title: slot.modelData.tooltipTitle || slot.modelData.title || slot.modelData.id
+                    show: area.containsMouse && !menu.open
                 }
             }
         }
@@ -188,7 +195,7 @@ Item {
                 sourceSize.height: 30
                 fillMode: Image.PreserveAspectFit
                 smooth: true
-                mipmap: true
+                cache: true
                 visible: mrow.entryData.icon
             }
 

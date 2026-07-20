@@ -1,0 +1,44 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "type": "file",
+    "source": "/home/anony/.config/fastfetch/lantern.txt",
+    "color": {
+      "1": "38;2;146;153;211",
+      "2": "38;2;204;207;234",
+      "3": "38;2;27;29;50",
+      "4": "38;2;32;35;59",
+      "5": "38;2;181;182;191",
+      "6": "38;2;83;90;154",
+      "7": "38;2;247;247;248"
+    },
+    "padding": { "top": 1, "left": 2, "right": 6 }
+  },
+  "display": {
+    "separator": "  ",
+    "color": {
+      "keys": "38;2;146;153;211"
+    },
+    "key": { "width": 10 }
+  },
+  "modules": [
+    "break",
+    { "type": "custom", "format": "\u001b[38;2;131;132;145m── system ──────────────" },
+    { "type": "os", "key": "  os", "format": "{pretty-name}" },
+    { "type": "kernel", "key": "  kernel", "format": "{release}" },
+    { "type": "uptime", "key": "  up" },
+    { "type": "packages", "key": " 󰏖 pkgs", "format": "{all}" },
+    "break",
+    { "type": "custom", "format": "\u001b[38;2;131;132;145m── rice ────────────────" },
+    { "type": "wm", "key": "  wm", "format": "{pretty-name}" },
+    { "type": "shell", "key": "  shell", "format": "{exe-name}" },
+    { "type": "terminal", "key": "  term", "format": "{pretty-name}" },
+    { "type": "custom", "key": " 󰂜 bar", "format": "pill (quickshell)" },
+    { "type": "custom", "key": " 󰄀 shot", "format": "rishot" },
+    { "type": "custom", "key": "  font", "format": "JetBrains Mono Nerd" },
+    { "type": "command", "key": " 󰸉 wall", "text": "basename \"$(cat ${XDG_STATE_HOME:-$HOME/.local/state}/ricelin-wallpaper)\"" },
+    "break",
+    { "type": "colors", "symbol": "block", "block": { "width": 3, "range": [2, 7] }, "paddingLeft": 2 },
+    "break"
+  ]
+}

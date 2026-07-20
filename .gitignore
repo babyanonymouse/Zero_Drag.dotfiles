@@ -25,3 +25,7 @@ Thumbs.db
 # Cache
 .cache/
 __pycache__/
+
+# Antigravity Agent
+Antigravity/
+.gemini/

@@ -8,9 +8,9 @@ import "Singletons"
  * Toast content for the morphing pill body: icon tile, app eyebrow, summary
  * with critical ember dot, optional body text and action pills, dismiss glyph
  * on the right. Draws no background of its own; the pill body behind it
- * provides the washi material. Clicking the body emits openCenter(); dismiss
- * and action pills consume their clicks. Auto-expires via Notifs.expireAt
- * unless the notification is critical.
+ * provides the washi material. Clicking the body jumps to the source app;
+ * dismiss and action pills consume their clicks. Auto-expires via
+ * Notifs.expireAt unless the notification is critical.
  */
 Item {
     id: root
@@ -18,8 +18,6 @@ Item {
     property real s: 1
     property bool live: true
     required property var notif
-
-    signal openCenter()
 
     readonly property bool critical: notif.urgency === NotificationUrgency.Critical
     readonly property var acts: notif.actions.filter(function(a) { return a.text.length > 0; })
@@ -43,7 +41,10 @@ Item {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: root.openCenter()
+        onClicked: {
+            Notifs.activateNotif(root.notif);
+            Notifs.removePopup(root.notif);
+        }
     }
 
     Rectangle {
@@ -62,8 +63,8 @@ Item {
             anchors.fill: parent
             anchors.margins: root.notif.image ? 0 : 6 * root.s
             source: Notifs.iconFor(root.notif)
-            sourceSize.width: 64
-            sourceSize.height: 64
+            sourceSize.width: 56
+            sourceSize.height: 56
             fillMode: Image.PreserveAspectCrop
             smooth: true
             visible: source.toString().length > 0
@@ -211,6 +212,8 @@ Item {
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
                             actPill.modelData.invoke();
+                            if (actPill.modelData.identifier === "default")
+                                Notifs.raiseWindow(root.notif);
                             Notifs.removePopup(root.notif);
                         }
                     }

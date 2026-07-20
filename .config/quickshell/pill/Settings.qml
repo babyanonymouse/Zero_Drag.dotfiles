@@ -4,155 +4,28 @@ import QtQuick
 import "Singletons"
 
 /**
- * 設 SETTINGS surface: Flags-persisted preferences grouped into sections of
- * rows, each a name with an optional faint caption and a right-aligned control.
- * Appearance covers the clock format and seconds, the Japanese-glyph toggle that
- * gates every surface header, and the accent-palette mode; Recording carries the
- * capture countdown. Toggles reuse LinkToggle; choice rows use an inline
- * mini-segmented control that flame-tints the selected pill. Exposes
- * `implicitHeight` from its content and docks Ame at the header gear.
+ * 設 SETTINGS index: a short list of categories grouped into Shell and Control.
+ * Each row carries its kanji, name and caption, and morphs the pill into that
+ * category's sub-surface. Arrow keys move the focused row with the glowing seam
+ * and Return opens it. The Shell group holds Appearance and Display; the Control
+ * group holds Keybinds and Updates.
  */
-PillSurface {
+SettingsSurface {
     id: root
-
-    mTop: 15
-    mLeft: 19
-    mRight: 19
-    mBottom: 14
 
     implicitHeight: content.implicitHeight
 
-    readonly property point gearPoint: {
-        void root.width;
-        void root.height;
-        return gear.mapToItem(root, gear.width / 2, gear.height / 2);
-    }
-
-    ameForm: open ? "dock" : "off"
-    amePoint: gearPoint
-
-    /**
-     * Mini-segmented choice control. `options` is a list of `{ label, value }`;
-     * the pill whose value equals `value` lights with a flame tint. Picking a
-     * pill emits `picked(value)`; selection keys off the source value, never a
-     * child's effective visibility.
-     */
-    component MiniSeg: Rectangle {
-        id: seg
-        property var options: []
-        property var value
-        signal picked(var value)
-
-        readonly property real pad: 2 * root.s
-
-        width: pills.implicitWidth + 2 * pad
-        height: pills.implicitHeight + 2 * pad
-        radius: 9 * root.s
-        color: Theme.tileBg
-        border.width: 1
-        border.color: Theme.border
-
-        Row {
-            id: pills
-            anchors.centerIn: parent
-            spacing: 2 * root.s
-
-            Repeater {
-                model: seg.options
-
-                Rectangle {
-                    id: opt
-                    required property var modelData
-                    readonly property bool current: seg.value === modelData.value
-
-                    width: optLabel.implicitWidth + 18 * root.s
-                    height: optLabel.implicitHeight + 12 * root.s
-                    radius: 7 * root.s
-                    color: opt.current ? Qt.alpha(Theme.vermDeep, 0.18) : "transparent"
-                    border.width: opt.current ? 1 : 0
-                    border.color: Qt.alpha(Theme.vermLit, 0.4)
-                    Behavior on color { ColorAnimation { duration: Motion.fast } }
-
-                    Text {
-                        id: optLabel
-                        anchors.centerIn: parent
-                        text: opt.modelData.label
-                        color: opt.current ? Theme.cream : Theme.subtle
-                        font.family: Theme.font
-                        font.pixelSize: 10.5 * root.s
-                        font.weight: Font.Bold
-                        font.letterSpacing: 0.3 * root.s
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: seg.picked(opt.modelData.value)
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * One settings line: a name plus an optional faint sub caption on the left
-     * and a control slot on the right, capped to a single bottom hairline. The
-     * `control` default-property slot holds the toggle or segmented control.
-     */
-    component SRow: Item {
-        id: srow
-        property string name: ""
-        property string sub: ""
-        property bool last: false
-        default property alias control: controlSlot.data
-
-        width: parent ? parent.width : 0
-        height: Math.max(textCol.implicitHeight, controlSlot.childrenRect.height) + 26 * root.s
-
-        Column {
-            id: textCol
-            anchors.left: parent.left
-            anchors.right: controlSlot.left
-            anchors.rightMargin: 14 * root.s
-            anchors.verticalCenter: parent.verticalCenter
-            spacing: 5 * root.s
-
-            Text {
-                text: srow.name
-                color: Theme.cream
-                font.family: Theme.font
-                font.pixelSize: 12.5 * root.s
-                font.weight: Font.DemiBold
-            }
-            Text {
-                width: parent.width
-                visible: srow.sub.length > 0
-                text: srow.sub
-                color: Theme.faint
-                font.family: Theme.font
-                font.pixelSize: 10.5 * root.s
-                wrapMode: Text.WordWrap
-                lineHeight: 1.2
-            }
-        }
-
-        Item {
-            id: controlSlot
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            width: childrenRect.width
-            height: childrenRect.height
-        }
-
-        Rectangle {
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
-            height: 1
-            color: Theme.hairSoft
-            visible: !srow.last
-        }
-    }
+    rows: [
+        { item: appearanceRow, kind: "nav", surface: "appearance" },
+        { item: lookRow, kind: "nav", surface: "look" },
+        { item: displayRow, kind: "nav", surface: "display" },
+        { item: inputRow, kind: "nav", surface: "input" },
+        { item: animationRow, kind: "nav", surface: "animation" },
+        { item: keybindsRow, kind: "nav", surface: "keybinds" },
+        { item: workspacesRow, kind: "nav", surface: "workspaces" },
+        { item: idleRow, kind: "nav", surface: "idlelock" },
+        { item: updatesRow, kind: "nav", surface: "updates" }
+    ]
 
     Column {
         id: content
@@ -161,52 +34,115 @@ PillSurface {
         anchors.right: parent.right
         spacing: 0
 
-        Item {
-            width: parent.width
-            height: 22 * root.s
+        SettingsHeader {
+            s: root.s
+            glyph: "設"
+            title: "SETTINGS"
+        }
 
-            Row {
-                anchors.left: parent.left
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: 8 * root.s
+        Text {
+            topPadding: 16 * root.s
+            bottomPadding: 2 * root.s
+            leftPadding: 12 * root.s
+            text: "Shell"
+            color: Theme.faint
+            font.family: Theme.font
+            font.pixelSize: 8.5 * root.s
+            font.weight: Font.Bold
+            font.capitalization: Font.AllUppercase
+            font.letterSpacing: 1.2 * root.s
+        }
 
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    visible: Flags.showGlyphs
-                    text: "設"
-                    color: Theme.cream
-                    font.family: Theme.fontJp
-                    font.weight: Font.Medium
-                    font.pixelSize: 16 * root.s
-                }
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: "SETTINGS"
-                    color: Theme.subtle
-                    font.family: Theme.font
-                    font.pixelSize: 10 * root.s
-                    font.weight: Font.DemiBold
-                    font.capitalization: Font.AllUppercase
-                    font.letterSpacing: 1.6 * root.s
-                }
-            }
+        SettingsRow {
+            id: appearanceRow
+            surface: root
+            captionOnFocus: true
+            icon: "sparkles"
+            name: "Appearance"
+            sub: "Clock, glyphs, accent palette"
 
             GlyphIcon {
-                id: gear
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
                 width: 16 * root.s
                 height: 16 * root.s
-                name: "cog"
-                color: Theme.iconDim
-                stroke: 1.7
+                name: "chevron-right"
+                color: root.focusRowItem === appearanceRow ? Theme.cream : Theme.iconDim
+                stroke: 2.2
+            }
+        }
+
+        SettingsRow {
+            id: lookRow
+            surface: root
+            captionOnFocus: true
+            icon: "app-window"
+            name: "Look"
+            sub: "Gaps, rounding, blur, opacity"
+
+            GlyphIcon {
+                width: 16 * root.s
+                height: 16 * root.s
+                name: "chevron-right"
+                color: root.focusRowItem === lookRow ? Theme.cream : Theme.iconDim
+                stroke: 2.2
+            }
+        }
+
+        SettingsRow {
+            id: displayRow
+            surface: root
+            captionOnFocus: true
+            icon: "monitor"
+            name: "Display"
+            sub: "Resolution, refresh, scale"
+
+            GlyphIcon {
+                width: 16 * root.s
+                height: 16 * root.s
+                name: "chevron-right"
+                color: root.focusRowItem === displayRow ? Theme.cream : Theme.iconDim
+                stroke: 2.2
+            }
+        }
+
+        SettingsRow {
+            id: inputRow
+            surface: root
+            captionOnFocus: true
+            icon: "mouse"
+            name: "Input"
+            sub: "Pointer, keyboard, cursor"
+
+            GlyphIcon {
+                width: 16 * root.s
+                height: 16 * root.s
+                name: "chevron-right"
+                color: root.focusRowItem === inputRow ? Theme.cream : Theme.iconDim
+                stroke: 2.2
+            }
+        }
+
+        SettingsRow {
+            id: animationRow
+            surface: root
+            captionOnFocus: true
+            icon: "waves"
+            name: "Animation"
+            sub: "Speed, motion curve, enable"
+
+            GlyphIcon {
+                width: 16 * root.s
+                height: 16 * root.s
+                name: "chevron-right"
+                color: root.focusRowItem === animationRow ? Theme.cream : Theme.iconDim
+                stroke: 2.2
             }
         }
 
         Text {
-            topPadding: 17 * root.s
+            topPadding: 16 * root.s
             bottomPadding: 2 * root.s
-            text: "Appearance"
+            leftPadding: 12 * root.s
+            text: "Control"
             color: Theme.faint
             font.family: Theme.font
             font.pixelSize: 8.5 * root.s
@@ -215,76 +151,72 @@ PillSurface {
             font.letterSpacing: 1.2 * root.s
         }
 
-        SRow {
-            name: "Time format"
-            sub: "24-hour stays the default"
+        SettingsRow {
+            id: keybindsRow
+            surface: root
+            captionOnFocus: true
+            icon: "keyboard"
+            name: "Keybinds"
+            sub: "Rebind, add, set commands"
 
-            MiniSeg {
-                options: [{ label: "24H", value: false }, { label: "12H", value: true }]
-                value: Flags.time12h
-                onPicked: (v) => Flags.time12h = v
+            GlyphIcon {
+                width: 16 * root.s
+                height: 16 * root.s
+                name: "chevron-right"
+                color: root.focusRowItem === keybindsRow ? Theme.cream : Theme.iconDim
+                stroke: 2.2
             }
         }
 
-        SRow {
-            name: "Clock seconds"
-            sub: "Show :SS in the pill clock"
+        SettingsRow {
+            id: workspacesRow
+            surface: root
+            captionOnFocus: true
+            icon: "app-window"
+            name: "Workspaces"
+            sub: "Special spaces and their keys"
 
-            LinkToggle {
-                s: root.s
-                on: Flags.clockSeconds
-                onToggled: Flags.clockSeconds = !Flags.clockSeconds
+            GlyphIcon {
+                width: 16 * root.s
+                height: 16 * root.s
+                name: "chevron-right"
+                color: root.focusRowItem === workspacesRow ? Theme.cream : Theme.iconDim
+                stroke: 2.2
             }
         }
 
-        SRow {
-            name: "Japanese glyphs"
-            sub: "Kanji on surface headers (蓄 BATTERY…). Off swaps for plain labels."
+        SettingsRow {
+            id: idleRow
+            surface: root
+            captionOnFocus: true
+            icon: "lock"
+            name: "Idle / Lock"
+            sub: "Auto-lock, screen off, suspend"
 
-            LinkToggle {
-                s: root.s
-                on: Flags.showGlyphs
-                onToggled: Flags.showGlyphs = !Flags.showGlyphs
+            GlyphIcon {
+                width: 16 * root.s
+                height: 16 * root.s
+                name: "chevron-right"
+                color: root.focusRowItem === idleRow ? Theme.cream : Theme.iconDim
+                stroke: 2.2
             }
         }
 
-        SRow {
-            name: "Accent palette"
-            sub: "Static = fixed flame · Dynamic = recolor per wallpaper (matugen)"
-
-            MiniSeg {
-                options: [{ label: "Static", value: false }, { label: "Dynamic", value: true }]
-                value: Flags.dynamicPalette
-                onPicked: (v) => Flags.dynamicPalette = v
-            }
-        }
-
-        Text {
-            topPadding: 17 * root.s
-            bottomPadding: 2 * root.s
-            text: "Recording"
-            color: Theme.faint
-            font.family: Theme.font
-            font.pixelSize: 8.5 * root.s
-            font.weight: Font.Bold
-            font.capitalization: Font.AllUppercase
-            font.letterSpacing: 1.2 * root.s
-        }
-
-        SRow {
-            name: "Countdown"
-            sub: "Delay before capture starts"
+        SettingsRow {
+            id: updatesRow
+            surface: root
+            captionOnFocus: true
+            icon: "download"
+            name: "Updates"
+            sub: "Version and check for updates"
             last: true
 
-            MiniSeg {
-                options: [
-                    { label: "Off", value: 0 },
-                    { label: "3s", value: 3 },
-                    { label: "5s", value: 5 },
-                    { label: "10s", value: 10 }
-                ]
-                value: Flags.recordCountdown
-                onPicked: (v) => Flags.recordCountdown = v
+            GlyphIcon {
+                width: 16 * root.s
+                height: 16 * root.s
+                name: "chevron-right"
+                color: root.focusRowItem === updatesRow ? Theme.cream : Theme.iconDim
+                stroke: 2.2
             }
         }
     }

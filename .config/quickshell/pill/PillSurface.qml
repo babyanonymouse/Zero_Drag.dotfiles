@@ -35,6 +35,20 @@ Item {
 
     readonly property bool active: open
 
+    /**
+     * Latched true once the open morph has first settled. The morphCloseness gate
+     * is only there for the rest-to-surface open fade. A relayout inside an open
+     * surface (a collapsible dropdown snapping its height into implicitHeight) also
+     * jumps the pill's target geometry, so closeness craters and the whole surface
+     * dims for one frame until the body height Behavior catches up. That one frame
+     * is the flicker on the Display, Recorder and Appearance collapsibles. After
+     * the surface has settled, hold full opacity and let the body morph alone do
+     * the reveal. Reset on close so the next open still fades in.
+     */
+    property bool settled: false
+    onOpenChanged: if (!open) settled = false
+    onMorphClosenessChanged: if (open && morphCloseness > 0.92) settled = true
+
     anchors.fill: parent
     anchors.topMargin: mTop * s
     anchors.leftMargin: mLeft * s
@@ -42,7 +56,7 @@ Item {
     anchors.bottomMargin: mBottom * s
 
     enabled: open
-    opacity: open ? Math.pow(morphCloseness, 1.3) : 0
+    opacity: open ? (settled ? 1 : Math.pow(morphCloseness, 1.3)) : 0
     visible: opacity > 0.01
 
     Behavior on opacity {

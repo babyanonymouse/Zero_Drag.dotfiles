@@ -40,6 +40,16 @@ Item {
     property bool connectFailed: false
     property bool scanning: false
 
+    /**
+     * SSID of the saved network whose stored password is currently shown, plus
+     * the revealed secret itself. Keying both to one SSID keeps the reveal local
+     * to the row the user asked about and lets `revealResolved` distinguish "not
+     * yet read" from "read but empty" so an open profile shows a clear message.
+     */
+    property string revealedSsid: ""
+    property string revealedPw: ""
+    property bool revealResolved: false
+
     readonly property string hsCon: "RicelinHotspot"
     readonly property string hsIface: wifiDev ? (wifiDev.name || "wlan0") : "wlan0"
     property string hsName: "Ricelin"
@@ -151,6 +161,33 @@ Item {
     }
 
     /**
+     * Reveals the stored password of a saved profile, or hides it again if the
+     * same row is already showing. NetworkManager lets the owning user read their
+     * own saved secret without root, so this runs unprivileged. The SSID is
+     * passed as its own argv element so an odd character can neither break nor
+     * inject the command.
+     */
+    function revealPassword(ssid) {
+        if (!ssid.length)
+            return;
+        if (revealedSsid === ssid) {
+            hidePassword();
+            return;
+        }
+        revealedSsid = ssid;
+        revealedPw = "";
+        revealResolved = false;
+        revealProc.command = ["nmcli", "-s", "-g", "802-11-wireless-security.psk", "connection", "show", "id", ssid];
+        revealProc.running = true;
+    }
+
+    function hidePassword() {
+        revealedSsid = "";
+        revealedPw = "";
+        revealResolved = false;
+    }
+
+    /**
      * Connects via `nmcli --ask`, feeding the password through stdin so the
      * secret never appears in the process command line (`/proc/<pid>/cmdline`
      * is world-readable for the whole connection attempt).
@@ -194,10 +231,13 @@ Item {
             expandedSsid = "";
             connectFailed = false;
             hsEdit = "";
+            hidePassword();
         }
     }
 
     onWifiOnChanged: if (!wifiOn) stopScan()
+
+    onExpandedSsidChanged: if (revealedSsid !== expandedSsid) hidePassword()
 
     Binding {
         target: root.wifiDev
@@ -300,7 +340,7 @@ Item {
 
     Process {
         id: hsStateProc
-        command: ["sh", "-c", "nmcli -t -f NAME connection show --active | grep -qx " + root.hsCon + " && echo on || echo off"]
+        command: ["sh", "-c", "nmcli -t -f NAME connection show --active | grep -qx \"$1\" && echo on || echo off", "sh", root.hsCon]
         stdout: StdioCollector {
             onStreamFinished: root.hsActive = this.text.trim() === "on"
         }
@@ -399,6 +439,21 @@ Item {
     Process {
         id: forgetProc
         onExited: root.refresh()
+    }
+
+    /**
+     * Reads one saved profile's PSK on demand. The result is held only as long as
+     * the row stays open; an empty result means the profile is open or stores no
+     * recoverable secret, surfaced by the row as a plain note.
+     */
+    Process {
+        id: revealProc
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.revealedPw = this.text.replace(/\n+$/, "");
+                root.revealResolved = true;
+            }
+        }
     }
 
     onNetsChanged: if (active) secRefresh.restart()
@@ -713,6 +768,40 @@ Item {
                                 }
 
                                 Rectangle {
+                                    id: revealBtn
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    visible: netItem.known
+                                    readonly property bool shown: root.revealedSsid === netItem.ssid
+                                    width: revealLabel.implicitWidth + 20 * root.s
+                                    height: 22 * root.s
+                                    radius: 7 * root.s
+                                    color: revealArea.containsMouse ? Theme.tileBg : "transparent"
+                                    border.width: 1
+                                    border.color: revealBtn.shown
+                                        ? Theme.vermDim
+                                        : (revealArea.containsMouse ? Theme.vermDim : Theme.border)
+
+                                    Text {
+                                        id: revealLabel
+                                        anchors.centerIn: parent
+                                        text: revealBtn.shown ? "Hide" : "Show"
+                                        color: Theme.cream
+                                        font.family: Theme.font
+                                        font.pixelSize: 10 * root.s
+                                        font.weight: Font.DemiBold
+                                        font.letterSpacing: 0.3 * root.s
+                                    }
+
+                                    MouseArea {
+                                        id: revealArea
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: root.revealPassword(netItem.ssid)
+                                    }
+                                }
+
+                                Rectangle {
                                     id: forgetBtn
                                     anchors.verticalCenter: parent.verticalCenter
                                     width: forgetLabel.implicitWidth + 20 * root.s
@@ -743,6 +832,59 @@ Item {
                                         onClicked: root.forgetNetwork(netItem.ssid)
                                     }
                                 }
+                            }
+                        }
+
+                        Item {
+                            readonly property bool shown: netItem.confirming && root.revealedSsid === netItem.ssid
+                            visible: shown
+                            width: parent.width
+                            height: shown ? 24 * root.s : 0
+
+                            Text {
+                                id: revealCaption
+                                anchors.left: parent.left
+                                anchors.leftMargin: 10 * root.s
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: "PASSWORD"
+                                color: Theme.faint
+                                font.family: Theme.font
+                                font.pixelSize: 9 * root.s
+                                font.weight: Font.Medium
+                                font.capitalization: Font.AllUppercase
+                                font.letterSpacing: 1 * root.s
+                            }
+
+                            Text {
+                                visible: root.revealResolved && root.revealedPw.length === 0
+                                anchors.right: parent.right
+                                anchors.rightMargin: 10 * root.s
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: "no saved password"
+                                color: Theme.faint
+                                font.family: Theme.font
+                                font.pixelSize: 10 * root.s
+                                font.weight: Font.Medium
+                            }
+
+                            TextEdit {
+                                visible: root.revealedPw.length > 0
+                                anchors.left: revealCaption.right
+                                anchors.leftMargin: 10 * root.s
+                                anchors.right: parent.right
+                                anchors.rightMargin: 10 * root.s
+                                anchors.verticalCenter: parent.verticalCenter
+                                horizontalAlignment: TextEdit.AlignRight
+                                readOnly: true
+                                selectByMouse: true
+                                selectionColor: Theme.verm
+                                wrapMode: TextEdit.NoWrap
+                                clip: true
+                                text: root.revealedSsid === netItem.ssid ? root.revealedPw : ""
+                                color: Theme.flameCore
+                                font.family: Theme.font
+                                font.pixelSize: 11.5 * root.s
+                                font.weight: Font.Medium
                             }
                         }
 
@@ -795,12 +937,13 @@ Item {
                                     }
                                 }
 
-                                Text {
+                                GlyphIcon {
                                     anchors.verticalCenter: parent.verticalCenter
-                                    text: "↵"
+                                    width: 14 * root.s
+                                    height: 14 * root.s
+                                    name: "return"
                                     color: enterArea.containsMouse ? Theme.cream : Theme.vermLit
-                                    font.family: Theme.font
-                                    font.pixelSize: 12 * root.s
+                                    stroke: 1.8
 
                                     MouseArea {
                                         id: enterArea

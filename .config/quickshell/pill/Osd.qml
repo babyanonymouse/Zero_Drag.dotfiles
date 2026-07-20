@@ -1,87 +1,132 @@
 import QtQuick
 import Quickshell.Widgets
+import Quickshell.Hyprland
 import Quickshell.Services.Pipewire
-import Quickshell.Services.Mpris
-import Quickshell.Io
 import "Singletons"
 
 Item {
     id: root
 
     property real s: 1
+    property string screenName: ""
     property bool suppressed: false
+    property bool expanded: false
     property bool flashing: false
     property string kind: "volume"
     property bool armed: false
-    property string shownTrackLine: ""
-    property bool shownPlaying: false
-    property string shownArtUrl: ""
-    property string lastTrackLine: ""
-    property bool lastPlaying: false
-    property real brightness: 0
-    property int lastBrightness: -1
+    property bool dirty: false
+    property bool cooling: false
+    property int holdExtends: 0
+
+    /**
+     * The player the current flash speaks for. Normally the active source, but an
+     * announce can point it at another player that just started, so a video over
+     * your music still gets its own flash without stealing the surface.
+     */
+    property var pendingSubject: null
+    readonly property var subject: pendingSubject ? pendingSubject : Players.active
+    readonly property bool subjectHas: subject !== null
+    readonly property bool subjectPlaying: subjectHas && subject.isPlaying
+    readonly property string subjectTitle: subjectHas ? Players.refineTitle(subject, subject.trackTitle || Players.labelOf(subject)) : ""
+    readonly property string subjectArtist: subjectHas ? Theme.joinArtists(subject.trackArtists, subject.trackArtist) : ""
+    readonly property string subjectIcon: subjectHas ? Players.appIconFor(subject) : ""
+
+    /** Subject art, live so a cover that lands a beat after the title still resolves; the key forces a reload when a browser reuses one file path. */
+    readonly property string liveArt: {
+        if (!subjectHas)
+            return "";
+        var u = Players.artUrlFor(subject);
+        if (!u)
+            return "";
+        return u.indexOf("file:") === 0 ? u + "#" + Players.keyFor(subject) : u;
+    }
+
+    readonly property real brightness: Backlight.brightness
+    property bool recordStarted: false
 
     readonly property var sink: Pipewire.defaultAudioSink
     readonly property bool muted: sink && sink.audio ? sink.audio.muted : false
     readonly property real volume: sink && sink.audio ? Math.max(0, Math.min(1, sink.audio.volume)) : 0
 
-    property var stickyPlayer: null
-    readonly property var player: {
-        var list = Mpris.players.values;
-        if (!list || list.length === 0)
-            return null;
-        for (var i = 0; i < list.length; i++) {
-            if (list[i] && list[i].isPlaying)
-                return list[i];
-        }
-        if (stickyPlayer && list.indexOf(stickyPlayer) >= 0)
-            return stickyPlayer;
-        return list[0];
-    }
-    readonly property bool playing: player !== null && player.isPlaying
-    readonly property string trackLine: {
-        if (!player)
-            return "";
-        var t = player.trackTitle ? player.trackTitle : "";
-        var a = Theme.joinArtists(player.trackArtists, player.trackArtist);
-        return a.length > 0 ? t + " — " + a : t;
-    }
+    readonly property real desiredW: kind === "workspace" ? Math.max(120 * s, wsIndicator.implicitWidth + 40 * s)
+        : (kind === "track" ? 344 * s : (kind === "record" ? 256 * s : 248 * s))
+    readonly property real desiredH: kind === "track" ? 64 * s : 44 * s
 
-    readonly property real desiredW: kind === "track" ? 332 * s : 248 * s
-    readonly property real desiredH: kind === "track" ? 56 * s : 44 * s
+    /**
+     * Active workspace name on this monitor. Any switch (Super+arrow,
+     * Super+wheel, clicking a dot) changes it, so flashing the workspace OSD
+     * here briefly morphs the pill open to show where you landed. The arm timer
+     * swallows the initial populate, so login doesn't flash. Skipped while the
+     * pill is expanded: the hover/surface pill already shows the live dots with
+     * the active one marked, so the OSD would only be a redundant morph.
+     */
+    readonly property string activeWsName: {
+        var mons = Hyprland.monitors.values;
+        for (var i = 0; i < mons.length; i++)
+            if (mons[i].name === screenName)
+                return mons[i].activeWorkspace ? mons[i].activeWorkspace.name : "";
+        return "";
+    }
+    onActiveWsNameChanged: if (activeWsName.length > 0 && !expanded) flash("workspace");
 
-    function trackEvent() {
-        var line = trackLine;
-        var p = playing;
-        if (line === lastTrackLine && p === lastPlaying)
+    /**
+     * Wait for the track to settle before flashing. Hovering the YouTube grid
+     * autoplays a preview per thumbnail, so the active player's metadata churns
+     * as the cursor moves; the settle timer collapses that storm into the one
+     * track that actually sticks.
+     */
+    /**
+     * Leading-edge throttle. The first change flashes at once so a real track
+     * switch feels instant, then the cooldown mutes the burst that hovering the
+     * YouTube grid throws off. Anything that lands during the cooldown, or while
+     * the OSD is suppressed (a surface open, the pill pinned), stays `dirty` and
+     * fires when the gate opens, so the stashed-player flash still replays.
+     */
+    function tryShow() {
+        if (cooling)
             return;
-        lastTrackLine = line;
-        lastPlaying = p;
-        flash("track");
+        if (flash("track")) {
+            dirty = false;
+            cooling = true;
+            cooldownTimer.restart();
+        }
     }
+
+    /**
+     * Every pill carries its own Osd but the volume/track/battery signals are
+     * global, so without this gate one keypress flashes every monitor at once.
+     * Workspace flashes skip it: those are already keyed to this screen's own
+     * active workspace.
+     */
+    readonly property bool onFocusedMonitor: !Hyprland.focusedMonitor || Hyprland.focusedMonitor.name === screenName
 
     function flash(which) {
-        if (!armed || suppressed || cooldownTimer.running)
-            return;
-        if (which === "track") {
-            shownTrackLine = trackLine;
-            shownPlaying = playing;
-            shownArtUrl = player && player.trackArtUrl ? player.trackArtUrl : "";
-        }
+        if (!armed || suppressed)
+            return false;
+        if (which !== "workspace" && !onFocusedMonitor)
+            return false;
+        if (which === "track" && flashing && (kind === "volume" || kind === "brightness"))
+            return false;
+        if (which === "track")
+            holdExtends = 0;
         kind = which;
         flashing = true;
-        hideTimer.interval = which === "battery" ? 2000 : 1400;
+        hideTimer.interval = (which === "battery" || which === "record") ? 2000 : 1800;
         hideTimer.restart();
+        return true;
     }
 
     onSuppressedChanged: {
         if (suppressed) {
             hideTimer.stop();
             flashing = false;
-        } else {
-            cooldownTimer.restart();
+        } else if (dirty) {
+            tryShow();
         }
     }
+
+    /** A track announce that lost to live hardware feedback replays once the bar clears. */
+    onFlashingChanged: if (!flashing && dirty) tryShow()
 
     Timer {
         interval: 1500
@@ -90,14 +135,32 @@ Item {
     }
 
     Timer {
-        id: hideTimer
-        interval: 1400
-        onTriggered: root.flashing = false
+        id: cooldownTimer
+        interval: 1500
+        onTriggered: {
+            root.cooling = false;
+            if (root.dirty)
+                root.tryShow();
+        }
     }
 
+    /**
+     * Hold a track flash open until its cover decodes, so a cold remote thumbnail
+     * that arrives after the base window still gets seen. Capped so a dead art url
+     * never pins the OSD.
+     */
     Timer {
-        id: cooldownTimer
-        interval: 200
+        id: hideTimer
+        interval: 1800
+        onTriggered: {
+            if (root.kind === "track" && cover.status !== Image.Ready && root.liveArt.length > 0 && root.holdExtends < 5) {
+                root.holdExtends++;
+                hideTimer.interval = 350;
+                hideTimer.restart();
+            } else {
+                root.flashing = false;
+            }
+        }
     }
 
     PwObjectTracker {
@@ -110,18 +173,13 @@ Item {
         function onMutedChanged() { root.flash("volume"); }
     }
 
-    onPlayerChanged: {
-        Qt.callLater(function() {
-            if (stickyPlayer !== player)
-                stickyPlayer = player;
-        });
-        trackEvent();
-    }
-
     Connections {
-        target: root.player
-        function onTrackTitleChanged() { root.trackEvent(); }
-        function onPlaybackStateChanged() { root.trackEvent(); }
+        target: Players
+        function onAnnounce(player) {
+            root.pendingSubject = player;
+            root.dirty = true;
+            root.tryShow();
+        }
     }
 
     Connections {
@@ -133,21 +191,18 @@ Item {
         }
     }
 
-    Process {
-        id: brightMonitor
-        command: ["sh", "-c", "dev=$(ls /sys/class/backlight 2>/dev/null | head -n1); [ -n \"$dev\" ] || exit 0; max=$(cat /sys/class/backlight/$dev/max_brightness); last=\"\"; while true; do val=$(cat /sys/class/backlight/$dev/brightness); if [ \"$val\" != \"$last\" ]; then echo \"$(( val * 100 / max ))\"; last=\"$val\"; fi; sleep 0.15; done"]
-        running: true
-        stdout: SplitParser {
-            onRead: (line) => {
-                var pct = parseInt(line.trim(), 10);
-                if (isNaN(pct))
-                    return;
-                var seen = root.lastBrightness >= 0;
-                root.brightness = Math.max(0, Math.min(100, pct)) / 100.0;
-                root.lastBrightness = pct;
-                if (seen)
-                    root.flash("brightness");
-            }
+    Connections {
+        target: ScreenRec
+        function onRecordingChanged() {
+            root.recordStarted = ScreenRec.recording;
+            root.flash("record");
+        }
+    }
+
+    Connections {
+        target: Backlight
+        function onChanged() {
+            root.flash("brightness");
         }
     }
 
@@ -217,54 +272,100 @@ Item {
             id: coverBox
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
-            width: 30 * root.s
-            height: 30 * root.s
-            radius: 8 * root.s
+            width: 44 * root.s
+            height: 44 * root.s
+            radius: 9 * root.s
             color: Theme.tileBg
 
             Image {
                 id: cover
                 anchors.fill: parent
-                source: root.shownArtUrl
+                source: root.liveArt
+                sourceSize: Qt.size(Math.ceil(width * 2), Math.ceil(height * 2))
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
-                cache: true
-                visible: status === Image.Ready && root.shownArtUrl !== ""
+                cache: String(source).indexOf("file:") !== 0
+                opacity: status === Image.Ready ? 1 : 0
+                /** Art that arrives late still earns a moment on screen, so a cover
+                 *  decoded near the end of the flash is actually seen. */
+                onStatusChanged: if (status === Image.Ready && root.flashing && root.kind === "track") {
+                    hideTimer.interval = 1300;
+                    hideTimer.restart();
+                }
             }
             GlyphIcon {
                 anchors.centerIn: parent
-                width: parent.width * 0.45
+                width: parent.width * 0.42
                 height: width
                 name: "music"
                 color: Theme.subtle
-                visible: !cover.visible
+                visible: cover.status !== Image.Ready
+            }
+
+            /** The source's own app icon, sat as a small badge on the art corner. */
+            Rectangle {
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.margins: 3 * root.s
+                width: 18 * root.s
+                height: 18 * root.s
+                radius: width / 2
+                color: Qt.alpha(Theme.cardBot, 0.8)
+                visible: srcIcon.status === Image.Ready
+
+                Image {
+                    id: srcIcon
+                    anchors.centerIn: parent
+                    width: 12 * root.s
+                    height: 12 * root.s
+                    sourceSize: Qt.size(Math.ceil(width * 2), Math.ceil(height * 2))
+                    fillMode: Image.PreserveAspectFit
+                    asynchronous: true
+                    smooth: true
+                    source: root.subjectIcon
+                }
             }
         }
 
         GlyphIcon {
-            id: trackGlyph
-            anchors.left: coverBox.right
-            anchors.leftMargin: 11 * root.s
-            anchors.verticalCenter: parent.verticalCenter
-            width: 16 * root.s
-            height: 16 * root.s
-            name: root.shownPlaying ? "play-s" : "pause-s"
-            color: Theme.iconDim
-            stroke: 1.7
-        }
-
-        Text {
-            anchors.left: trackGlyph.right
-            anchors.leftMargin: 10 * root.s
+            id: trackCtrl
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
-            text: root.shownTrackLine
-            color: Theme.cream
-            font.family: Theme.font
-            font.pixelSize: 11.5 * root.s
-            font.weight: Font.DemiBold
-            maximumLineCount: 1
-            elide: Text.ElideRight
+            width: 18 * root.s
+            height: 18 * root.s
+            name: root.subjectPlaying ? "play" : "pause"
+            color: root.subjectPlaying ? Theme.vermLit : Theme.iconDim
+        }
+
+        Column {
+            anchors.left: coverBox.right
+            anchors.leftMargin: 12 * root.s
+            anchors.right: trackCtrl.left
+            anchors.rightMargin: 12 * root.s
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 3 * root.s
+
+            Text {
+                width: parent.width
+                text: root.subjectHas ? root.subjectTitle : "Nothing playing"
+                color: Theme.cream
+                font.family: Theme.font
+                font.pixelSize: 14 * root.s
+                font.weight: Font.DemiBold
+                maximumLineCount: 1
+                elide: Text.ElideRight
+            }
+
+            Text {
+                width: parent.width
+                text: root.subjectArtist
+                color: Theme.dim
+                font.family: Theme.font
+                font.pixelSize: 11 * root.s
+                maximumLineCount: 1
+                elide: Text.ElideRight
+                visible: text.length > 0
+            }
         }
     }
 
@@ -400,6 +501,62 @@ Item {
                     }
                 }
             }
+        }
+    }
+
+    Item {
+        id: workspaceRow
+        anchors.fill: parent
+        opacity: root.kind === "workspace" ? 1 : 0
+        visible: opacity > 0.01
+        Behavior on opacity { NumberAnimation { duration: 150 } }
+
+        Workspaces {
+            id: wsIndicator
+            anchors.centerIn: parent
+            screenName: root.screenName
+            s: root.s
+            gap: 8 * root.s
+            enabled: false
+        }
+    }
+
+    Item {
+        id: recordRow
+        anchors.fill: parent
+        opacity: root.kind === "record" ? 1 : 0
+        visible: opacity > 0.01
+        Behavior on opacity { NumberAnimation { duration: 150 } }
+
+        Rectangle {
+            id: recGlyph
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            width: 13 * root.s
+            height: 13 * root.s
+            radius: width / 2
+            color: root.recordStarted ? Theme.verm : Theme.dim
+
+            SequentialAnimation on opacity {
+                running: root.recordStarted && root.kind === "record"
+                loops: Animation.Infinite
+                NumberAnimation { to: 0.4; duration: 500; easing.type: Easing.InOutSine }
+                NumberAnimation { to: 1; duration: 500; easing.type: Easing.InOutSine }
+            }
+        }
+
+        Text {
+            anchors.left: recGlyph.right
+            anchors.leftMargin: 13 * root.s
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            text: root.recordStarted ? "Recording started" : "Recording stopped"
+            color: Theme.cream
+            font.family: Theme.font
+            font.pixelSize: 11.5 * root.s
+            font.weight: Font.DemiBold
+            elide: Text.ElideRight
+            maximumLineCount: 1
         }
     }
 }

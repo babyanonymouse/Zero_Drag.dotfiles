@@ -10,7 +10,7 @@ import "Singletons"
  * hairline. Health drops when UPower can't report it and the time line drops
  * when no estimate exists; on AC-full the subline reads "Plugged in". Charging
  * warms the percentage, subline and meter to the flame tones. Exposes
- * `implicitHeight` from its content and docks Ame as a soul at the percentage.
+ * `implicitHeight` from its content and docks Ame as a seam at the charge head.
  */
 PillSurface {
     id: root
@@ -22,14 +22,22 @@ PillSurface {
 
     implicitHeight: content.implicitHeight
 
-    readonly property point heroPoint: {
+    /**
+     * Where the seam docks: the head of the charge meter, mirroring the
+     * seek-stroke head on the media card. Sits clear of the hero number and
+     * tracks the charge level. mapToItem isn't reactive, so the void reads
+     * force re-eval across the morph and on charge changes.
+     */
+    readonly property point chargeHead: {
         void root.width;
         void root.height;
-        return pctText.mapToItem(root, pctText.width / 2, pctText.height / 2);
+        void Battery.frac;
+        void meter.width;
+        return meter.mapToItem(root, meter.width * Battery.frac, meter.height / 2);
     }
 
-    ameForm: open ? "soul" : "off"
-    amePoint: heroPoint
+    ameForm: "seam"
+    amePoint: chargeHead
 
     Column {
         id: content
@@ -114,6 +122,7 @@ PillSurface {
         }
 
         Rectangle {
+            id: meter
             width: parent.width
             height: 3 * root.s
             radius: 1.5 * root.s

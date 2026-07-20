@@ -36,7 +36,6 @@ Item {
                 height: 14 * root.s
 
                 Rectangle {
-                    id: thread
                     anchors.bottom: parent.bottom
                     width: parent.width
                     height: (6 + 4 * bar.index) * root.s

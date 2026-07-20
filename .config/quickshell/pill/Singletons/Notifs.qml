@@ -6,7 +6,6 @@ import Quickshell.Services.Notifications
 Singleton {
     id: root
 
-    property bool dnd: false
     property var seenIds: ({})
     property var arrivalMs: ({})
     property var popups: []
@@ -15,6 +14,7 @@ Singleton {
     property var history: []
     property var userDismissed: ({})
     property var expireAt: ({})
+    property var hookedIds: ({})
 
     readonly property var tracked: server.trackedNotifications.values
     readonly property int count: tracked.length + history.length
@@ -77,7 +77,7 @@ Singleton {
         var names = [];
         if (img.indexOf("image://icon/") === 0) {
             names.push(img.substring(13));
-        } else if (img.length) {
+        } else if (img.length && !/\.svg$/i.test(img)) {
             return img;
         }
         names.push(n.appIcon, n.desktopEntry, (n.appName || n.app || "").toLowerCase());
@@ -89,18 +89,6 @@ Singleton {
             if (p.length) return p;
         }
         return "";
-    }
-
-    function dismissNotif(n) {
-        if (!n) return;
-        if (typeof n.dismiss === "function") {
-            var d = Object.assign({}, userDismissed);
-            d[n.id] = true;
-            root.userDismissed = d;
-            n.dismiss();
-        } else {
-            root.history = root.history.filter(function(h) { return h.id !== n.id; });
-        }
     }
 
     function dismissEntry(e) {
@@ -123,14 +111,24 @@ Singleton {
     }
 
     /**
-     * Open the app behind a notification entry: invoke its default action when
-     * present, then focus the app's Hyprland window (workspace switch included)
-     * by matching desktopEntry/appName against window classes. The entry is
-     * dismissed afterwards, mirroring stock notification-center behavior.
+     * Focus the app's Hyprland window (workspace switch included) by matching the
+     * notification's desktopEntry/appName against the live window classes.
      */
-    function activateEntry(e) {
-        if (!e || !e.n) return;
-        var n = e.n;
+    function raiseWindow(n) {
+        if (!n) return;
+        var token = String(n.desktopEntry && n.desktopEntry.length ? n.desktopEntry : (n.appName || "")).toLowerCase();
+        if (token.length === 0) return;
+        Quickshell.execDetached(["sh", "-c",
+            "addr=$(hyprctl clients -j | jq -r --arg q \"$1\" 'first(.[] | select(((.class | if . then ascii_downcase else \"\" end) | contains($q)) or ((.initialClass | if . then ascii_downcase else \"\" end) | contains($q))) | .address)'); [ -n \"$addr\" ] && hyprctl dispatch \"hl.dsp.focus({ window = \\\"address:$addr\\\" })\"",
+            "sh", token]);
+    }
+
+    /**
+     * Open the app behind a notification: invoke its default action when present,
+     * then jump to the app's window, mirroring stock notification-center behavior.
+     */
+    function activateNotif(n) {
+        if (!n) return;
         var acts = n.actions || [];
         for (var i = 0; i < acts.length; i++) {
             if (acts[i].identifier === "default") {
@@ -138,11 +136,13 @@ Singleton {
                 break;
             }
         }
-        var token = String(n.desktopEntry && n.desktopEntry.length ? n.desktopEntry : (n.appName || "")).toLowerCase();
-        if (token.length > 0)
-            Quickshell.execDetached(["sh", "-c",
-                "addr=$(hyprctl clients -j | jq -r --arg q \"$1\" '[.[] | select(((.class // \"\") | ascii_downcase | contains($q)) or ((.initialClass // \"\") | ascii_downcase | contains($q)))][0].address // empty'); [ -n \"$addr\" ] && hyprctl dispatch \"hl.dsp.focus({ window = \\\"address:$addr\\\" })\"",
-                "sh", token]);
+        raiseWindow(n);
+    }
+
+    /** Inbox-row entry wrapper: activate the app, then dismiss the entry. */
+    function activateEntry(e) {
+        if (!e || !e.n) return;
+        activateNotif(e.n);
         dismissEntry(e);
     }
 
@@ -183,7 +183,20 @@ Singleton {
         root.expandedApps = e;
     }
 
+    /**
+     * Bind the history-snapshot handler to a notification's `closed` signal once.
+     * `keepOnReload` re-runs Component.onCompleted on every QS reload over the
+     * still-tracked notifications, so the id set gates re-hooks: without it each
+     * reload would stack another handler and a single close would push duplicate
+     * history rows. The id is cleared inside the handler so a later notification
+     * reusing the id re-hooks cleanly.
+     */
     function hookClosed(n) {
+        if (root.hookedIds[n.id])
+            return;
+        var hooked = Object.assign({}, root.hookedIds);
+        hooked[n.id] = true;
+        root.hookedIds = hooked;
         n.closed.connect(function(reason) {
             if (!root.userDismissed[n.id])
                 root.history = [{
@@ -209,6 +222,9 @@ Singleton {
             var c = Object.assign({}, root.expireAt);
             delete c[n.id];
             root.expireAt = c;
+            var h = Object.assign({}, root.hookedIds);
+            delete h[n.id];
+            root.hookedIds = h;
         });
     }
 
@@ -256,7 +272,7 @@ Singleton {
             n.tracked = true;
             root.hookClosed(n);
             var critical = n.urgency === NotificationUrgency.Critical;
-            if (!root.dnd || critical)
+            if (!Flags.dnd || critical)
                 root.popups = root.popups.concat([n]).slice(-3);
         }
     }

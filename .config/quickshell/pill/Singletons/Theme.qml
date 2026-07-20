@@ -2,48 +2,77 @@ pragma Singleton
 import QtQuick
 import Quickshell
 
+/**
+ * Pill palette. Two sources: the curated washi/flame hex below is the identity
+ * and the default, used whenever the dynamic-palette flag is off. With the flag
+ * on, the surfaces and the whole accent ramp follow the wallpaper through the
+ * matugen-fed `Dyn` singleton, while the text family, light veils and shadow
+ * stay locked here so copy keeps its contrast on any generated background. Each
+ * token is a single ternary, so static mode renders byte-identical to the fixed
+ * theme and only the colours that should breathe with the wallpaper do.
+ */
 Singleton {
-    readonly property color verm:     "#c0442b"
-    readonly property color vermLit:  "#e0563b"
-    readonly property color vermDeep: "#a3371f"
-    readonly property color cream:    "#e6d6cb"
-    readonly property color bright:   "#fff6f0"
-    readonly property color dim:      "#8a7d74"
-    readonly property color cardTop:  "#2e231b"
-    readonly property color cardBot:  "#221813"
-    readonly property color border:   "#3a2a22"
+    readonly property bool dyn: Flags.paletteMode !== "static"
+
+    /**
+     * Bright warm pop shared by the flame glow, charging glyphs, the recording
+     * countdown, the unread inbox dot, the calendar's today cell and the held
+     * power tile. The dynamic branch uses the wallpaper accent (Dyn.primary):
+     * matugen's on-primary-container does not populate here and collapses the
+     * token to black, while the accent always loads and contrasts the pill
+     * surface. Static mode keeps the fixed warm hex.
+     */
+    readonly property color onGlow: dyn ? Dyn.primary : "#ff9a64"
+
+    readonly property color verm:     dyn ? Qt.darker(Dyn.primary, 1.18) : "#c0442b"
+    readonly property color vermLit:  dyn ? Dyn.primary : "#e0563b"
+    readonly property color vermDeep: dyn ? Dyn.primaryContainer : "#a3371f"
+    readonly property color cream:    dyn ? Dyn.cream : "#e6d6cb"
+    readonly property color bright:   dyn ? Dyn.bright : "#fff6f0"
+    readonly property color dim:      dyn ? Dyn.dim : "#8a7d74"
+    readonly property color cardTop:  dyn ? Dyn.surfaceContainerHigh : "#2e231b"
+    readonly property color cardBot:  dyn ? Dyn.surfaceContainerLow : "#221813"
+    readonly property color border:   dyn ? Dyn.outlineVariant : "#3a2a22"
     readonly property color shadow:     Qt.rgba(0, 0, 0, 0.55)
-    readonly property color tileBg:   "#211711"
-    readonly property color subtle:   "#b9a99e"
-    readonly property color faint:    "#6f635b"
-    readonly property color iconDim:  "#cdbfb4"
-    readonly property color hair:     Qt.rgba(230/255, 214/255, 203/255, 0.13)
-    readonly property color hairSoft: Qt.rgba(230/255, 214/255, 203/255, 0.08)
-    readonly property color sheen:    Qt.rgba(230/255, 214/255, 203/255, 0.07)
-    readonly property color vermDim:   "#8a5440"
-    readonly property color vermDimDeep: "#5a3526"
-    readonly property color vermBurn:  "#8a2c14"
-    readonly property color tickRest:  "#cbb6a3"
-    readonly property color threadBg:  Qt.rgba(0.94, 0.88, 0.84, 0.13)
-    readonly property color flameCore: "#ffd9c2"
-    readonly property color flameGlow: "#ff9a64"
+    readonly property color tileBg:   dyn ? Dyn.surface : "#211711"
+    readonly property color subtle:   dyn ? Dyn.subtle : "#b9a99e"
+    readonly property color faint:    dyn ? Dyn.faint : "#6f635b"
+    readonly property color iconDim:  dyn ? Dyn.iconDim : "#cdbfb4"
+    readonly property color hair:     Qt.alpha(cream, 0.13)
+    readonly property color hairSoft: Qt.alpha(cream, 0.08)
+    readonly property color sheen:    Qt.alpha(cream, 0.07)
+    readonly property color vermDim:   dyn ? Qt.darker(Dyn.primary, 1.5) : "#8a5440"
+    readonly property color vermDimDeep: dyn ? Qt.darker(Dyn.primary, 2.2) : "#5a3526"
+    readonly property color vermBurn:  dyn ? Qt.darker(Dyn.primaryContainer, 1.1) : "#8a2c14"
+    readonly property color tickRest:  dyn ? Dyn.tickRest : "#cbb6a3"
+    readonly property color threadBg:  Qt.alpha(cream, 0.13)
+    readonly property color flameCore: dyn ? Qt.lighter(onGlow, 1.03) : "#ffd9c2"
+    readonly property color flameGlow: dyn ? onGlow : "#ff9a64"
 
     /**
      * Flame canvas ramp: literal hex strings (color type won't work), fed
      * directly to Canvas addColorStop/strokeStyle. A color property serializes
-     * to #aarrggbb and corrupts the gradient render.
+     * to #aarrggbb and corrupts the gradient render, so the dynamic branch passes
+     * matugen's raw hex strings through untouched rather than any Qt.darker math.
      */
-    readonly property string flameInk:   "#f0795a"
-    readonly property string flameEmber: "#7e2812"
-    readonly property string flameBurn:  "#8a2c14"
-    readonly property string flameTip:   "#ffb38a"
-    readonly property color todayWarm: "#ffb38a"
-    readonly property color ghost:     "#594636"
-    readonly property color frameBg:      Qt.rgba(0.94, 0.88, 0.84, 0.055)
-    readonly property color frameBorder:  Qt.rgba(0.94, 0.88, 0.84, 0.10)
-    readonly property color creamMenu:     Qt.rgba(0.902, 0.839, 0.796, 0.82)
+    readonly property string flameInk:   dyn ? Dyn.primary : "#f0795a"
+    readonly property string flameEmber: dyn ? Dyn.primaryContainer : "#7e2812"
+    readonly property string flameBurn:  dyn ? Dyn.primaryContainer : "#8a2c14"
+    readonly property string flameTip:   dyn ? Dyn.onPrimaryContainer : "#ffb38a"
+    readonly property color todayWarm: dyn ? onGlow : "#ffb38a"
+    readonly property color ghost:     dyn ? Dyn.surfaceContainerHighest : "#594636"
+    readonly property color frameBg:      Qt.alpha(cream, 0.055)
+    readonly property color frameBorder:  Qt.alpha(cream, 0.10)
+    readonly property color creamMenu:     Qt.alpha(cream, 0.82)
     readonly property real shadowOpacity: 0.5
-    readonly property string font: "Inter"
+    /**
+     * Snapshot of the system families, not a binding: Qt.fontFamilies() is not
+     * notifiable, so a font dropped onto the pill re-registers through
+     * refreshFonts() once its FontLoader is ready.
+     */
+    property var fontFamilies: Qt.fontFamilies()
+    function refreshFonts() { fontFamilies = Qt.fontFamilies(); }
+    readonly property string font: (Flags.uiFont.length > 0 && fontFamilies.indexOf(Flags.uiFont) >= 0) ? Flags.uiFont : "Inter"
     readonly property string fontJp: "Zen Kaku Gothic New"
 
     /**

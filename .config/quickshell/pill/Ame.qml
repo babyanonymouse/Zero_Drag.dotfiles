@@ -250,7 +250,7 @@ Item {
         property: "prog"
         from: 0
         to: 1
-        duration: root.quickFlight ? 460 : Motion.shapeshift
+        duration: root.quickFlight ? Math.round(460 * Motion.mult) : Motion.shapeshift
         easing.type: Easing.Linear
     }
 
@@ -269,7 +269,7 @@ Item {
         property: "remnant"
         from: 1
         to: 0
-        duration: 350
+        duration: Math.round(350 * Motion.mult)
         easing.type: Easing.OutCubic
     }
 
@@ -471,10 +471,7 @@ Item {
                 ctx.globalAlpha = blink;
                 ctx.beginPath();
                 ctx.roundedRect(bx - wdt / 2, by - hgt / 2, wdt, Math.max(2 * S, hgt), Math.min(wdt, hgt) / 2, Math.min(wdt, hgt) / 2);
-                const cg = ctx.createLinearGradient(0, by - 8 * S, 0, by + 8 * S);
-                cg.addColorStop(0, Theme.flameCore);
-                cg.addColorStop(1, Theme.vermLit);
-                ctx.fillStyle = cg;
+                ctx.fillStyle = Theme.flameInk;
                 ctx.fill();
                 ctx.globalAlpha = 1;
                 return;
@@ -492,7 +489,7 @@ Item {
                 const wy0 = by + root.wickDir * (r + 1.5 * S);
                 const wg = ctx.createLinearGradient(0, wy0, 0, wy0 + root.wickDir * wl);
                 wg.addColorStop(0, Qt.rgba(1, 0.851, 0.761, 0.55 * fadeIn));
-                wg.addColorStop(1, Qt.rgba(0.878, 0.337, 0.231, 0));
+                wg.addColorStop(1, Qt.alpha(Theme.vermLit, 0));
                 ctx.beginPath();
                 ctx.moveTo(bx, wy0);
                 ctx.lineTo(bx, wy0 + root.wickDir * wl);
@@ -532,9 +529,9 @@ Item {
                 const sh = 18 * S * (settling ? (0.6 + 0.4 * e) : 1);
                 const sw = 4.2 * S;
                 const sg3 = ctx.createLinearGradient(0, by - sh / 2, 0, by + sh / 2);
-                sg3.addColorStop(0, Qt.rgba(0.878, 0.337, 0.231, 0.92));
+                sg3.addColorStop(0, Qt.alpha(Theme.vermLit, 0.92));
                 sg3.addColorStop(0.5, Theme.flameInk);
-                sg3.addColorStop(1, Qt.rgba(0.878, 0.337, 0.231, 0.92));
+                sg3.addColorStop(1, Qt.alpha(Theme.vermLit, 0.92));
                 ctx.beginPath();
                 ctx.roundedRect(bx - sw / 2, by - sh / 2, sw, sh, sw / 2, sw / 2);
                 ctx.fillStyle = sg3;

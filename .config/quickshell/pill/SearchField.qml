@@ -9,6 +9,14 @@ Item {
     property string kanji: ""
     property string placeholder: ""
     property string counterText: ""
+
+    /**
+     * Map Left/Right to the moved() signal instead of text-cursor motion. For a
+     * horizontal result strip the arrows should page the strip; without this the
+     * field swallows them until the caret sits at a text boundary, so navigation
+     * stalls mid-query.
+     */
+    property bool horizontalNav: false
     readonly property alias input: field
     property alias text: field.text
     default property alias rightContent: rightSlot.data
@@ -56,7 +64,10 @@ Item {
             root.keyPressed(e);
             if (e.accepted)
                 return;
-            if (e.key === Qt.Key_Return || e.key === Qt.Key_Enter) {
+            if (root.horizontalNav && (e.key === Qt.Key_Left || e.key === Qt.Key_Right)) {
+                root.moved(e.key === Qt.Key_Right ? 1 : -1);
+                e.accepted = true;
+            } else if (e.key === Qt.Key_Return || e.key === Qt.Key_Enter) {
                 root.accepted();
                 e.accepted = true;
             } else if (e.key === Qt.Key_Escape) {
@@ -64,6 +75,17 @@ Item {
                 e.accepted = true;
             }
         }
+    }
+
+    Rectangle {
+        anchors.left: field.left
+        anchors.right: field.right
+        anchors.top: field.bottom
+        anchors.topMargin: 2 * root.s
+        height: 1
+        color: Theme.faint
+        opacity: field.activeFocus ? 0.7 : 0
+        Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
     }
 
     Text {

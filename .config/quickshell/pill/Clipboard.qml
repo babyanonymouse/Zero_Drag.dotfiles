@@ -96,6 +96,7 @@ PillSurface {
 
     SearchField {
         id: search
+        z: 5
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
@@ -126,13 +127,32 @@ PillSurface {
 
             readonly property real hold: wipeHeat.hold
             readonly property bool holding: wipeHeat.holding
+            readonly property color tone: holding ? Theme.vermLit : (wipeArea.containsMouse ? Theme.cream : Theme.faint)
+
+            Tooltip {
+                s: root.s
+                placement: "below"
+                title: "hold to wipe"
+                show: wipeArea.containsMouse || wipeBtn.holding
+            }
 
             Text {
+                visible: Flags.showGlyphs
                 anchors.centerIn: parent
                 text: "掃"
-                color: wipeBtn.holding ? Theme.vermLit : (wipeArea.containsMouse ? Theme.cream : Theme.faint)
+                color: wipeBtn.tone
                 font.family: Theme.fontJp
                 font.pixelSize: 12 * root.s
+                Behavior on color { ColorAnimation { duration: Motion.fast } }
+            }
+
+            GlyphIcon {
+                visible: !Flags.showGlyphs
+                anchors.centerIn: parent
+                width: 12 * root.s
+                height: 12 * root.s
+                name: "trash"
+                color: wipeBtn.tone
                 Behavior on color { ColorAnimation { duration: Motion.fast } }
             }
 
@@ -341,5 +361,11 @@ PillSurface {
                 }
             }
         }
+    }
+
+    WheelScroller {
+        anchors.fill: list
+        s: root.s
+        flick: list
     }
 }

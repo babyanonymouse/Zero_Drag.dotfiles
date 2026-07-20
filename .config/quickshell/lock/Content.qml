@@ -125,6 +125,7 @@ Item {
     }
 
     Text {
+        id: clockText
         visible: content.isMain
         anchors.horizontalCenter: parent.horizontalCenter
         y: parent.height * 0.24
@@ -132,7 +133,17 @@ Item {
         font.family: "Zen Kaku Gothic New"
         font.weight: 500
         font.pixelSize: 130 * content.s
-        text: Qt.formatDateTime(sysClock.date, "HH:mm")
+        /** Qt reads "h" as 24h unless the same format holds AP, and the AM/PM sits in its own label here, so the 12h hour is built by hand. */
+        text: {
+            var d = sysClock.date;
+            if (!Flags.time12h)
+                return Qt.formatDateTime(d, "HH:mm");
+            var h = d.getHours() % 12;
+            if (h === 0)
+                h = 12;
+            var m = d.getMinutes();
+            return h + ":" + (m < 10 ? "0" : "") + m;
+        }
         layer.enabled: true
         layer.effect: MultiEffect {
             shadowEnabled: true
@@ -141,6 +152,19 @@ Item {
             shadowVerticalOffset: 2
             shadowHorizontalOffset: 0
         }
+    }
+
+    Text {
+        visible: content.isMain && Flags.time12h
+        anchors.left: clockText.right
+        anchors.leftMargin: 12 * content.s
+        anchors.baseline: clockText.baseline
+        color: Theme.bright
+        opacity: 0.55
+        font.family: "Zen Kaku Gothic New"
+        font.weight: 600
+        font.pixelSize: 34 * content.s
+        text: Qt.formatDateTime(sysClock.date, "AP")
     }
 
     Column {

@@ -1,27 +1,44 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+# install_custom_theme.sh
+# Script to install nwg-look, Gently Color GTK theme, and YAMIS icons.
+# Part of Zero-Drag Dotfiles
+
+set -euo pipefail
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;36m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}=========================================${NC}"
+echo -e "${BLUE}Zero-Drag GTK Theme & Icon Installer${NC}"
+echo -e "${BLUE}=========================================${NC}"
+echo ""
 
 # 1. Install Prerequisites
-echo "==> Checking Prerequisites..."
+echo -e "${GREEN}==> Checking Prerequisites...${NC}"
 
-# Check and install nwg-look
+# Check and install nwg-look via yay/pacman
 if ! command -v nwg-look &> /dev/null; then
-    echo "nwg-look not found. Installing via yay..."
-    yay -S --noconfirm nwg-look
+    if command -v yay &> /dev/null; then
+        echo "nwg-look not found. Installing via yay..."
+        yay -S --noconfirm nwg-look
+    else
+        echo -e "${YELLOW}Warning: yay not found. Please install nwg-look manually via your AUR helper.${NC}"
+    fi
 else
     echo "nwg-look is already installed."
 fi
 
-# Create standard directories
+# Create standard local directories
 echo "Creating ~/.themes and ~/.icons..."
-mkdir -p ~/.themes
-mkdir -p ~/.icons
+mkdir -p "$HOME/.themes"
+mkdir -p "$HOME/.icons"
 
 # 2. Fetch the Assets
-echo "==> Fetching Assets..."
-
-# 2. Fetch Assets
-echo "==> Fetching Assets..."
+echo -e "${GREEN}==> Fetching Theme Assets...${NC}"
 
 DOWNLOAD_DIR="$HOME/Downloads"
 mkdir -p "$DOWNLOAD_DIR"
@@ -29,60 +46,47 @@ mkdir -p "$DOWNLOAD_DIR"
 GENTLY_SRC="$DOWNLOAD_DIR/Gently-Color-GTK"
 YAMIS_SRC="$DOWNLOAD_DIR/YAMIS"
 
-# --- Gently Theme ---
+# --- Clone Gently Theme ---
 if [ -d "$GENTLY_SRC" ]; then
-    echo "Found local Gently-Color-GTK in Downloads."
+    echo "Found local Gently-Color-GTK in Downloads. Updating..."
+    git -C "$GENTLY_SRC" pull || true
 else
-    echo "Gently-Color-GTK not found locally. Cloning from GitHub..."
+    echo "Cloning Gently-Color-Plasma-Themes from GitHub..."
     git clone https://github.com/L4ki/Gently-Color-Plasma-Themes.git "$GENTLY_SRC"
 fi
 
-# --- YAMIS Icons ---
+# --- Clone YAMIS Icons ---
 if [ -d "$YAMIS_SRC" ]; then
-    echo "Found local YAMIS in Downloads."
+    echo "Found local YAMIS in Downloads. Updating..."
+    git -C "$YAMIS_SRC" pull || true
 else
-    echo "YAMIS not found locally. Cloning from Bitbucket..."
+    echo "Cloning YAMIS icons from Bitbucket..."
     git clone https://bitbucket.org/dirn-typo/yet-another-monochrome-icon-set.git "$YAMIS_SRC"
 fi
 
-# 3. Application
-echo "==> Installing Themes..."
+# 3. Installation
+echo -e "${GREEN}==> Installing Themes to ~/.themes and ~/.icons...${NC}"
 
-# --- Install Gently Theme ---
+# --- Install Gently GTK Themes ---
 if [ -d "$GENTLY_SRC" ]; then
-    echo "Searching for themes in $GENTLY_SRC..."
-    
-    # Method 1: Look for index.theme
-    FOUND_THEMES=$(find "$GENTLY_SRC" -name "index.theme")
-    
-    # Method 2: Look for gtk-3.0 (fallback if index.theme is missing)
-    if [ -z "$FOUND_THEMES" ]; then
-        echo "No index.theme found. Checking for gtk-3.0 folder..."
-        FOUND_THEMES=$(find "$GENTLY_SRC" -type d -name "gtk-3.0")
-    fi
-
+    echo "Searching for GTK themes in $GENTLY_SRC..."
+    # Locate directories containing index.theme or gtk-3.0
+    FOUND_THEMES=$(find "$GENTLY_SRC" -name "index.theme" -o -type d -name "gtk-3.0")
     if [ -n "$FOUND_THEMES" ]; then
-        echo "$FOUND_THEMES" | while read -r marker_file; do
-            # If marker is index.theme, root is dirname.
-            # If marker is gtk-3.0 dir, root is dirname of that dir.
-            if [[ "$(basename "$marker_file")" == "gtk-3.0" ]]; then
-                 THEME_ROOT=$(dirname "$marker_file")
-            else
-                 THEME_ROOT=$(dirname "$marker_file")
-            fi
-            
+        # Use find to locate subfolders that are actual theme directories
+        find "$GENTLY_SRC" -type d -name "gtk-3.0" | while read -r gtk_dir; do
+            THEME_ROOT=$(dirname "$gtk_dir")
             THEME_NAME=$(basename "$THEME_ROOT")
-            
-            echo "Found theme candidate: $THEME_NAME"
-            echo "Copying to ~/.themes/..."
-            rm -rf "$HOME/.themes/$THEME_NAME"
-            cp -r "$THEME_ROOT" "$HOME/.themes/"
+            # Avoid copying the entire clone root
+            if [ "$THEME_NAME" != "Gently-Color-GTK" ] && [ "$THEME_NAME" != "Downloads" ]; then
+                echo "Installing theme: $THEME_NAME"
+                rm -rf "$HOME/.themes/$THEME_NAME"
+                cp -r "$THEME_ROOT" "$HOME/.themes/"
+            fi
         done
     else
-        echo "WARNING: Could not detect a valid theme structure (no index.theme or gtk-3.0) in $GENTLY_SRC"
+        echo -e "${YELLOW}WARNING: No GTK themes found in $GENTLY_SRC${NC}"
     fi
-else
-    echo "WARNING: $GENTLY_SRC does not exist. Please ensure the folder is present."
 fi
 
 # --- Install YAMIS Icons ---
@@ -91,18 +95,21 @@ if [ -d "$YAMIS_SRC" ]; then
     find "$YAMIS_SRC" -name "index.theme" | while read -r icon_file; do
         ICON_ROOT=$(dirname "$icon_file")
         ICON_NAME=$(basename "$ICON_ROOT")
-        
-        echo "Found icon set: $ICON_NAME"
-        echo "Copying to ~/.icons/..."
-        rm -rf "$HOME/.icons/$ICON_NAME" # overwrite
-        cp -r "$ICON_ROOT" "$HOME/.icons/"
+        if [ "$ICON_NAME" != "yet-another-monochrome-icon-set" ]; then
+            echo "Installing icon set: $ICON_NAME"
+            rm -rf "$HOME/.icons/$ICON_NAME"
+            cp -r "$ICON_ROOT" "$HOME/.icons/"
+        fi
     done
 else
-    echo "WARNING: $YAMIS_SRC does not exist. Please ensure the folder is present."
+    echo -e "${YELLOW}WARNING: Icon source not found. Skipping icon set install.${NC}"
 fi
 
 echo ""
-echo "========================================"
-echo "Installation Complete!"
-echo "Run 'nwg-look' and select 'Gently-Color-GTK' (or similar) and 'Monochrome-Icons' to finish."
-echo "========================================"
+echo -e "${GREEN}=========================================${NC}"
+echo -e "${GREEN}Theme Assets Installation Complete!${NC}"
+echo -e "${GREEN}=========================================${NC}"
+echo "Run 'nwg-look' to select the newly installed GTK theme and icon sets."
+echo "Suggested theme: 'Gently-Color-GTK' (or similar variant)"
+echo "Suggested icon theme: 'Monochrome-Icons' / 'YAMIS'"
+echo ""

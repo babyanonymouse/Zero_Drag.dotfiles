@@ -4,7 +4,8 @@ import "Singletons"
 /**
  * Single-line text that ping-pong scrolls when wider than the available width,
  * so long track and artist names stay readable. Caller sets the width (e.g.
- * via anchors) and `active` to gate the motion.
+ * via anchors) and `active` to gate the motion. The label snaps to whole pixels
+ * so NativeRendering stays crisp while it scrolls.
  */
 Item {
     id: root
@@ -15,6 +16,8 @@ Item {
     property int weight: Font.Normal
     property bool active: true
 
+    property real scrollX: 0
+
     implicitHeight: label.implicitHeight
     clip: true
 
@@ -23,39 +26,40 @@ Item {
     Text {
         id: label
         anchors.verticalCenter: parent.verticalCenter
-        x: 0
+        x: Math.round(root.scrollX)
         text: root.text
         color: root.color
+        renderType: Text.NativeRendering
         font.family: Theme.font
         font.pixelSize: root.pixelSize
         font.weight: root.weight
         elide: root.overflowing ? Text.ElideNone : Text.ElideRight
         width: root.overflowing ? implicitWidth : root.width
 
-        SequentialAnimation {
-            id: anim
-            loops: Animation.Infinite
-            PauseAnimation { duration: 1800 }
-            NumberAnimation {
-                target: label
-                property: "x"
-                from: 0
-                to: -(label.implicitWidth - root.width)
-                duration: Math.max(1, label.implicitWidth - root.width) * 22
-                easing.type: Easing.InOutSine
-            }
-            PauseAnimation { duration: 1800 }
-            NumberAnimation {
-                target: label
-                property: "x"
-                from: -(label.implicitWidth - root.width)
-                to: 0
-                duration: Math.max(1, label.implicitWidth - root.width) * 22
-                easing.type: Easing.InOutSine
-            }
-        }
-
         onTextChanged: root.sync()
+    }
+
+    SequentialAnimation {
+        id: anim
+        loops: Animation.Infinite
+        PauseAnimation { duration: 1800 }
+        NumberAnimation {
+            target: root
+            property: "scrollX"
+            from: 0
+            to: -(label.implicitWidth - root.width)
+            duration: Math.max(1, label.implicitWidth - root.width) * 22
+            easing.type: Easing.InOutSine
+        }
+        PauseAnimation { duration: 1800 }
+        NumberAnimation {
+            target: root
+            property: "scrollX"
+            from: -(label.implicitWidth - root.width)
+            to: 0
+            duration: Math.max(1, label.implicitWidth - root.width) * 22
+            easing.type: Easing.InOutSine
+        }
     }
 
     onActiveChanged: sync()
@@ -70,7 +74,7 @@ Item {
      */
     function sync() {
         anim.stop();
-        label.x = 0;
+        root.scrollX = 0;
         if (overflowing && active)
             anim.start();
     }

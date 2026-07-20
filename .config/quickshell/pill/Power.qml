@@ -11,7 +11,13 @@ import "Singletons"
  * safe group (lock, logout, sleep; fire on tap) and a destructive group
  * (restart, shutdown; press-and-hold). Holding a destructive tile ramps a
  * bottom-up heat fill, releasing early drains it, so a stray click can never
- * reboot the machine. Only the hovered or held action shows its label.
+ * reboot the machine. Only the hovered, focused or held action shows its label.
+ *
+ * Arrow keys move a keyboard focus across the tiles; the focused tile lights and
+ * docks the soul bead exactly like a hovered one. Enter fires a safe tile at
+ * once; on a destructive tile a held Enter drives the same heat fill as a
+ * pointer hold (release before it completes drains), so the keyboard path can
+ * never reboot on a single keystroke either.
  */
 PillSurface {
     id: root
@@ -22,6 +28,8 @@ PillSurface {
     mBottom: 14
 
     property string hovered: ""
+    property int focusIndex: -1
+    property bool keyHeld: false
 
     property int holdingIndex: -1
     property real holdProgress: 0
@@ -40,7 +48,7 @@ PillSurface {
     amePoint: Qt.point(heatX, heatY)
 
     readonly property var actions: [
-        { key: "lock",     glyph: "lock",     label: "Lock",     confirm: false, dispatch: "",             argv: ["sh", "-c", "$HOME/.config/hypr/scripts/lock.sh"] },
+        { key: "lock",     glyph: "lock",     label: "Lock",     confirm: false, dispatch: "",             argv: [Quickshell.env("HOME") + "/.config/hypr/scripts/lock.sh"] },
         { key: "logout",   glyph: "logout",   label: "Logout",   confirm: true,  dispatch: "hl.dsp.exit()", argv: [] },
         { key: "suspend",  glyph: "suspend",  label: "Sleep",    confirm: false, dispatch: "",             argv: ["systemctl", "suspend"] },
         { key: "reboot",   glyph: "reboot",   label: "Restart",  confirm: true,  dispatch: "",             argv: ["systemctl", "reboot"] },
@@ -57,9 +65,47 @@ PillSurface {
         root.requestClose();
     }
 
+    /**
+     * Slide keyboard focus across the tiles; `dir` is +1 (right) or -1 (left).
+     * Releases any held heat so focus never drags a half-filled tile with it.
+     */
+    function move(dir) {
+        keyHeld = false;
+        if (focusIndex < 0)
+            focusIndex = dir > 0 ? 0 : actions.length - 1;
+        else
+            focusIndex = Math.max(0, Math.min(actions.length - 1, focusIndex + dir));
+    }
+
+    /**
+     * Enter pressed on the focused tile. A safe tile fires at once; a destructive
+     * tile latches keyHeld so its delegate ramps the heat fill, mirroring a
+     * pointer hold. Returns true when a tile consumed the key.
+     */
+    function pressFocused() {
+        if (focusIndex < 0 || focusIndex >= actions.length)
+            return false;
+        if (actions[focusIndex].confirm) {
+            keyHeld = true;
+            return true;
+        }
+        run(actions[focusIndex]);
+        return true;
+    }
+
+    /**
+     * Enter released: drop the destructive hold so an early release drains the
+     * heat instead of confirming.
+     */
+    function releaseFocused() {
+        keyHeld = false;
+    }
+
     onActiveChanged: if (!active) {
         hovered = "";
         soulKey = "";
+        focusIndex = -1;
+        keyHeld = false;
         holdingIndex = -1;
         holdProgress = 0;
     }
@@ -127,10 +173,33 @@ PillSurface {
                     height: 50 * root.s
 
                     readonly property real hold: heat.hold
-                    readonly property bool isHover: root.hovered === cell.modelData.key
+                    readonly property bool kbFocus: root.focusIndex === cell.index
+                    readonly property bool isHover: root.hovered === cell.modelData.key || tile.kbFocus
                     readonly property bool holding: heat.holding
                     readonly property bool lit: isHover || tile.holding
                     readonly property color accent: cell.modelData.confirm ? Theme.vermLit : Theme.cream
+
+                    onKbFocusChanged: {
+                        if (!tile.kbFocus)
+                            return;
+                        root.hovered = cell.modelData.key;
+                        root.soulKey = cell.modelData.key;
+                        const c = tile.mapToItem(root, tile.width / 2, 0);
+                        root.hoverX = c.x;
+                        root.hoverY = c.y - 9 * root.s;
+                    }
+
+                    /**
+                     * A held Enter on the focused destructive tile drives the same
+                     * heat fill as a pointer hold; dropping the key drains it.
+                     */
+                    readonly property bool keyDriving: tile.kbFocus && root.keyHeld && cell.modelData.confirm
+                    onKeyDrivingChanged: {
+                        if (tile.keyDriving)
+                            heat.press();
+                        else
+                            heat.release();
+                    }
 
                     onHoldChanged: {
                         if (cell.modelData.confirm && tile.hold > 0.001) {
@@ -243,6 +312,6 @@ PillSurface {
         font.weight: Font.Medium
         font.letterSpacing: 0.4 * root.s
         opacity: text.length > 0 ? 1 : 0
-        Behavior on opacity { NumberAnimation { duration: 120 } }
+        Behavior on opacity { NumberAnimation { duration: Motion.fast } }
     }
 }

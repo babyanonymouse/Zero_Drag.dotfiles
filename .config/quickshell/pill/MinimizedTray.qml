@@ -80,7 +80,7 @@ Row {
                 smooth: true
                 source: chip.iconSrc
                 opacity: area.containsMouse ? 1 : 0.78
-                Behavior on opacity { NumberAnimation { duration: 110 } }
+                Behavior on opacity { NumberAnimation { duration: Motion.fast } }
             }
 
             MouseArea {
@@ -95,6 +95,13 @@ Row {
                         addr = "0x" + addr;
                     Hyprland.dispatch('hl.dsp.window.move({ workspace = ' + root.restoreWorkspace() + ', window = "address:' + addr + '" })');
                 }
+            }
+
+            Tooltip {
+                s: root.s
+                placement: "below"
+                title: chip.modelData.title
+                show: area.containsMouse
             }
         }
     }
