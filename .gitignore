@@ -29,3 +29,16 @@ __pycache__/
 # Antigravity Agent
 Antigravity/
 .gemini/
+
+# Machine-specific / sensitive
+fish_variables
+*.save
+*.lock
+*.key
+*.pem
+credentials.json
+.secrets
+
+# System / Cache
+.trash/
+.pytest_cache/
