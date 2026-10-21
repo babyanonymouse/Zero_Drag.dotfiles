@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+<action>
+	<icon>visual-studio-code</icon>
+	<name>Open in VS Code</name>
+	<submenu></submenu>
+	<unique-id>1234567890123456-1</unique-id>
+	<command>code %f</command>
+	<description>Open folder in VS Code</description>
+	<range></range>
+	<patterns>*</patterns>
+	<startup-notify/>
+	<directories/>
+</action>
+<action>
+	<icon>kitty</icon>
+	<name>Open in Kitty</name>
+	<submenu></submenu>
+	<unique-id>1234567890123456-2</unique-id>
+	<command>kitty --directory %f</command>
+	<description>Open terminal here</description>
+	<range></range>
+	<patterns>*</patterns>
+	<startup-notify/>
+	<directories/>
+</action>
+<action>
+	<icon>edit-copy</icon>
+	<name>Copy Path</name>
+	<submenu></submenu>
+	<unique-id>1234567890123456-3</unique-id>
+	<command>echo -n %f | wl-copy</command>
+	<description>Copy full path to clipboard</description>
+	<range></range>
+	<patterns>*</patterns>
+	<startup-notify/>
+	<directories/>
+	<audio-files/>
+	<image-files/>
+	<other-files/>
+	<text-files/>
+	<video-files/>
+</action>
+</actions>

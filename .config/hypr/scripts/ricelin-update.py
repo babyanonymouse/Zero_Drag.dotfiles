@@ -20,8 +20,10 @@ The maintainer and anyone who installed by symlinking the config into a git
 work-tree are detected as devmode and left alone, since they update with plain git.
 """
 import datetime
+import fnmatch
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -41,7 +43,20 @@ PROTECTED = [
     "hypr/modules/stash-apps.lua",
     "hypr/modules/spaces.lua",
     "hypr/hypridle.conf",
+    "fish/config.fish",
 ]
+
+# Mirrors deploy.py's DEPLOY_SET as (source, dest) and its copy ignores; its selftest holds them equal.
+DEPLOY_SET = [
+    ("hypr", "hypr"),
+    ("quickshell", "quickshell"),
+    ("ghostty", "ghostty"),
+    ("fish", "fish"),
+    ("fastfetch", "fastfetch"),
+    ("kde/kdeglobals", "kdeglobals"),
+    ("systemd/user/hyprland-session.target", "systemd/user/hyprland-session.target"),
+]
+COPY_IGNORE = ("test_*.py", "__pycache__", "*.pyc", "hypridle.conf")
 
 
 def data_dir():
@@ -88,10 +103,12 @@ def atomic_write_bytes(path, data):
     A crash mid-write leaves either the old file or the new one, never a half file.
     """
     path.parent.mkdir(parents=True, exist_ok=True)
+    mode = 0o755 if data.startswith(b"#!") else (path.stat().st_mode & 0o777 if path.exists() else 0o644)
     fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix=".tmp-", suffix=path.name)
     try:
         with os.fdopen(fd, "wb") as fh:
             fh.write(data)
+        os.chmod(tmp, mode)
         os.replace(tmp, path)
     except BaseException:
         if os.path.exists(tmp):
@@ -221,6 +238,16 @@ def tracked_config_files(clone, ref):
     return rels
 
 
+def deploy_dest(rel):
+    """Where the installer deploys configs/<rel> under ~/.config, or None when it never does."""
+    if any(fnmatch.fnmatch(part, pat) for part in Path(rel).parts for pat in COPY_IGNORE):
+        return None
+    for src, dest in DEPLOY_SET:
+        if rel == src or rel.startswith(src + "/"):
+            return dest + rel[len(src):]
+    return None
+
+
 def show_at(clone, sha, rel):
     """File content at a sha, or None when the path didn't exist there."""
     result = subprocess.run(
@@ -299,22 +326,24 @@ def reconcile_protected(clone, config_root, manifest, head, apply, take):
 
 def sync_code(clone, config_root, head, apply):
     """
-    Overwrite every tracked config file that isn't protected with the upstream
-    version. Returns True when at least one live file differed from upstream.
+    Overwrite every tracked config file the installer deploys and that isn't
+    protected with the upstream version. Returns True when at least one live file
+    differed from upstream.
 
-    ponytail: L1 known ceiling. A file deleted upstream is never removed from the
-    live config, so renamed or dropped code files linger as orphans. Left as is on
-    purpose, since it only ever leaves stale files and never deletes a user's data.
+    Known limit: a file deleted upstream is never removed from the live config, so
+    renamed or dropped code files linger as orphans. Left as is on purpose, since
+    it only ever leaves stale files and never deletes a user's data.
     """
     protected = set(PROTECTED)
     changed = False
     for rel in tracked_config_files(clone, head):
-        if rel in protected:
+        dest = deploy_dest(rel)
+        if rel in protected or dest is None:
             continue
         new = show_at(clone, head, rel)
         if new is None:
             continue
-        live_path = config_root / rel
+        live_path = config_root / dest
         current = live_path.read_bytes() if live_path.exists() else None
         if current == new:
             continue
@@ -322,6 +351,19 @@ def sync_code(clone, config_root, head, apply):
         if apply:
             atomic_write_bytes(live_path, new)
     return changed
+
+
+def migrate_hypridle(config_root):
+    """Rewrite the pre-Lua `hyprctl dispatch dpms on|off` a live hypridle.conf may still carry."""
+    path = config_root / "hypr" / "hypridle.conf"
+    if not path.is_file():
+        return
+    text = path.read_text()
+    fixed = re.sub(r"hyprctl dispatch dpms (on|off)[ \t]*$",
+                   lambda m: f"hyprctl dispatch \"hl.dsp.dpms({{ action = '{m[1]}' }})\"",
+                   text, flags=re.M)
+    if fixed != text:
+        atomic_write_bytes(path, fixed.encode("utf-8"))
 
 
 def baseline_modules(manifest, head):
@@ -376,6 +418,7 @@ FAMILY_TOKENS = {
     "debian": ("debian", "ubuntu", "linuxmint", "pop", "elementary", "zorin", "raspbian"),
     "fedora": ("fedora", "nobara", "rhel", "centos", "rocky", "almalinux"),
     "suse": ("suse", "opensuse", "sles", "sled", "tumbleweed", "leap"),
+    "gentoo": ("gentoo", "funtoo", "calculate", "pentoo", "redcore"),
 }
 
 
@@ -386,7 +429,7 @@ def os_release(path="/etc/os-release"):
             for line in fh:
                 if "=" in line and not line.startswith("#"):
                     k, v = line.rstrip().split("=", 1)
-                    data[k] = v.strip().strip('"')
+                    data[k] = v.strip().strip('"\'')
     except OSError:
         pass
     return data
@@ -442,6 +485,9 @@ def pkg_installed(name, family):
             r = subprocess.run(["dpkg-query", "-W", "-f=${Status}", name],
                                capture_output=True, text=True)
             return "install ok installed" in r.stdout
+        if family == "gentoo":
+            return subprocess.run(["portageq", "has_version", "/", name],
+                                  capture_output=True).returncode == 0
         r = subprocess.run(["rpm", "-q", name], capture_output=True, text=True)
         return r.returncode == 0
     except (OSError, subprocess.SubprocessError):
@@ -479,6 +525,8 @@ def native_install_argv(family, names):
         return ["env", "DEBIAN_FRONTEND=noninteractive", "apt-get", "install", "-y", *names]
     if family == "fedora":
         return ["dnf", "install", "-y", *names]
+    if family == "gentoo":
+        return ["emerge", "--noreplace", *names]
     return ["zypper", "--non-interactive", "install", *names]
 
 
@@ -488,13 +536,17 @@ def manual_hint(pkg, family, fallbacks):
     its failure reason so the user is told what to run rather than left with a silent
     no-op. An Arch AUR package needs a helper that runs makepkg as the user (it
     refuses root, and the helper's own sudo has no askpass in a pill-spawned process),
-    so the engine never tries it from here and hands over the exact command. A
-    fallback-only package has no native package and points at its fallback method.
+    so the engine never tries it from here and hands over the exact command. Gentoo
+    compiles every package, hours of build with no terminal behind a pkexec prompt,
+    so there every package is handed over as an emerge line instead. A fallback-only
+    package has no native package and points at its fallback method.
     """
     name = native_name(pkg, family)
     if family == "arch" and name and pkg.get("aur"):
         helper = shutil.which("yay") or shutil.which("paru") or "yay"
         return f"AUR package, install it yourself: {helper} -S {name}"
+    if family == "gentoo" and name:
+        return f"compiles from source, run it in a terminal: emerge -av {name}"
     hint = fallbacks.get(pkg.get("fallback")) or "install it manually"
     return f"no native package on this system, {hint}"
 
@@ -536,7 +588,7 @@ def install_missing_deps(clone, head, ids):
             failures.append({"id": pid, "error": "unknown package"})
             continue
         name = native_name(pkg, family)
-        if not name or (family == "arch" and pkg.get("aur")):
+        if not name or (family == "arch" and pkg.get("aur")) or family == "gentoo":
             failures.append({"id": pid, "error": manual_hint(pkg, family, fallbacks)})
             continue
         repo.append((pid, name))
@@ -590,6 +642,7 @@ def run(mode, remote, config_root, take, install_ids):
         rows = [{"name": module_name(rel), "path": rel, "state": "clean"}
                 for rel in PROTECTED]
         if apply:
+            migrate_hypridle(config_root)
             baseline_modules(manifest, head)
             manifest["syncedSha"] = head
             save_manifest(manifest)
@@ -608,6 +661,7 @@ def run(mode, remote, config_root, take, install_ids):
     code_changed = sync_code(clone, config_root, head, apply)
 
     if apply:
+        migrate_hypridle(config_root)
         manifest.setdefault("modules", {}).update(sha_updates)
         manifest["syncedSha"] = head
         save_manifest(manifest)

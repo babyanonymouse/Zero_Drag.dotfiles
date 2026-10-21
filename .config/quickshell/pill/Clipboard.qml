@@ -200,7 +200,7 @@ PillSurface {
     Text {
         anchors.centerIn: list
         visible: root.results.length === 0
-        text: root.query.length ? "No matches" : "History empty"
+        text: root.query.length ? "No matches" : (Cliphist.loaded ? "History empty" : "")
         color: Theme.faint
         font.family: Theme.font
         font.pixelSize: 10.5 * root.s
@@ -284,6 +284,7 @@ PillSurface {
                         sourceSize.height: 128
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
+                        cache: false
                         smooth: true
                     }
                 }

@@ -7,10 +7,11 @@ import "../lib/binds.js" as Binds
 /**
  * 場 SPACES store: the single read/writer of ~/.config/hypr/modules/spaces.lua,
  * the user-defined special workspaces the Workspaces settings page creates. Each
- * entry is { id, name, desc, key, apps[] }: id is the special-workspace name (a
- * slug of the display name), key a single Super-prefixed letter, apps the window
- * classes that auto-route in. `editing` names the space the SpaceApps surface is
- * currently routing apps into.
+ * entry is { id, name, desc, key, glyph, apps[] }: id is the special-workspace
+ * name (a slug of the display name), key a single Super-prefixed letter, glyph an
+ * optional GlyphIcon name shown beside the row, apps the window classes that
+ * auto-route in. `editing` names the space the SpaceApps surface is currently
+ * routing apps into.
  *
  * Every change regenerates the whole lua file through an atomic writer; the write
  * fires a debounced `hyprctl reload` so the new spaces, binds and routing take
@@ -29,7 +30,8 @@ Singleton {
     readonly property string header:
         "-- User-defined special workspaces. The Settings page rewrites this file, so keep\n"
         + "-- each entry on this shape. id is the special-workspace name, key is a single\n"
-        + "-- Super-prefixed letter, apps are window classes that auto-route in.\n"
+        + "-- Super-prefixed letter, glyph an optional GlyphIcon name, apps are window\n"
+        + "-- classes that auto-route in.\n"
 
     /** Slug a display name into a lua-safe special-workspace id: lowercase, only [a-z0-9]. */
     function slug(name) {
@@ -65,6 +67,7 @@ Singleton {
             name: root.field(block, "name") || id,
             desc: root.field(block, "desc"),
             key: root.field(block, "key"),
+            glyph: root.field(block, "glyph"),
             apps: apps
         };
     }
@@ -119,7 +122,9 @@ Singleton {
                 apps += (j ? ", " : "") + "\"" + src[j] + "\"";
             var appsStr = src.length ? "{ " + apps + " }" : "{}";
             body += "\t{ id = \"" + e.id + "\", name = \"" + e.name + "\", desc = \""
-                + (e.desc || "") + "\", key = \"" + (e.key || "") + "\", apps = " + appsStr + " },\n";
+                + (e.desc || "") + "\", key = \"" + (e.key || "") + "\""
+                + (e.glyph && e.glyph.length ? ", glyph = \"" + e.glyph + "\"" : "")
+                + ", apps = " + appsStr + " },\n";
         }
         body += "}\n";
         return root.header + body;
@@ -141,7 +146,7 @@ Singleton {
             if (root.list[i].id === id)
                 return;
         var next = root.list.slice();
-        next.push({ id: id, name: root.clean(name), desc: root.clean(desc), key: root.clean(key), apps: [] });
+        next.push({ id: id, name: root.clean(name), desc: root.clean(desc), key: root.clean(key), glyph: "", apps: [] });
         root.commit(next);
     }
 
@@ -149,6 +154,54 @@ Singleton {
         var next = root.list.filter(function (e) { return e.id !== id; });
         if (next.length !== root.list.length)
             root.commit(next);
+    }
+
+    /**
+     * Rename a space and set its glyph in place; id, key and apps stay, so the
+     * binds and routing spaces-apply regenerates on reload are untouched and the
+     * pill's active-space label picks the new name up on the next list refresh.
+     * A built-in (stash/private/minimized) has no entry of its own: the first
+     * edit creates one holding display data only. Its empty key and apps keep
+     * spaces-apply inert for it, so the built-in's own config stays the only
+     * source of binds and rules.
+     */
+    function updateSpace(id, name, glyph) {
+        name = root.clean(name);
+        if (name.length === 0)
+            return;
+        var next = root.list.slice();
+        for (var i = 0; i < next.length; i++) {
+            if (next[i].id === id) {
+                next[i] = { id: id, name: name, desc: next[i].desc, key: next[i].key, glyph: root.clean(glyph), apps: next[i].apps };
+                root.commit(next);
+                return;
+            }
+        }
+        if (!root.reserved(id))
+            return;
+        next.push({ id: id, name: name, desc: "", key: "", glyph: root.clean(glyph), apps: [] });
+        root.commit(next);
+    }
+
+    /**
+     * Rebind a custom space's trigger letter; spaces-apply regenerates both the
+     * toggle and the send/retrieve bind from it on the reload commit fires.
+     * Built-ins are refused: their binds live in binds.lua (the Keybinds surface
+     * owns those), and writing a key onto a display-only override would add a
+     * second toggle instead of moving the first.
+     */
+    function updateKey(id, key) {
+        key = root.clean(key).toUpperCase();
+        if (!/^[A-Z]$/.test(key) || root.reserved(id))
+            return;
+        var next = root.list.slice();
+        for (var i = 0; i < next.length; i++) {
+            if (next[i].id === id) {
+                next[i] = { id: next[i].id, name: next[i].name, desc: next[i].desc, key: key, glyph: next[i].glyph, apps: next[i].apps };
+                root.commit(next);
+                return;
+            }
+        }
     }
 
     function addApp(id, cls) {
@@ -163,7 +216,7 @@ Singleton {
                     if (apps[j] === cls)
                         return;
                 apps.push(cls);
-                next[i] = { id: next[i].id, name: next[i].name, desc: next[i].desc, key: next[i].key, apps: apps };
+                next[i] = { id: next[i].id, name: next[i].name, desc: next[i].desc, key: next[i].key, glyph: next[i].glyph, apps: apps };
                 root.commit(next);
                 return;
             }
@@ -175,7 +228,7 @@ Singleton {
         for (var i = 0; i < next.length; i++) {
             if (next[i].id === id) {
                 var apps = (next[i].apps || []).filter(function (a) { return a !== cls; });
-                next[i] = { id: next[i].id, name: next[i].name, desc: next[i].desc, key: next[i].key, apps: apps };
+                next[i] = { id: next[i].id, name: next[i].name, desc: next[i].desc, key: next[i].key, glyph: next[i].glyph, apps: apps };
                 root.commit(next);
                 return;
             }
@@ -185,15 +238,16 @@ Singleton {
     /**
      * True when SUPER+key would clash: another space already holds it, it is one
      * of the built-in special keys (S/P/M), or binds.lua already binds it.
+     * `exceptId` skips one entry, so re-capturing a row's own key is no clash.
      */
-    function keyTaken(key) {
+    function keyTaken(key, exceptId) {
         if (!key || key.length === 0)
             return false;
         var k = key.toUpperCase();
         if (k === "S" || k === "P" || k === "M")
             return true;
         for (var i = 0; i < root.list.length; i++)
-            if (root.list[i].key && root.list[i].key.toUpperCase() === k)
+            if (root.list[i].id !== exceptId && root.list[i].key && root.list[i].key.toUpperCase() === k)
                 return true;
         return Binds.inUse(bindsFile.text(), "SUPER + " + k, -1);
     }

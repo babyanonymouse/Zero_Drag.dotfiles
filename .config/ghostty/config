@@ -8,6 +8,7 @@ window-padding-balance = true
 window-decoration = none
 
 background-opacity = 0.85
+gtk-custom-css = ?blur.css
 
 cursor-style = block
 cursor-style-blink = false
@@ -41,4 +42,4 @@ palette = 13=#d08a96
 palette = 14=#9fc3b4
 palette = 15=#fff6f0
 
-config-file = ?/home/anony/.cache/ricelin/ghostty-colors
+config-file = ?~/.cache/ricelin/ghostty-colors

@@ -1,6 +1,7 @@
 //@ pragma UseQApplication
 
 import QtQuick
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
@@ -41,6 +42,7 @@ ShellRoot {
         refresh();
         Devices.restore();
         void GameMode.active;
+        void Sound.eq;
     }
 
     /**
@@ -64,12 +66,6 @@ ShellRoot {
             + "--object-path /org/freedesktop/Notifications "
             + "--method org.freedesktop.Notifications.Notify "
             + "Ricelin 0 '' 'Ricelin updated' \"$b\" '[]' '{}' 5000 >/dev/null 2>&1"]
-    }
-
-    Binding {
-        target: Notifs
-        property: "dnd"
-        value: Flags.dnd
     }
 
     PanelWindow {
@@ -153,6 +149,10 @@ ShellRoot {
     IpcHandler {
         target: "pill"
         function mixer(mon: string): void { root.toggleSurface(mon, "mixer"); }
+        function sound(mon: string): void { root.toggleSurface(mon, "sound"); }
+        function eq(): void { Sound.setEq(!Sound.eq); }
+        function eqMode(name: string): void { Sound.pick(name); }
+        function micFilter(): void { Sound.setDenoise(!Sound.denoise); }
         function calendar(mon: string): void { root.toggleSurface(mon, "calendar"); }
         function launcher(mon: string): void { root.toggleSurface(mon, "launcher"); }
         function power(mon: string): void { root.toggleSurface(mon, "power"); }
@@ -161,8 +161,6 @@ ShellRoot {
         function settings(mon: string): void { root.toggleSurface(mon, "settings"); }
         function keybinds(mon: string): void { root.toggleSurface(mon, "keybinds"); }
         function recorder(mon: string): void { root.toggleSurface(mon, "recorder"); }
-        function screenrec(mon: string): void { root.toggleSurface(mon, "recorder"); }
-        function record(mon: string): void { root.toggleSurface(mon, "recorder"); }
 
         /**
          * Quick-record keybind (SUPER+D): one button cycles the whole flow with no
@@ -186,7 +184,6 @@ ShellRoot {
         }
         function gameMode(mon: string): void { Flags.gameMode = !Flags.gameMode; }
         function sysmon(mon: string): void { root.toggleSurface(mon, "sysmon"); }
-        function system(mon: string): void { root.toggleSurface(mon, "sysmon"); }
         function clipboard(mon: string): void { root.toggleSurface(mon, "clipboard"); }
         function wallpaper(mon: string): void { root.toggleSurface(mon, "wallpaper"); }
         function media(mon: string): void {
@@ -260,11 +257,10 @@ ShellRoot {
             readonly property bool modal: pill.authPending ? false : (surfaceOpen || pill.held || pill.quickChoosing)
 
             /**
-             * True while this monitor's active workspace holds a real
-             * fullscreen window. The pill then retracts off the top edge and
-             * the whole layer becomes click-through so fullscreen content owns
-             * the screen. Maximize is suppressed globally, so only true
-             * fullscreen ever flips this.
+             * True while this monitor's active workspace reports a fullscreen
+             * client. The pill retracts off the top edge and the layer is
+             * click-through so fullscreen content owns the screen, until a
+             * surface or a peek summons it back over the content.
              */
             readonly property bool monFullscreen: {
                 var mons = Hyprland.monitors.values;
@@ -277,6 +273,8 @@ ShellRoot {
                 }
                 return false;
             }
+            readonly property bool summoned: modal || root.peekMon === modelData.name
+            readonly property bool pillHidden: monFullscreen && !summoned
 
             onMonFullscreenChanged: if (monFullscreen) {
                 if (root.openMon === modelData.name) root.close();
@@ -284,22 +282,27 @@ ShellRoot {
                 pill.pinned = false;
             }
 
+            /** Rest, hover, toasts and OSDs fit a top band; the layer only spans the screen while a surface or tall morph needs it. */
+            readonly property real bandH: Math.ceil(topGap + 200 * s + slot.pad)
+            readonly property bool tall: modal || topGap + Math.max(pill.height, pill.targetH) + slot.pad > bandH
+
             screen: modelData
             color: "transparent"
             exclusionMode: ExclusionMode.Ignore
             WlrLayershell.layer: WlrLayer.Overlay
-            WlrLayershell.keyboardFocus: ((surfaceOpen || pill.quickChoosing) && !pill.authPending) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.OnDemand
+            WlrLayershell.keyboardFocus: ((surfaceOpen || pill.quickChoosing) && !pill.authPending) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
             WlrLayershell.namespace: "pill"
 
-            anchors { top: true; left: true; right: true; bottom: true }
+            anchors { top: true; left: true; right: true }
+            implicitHeight: tall ? modelData.height : bandH
 
-            mask: monFullscreen ? hiddenRegion : (modal ? fullRegion : pillRegion)
+            mask: modal ? fullRegion : (pillHidden ? hiddenRegion : pillRegion)
             Region { id: hiddenRegion }
             Region {
                 id: pillRegion
                 readonly property real baseW: Math.max(pill.width, pill.targetW)
-                x: pill.x + (pill.width - baseW) / 2
-                y: pill.y
+                x: slot.x + pill.x + (pill.width - baseW) / 2
+                y: slot.y + pill.y
                 width: baseW + pill.inputPadRight
                 height: Math.max(pill.height, pill.targetH)
             }
@@ -343,7 +346,7 @@ ShellRoot {
                     if (pill.quickChoosing) {
                         ScreenRec.quickChoosing = false;
                         ScreenRec.quickScreenChoosing = false;
-                    } else if (!pill.linkBack() && !pill.keybindsBack()) {
+                    } else if (!pill.keybindsBack()) {
                         root.close();
                     }
                 }
@@ -410,11 +413,22 @@ ShellRoot {
                     }
                 }
 
-                Pill {
-                    id: pill
+                /**
+                 * Slot the pill rests in. While a toast is dragged the slot
+                 * becomes a soft-edged mask: the pill slides against an invisible
+                 * wall and dissolves at the edge it leaves through instead of
+                 * getting cut. The fade lives in the padding outside the pill's
+                 * resting footprint, so an unmoved pill is never touched by it.
+                 */
+                Item {
+                    id: slot
+                    readonly property real pad: 56 * overlay.s
+                    readonly property bool swiping: pill.swipeX !== 0 || pill.swipeY !== 0
                     anchors.top: parent.top
-                    anchors.topMargin: pill.mode === "game" ? 0 : overlay.topGap
+                    anchors.topMargin: (pill.mode === "game" ? 0 : overlay.topGap) - pad
                     anchors.horizontalCenter: parent.horizontalCenter
+                    width: pill.width + 2 * pad
+                    height: pill.height + 2 * pad
 
                     Behavior on anchors.topMargin {
                         NumberAnimation {
@@ -423,33 +437,73 @@ ShellRoot {
                             easing.bezierCurve: Motion.morphCurve
                         }
                     }
+
+                    layer.enabled: swiping
+                    layer.effect: MultiEffect {
+                        maskEnabled: true
+                        maskSource: wall
+                    }
+
+                    Item {
+                        id: wall
+                        width: slot.width
+                        height: slot.height
+                        visible: false
+                        layer.enabled: true
+
+                        Rectangle {
+                            id: wallRect
+                            anchors.fill: parent
+                            readonly property bool sideways: pill.swipeX !== 0
+                            readonly property bool leftward: pill.swipeX < 0
+                            readonly property real edge: slot.pad / (sideways ? slot.width : slot.height)
+                            gradient: Gradient {
+                                orientation: wallRect.sideways ? Gradient.Horizontal : Gradient.Vertical
+                                GradientStop { position: 0.0; color: wallRect.sideways && !wallRect.leftward ? "white" : "transparent" }
+                                GradientStop { position: wallRect.edge; color: "white" }
+                                GradientStop { position: 1 - wallRect.edge; color: "white" }
+                                GradientStop { position: 1.0; color: wallRect.sideways && wallRect.leftward ? "white" : "transparent" }
+                            }
+                        }
+                    }
+
+                Pill {
+                    id: pill
+                    anchors.top: parent.top
+                    anchors.topMargin: slot.pad
+                    anchors.horizontalCenter: parent.horizontalCenter
                     s: overlay.s
                     screenName: overlay.modelData.name
                     barWindow: overlay
                     surface: overlay.surface
                     forcePinned: root.peekMon === overlay.modelData.name
 
-                    opacity: overlay.monFullscreen ? 0 : 1
+                    opacity: overlay.pillHidden ? 0 : pill.swipeFade
                     Behavior on opacity {
+                        enabled: !slot.swiping
                         NumberAnimation {
                             duration: Motion.morph
                             easing.type: Motion.easeMorph
                             easing.bezierCurve: Motion.morphCurve
                         }
                     }
-                    transform: Translate {
-                        y: overlay.monFullscreen ? -(pill.height + overlay.topGap) : 0
-                        Behavior on y {
-                            NumberAnimation {
-                                duration: Motion.morph
-                                easing.type: Motion.easeMorph
-                                easing.bezierCurve: Motion.morphCurve
+                    transform: [
+                        Translate { x: pill.swipeX; y: pill.swipeY },
+                        Translate {
+                            y: overlay.pillHidden ? -(pill.height + overlay.topGap) : 0
+                            Behavior on y {
+                                NumberAnimation {
+                                    duration: Motion.morph
+                                    easing.type: Motion.easeMorph
+                                    easing.bezierCurve: Motion.morphCurve
+                                }
                             }
                         }
-                    }
+                    ]
 
                     onRequestSurface: (name) => root.toggleSurface(overlay.modelData.name, name)
                     onRequestClose: root.close()
+                }
                 }
             }
 

@@ -26,6 +26,13 @@ Singleton {
     readonly property int count: entries.length
     property bool pending: false
 
+    /**
+     * False until one `cliphist list` succeeded, so the surface can tell a
+     * genuinely empty history apart from a failed early-boot read (the list
+     * collides with a `cliphist store` write lock right after login).
+     */
+    property bool loaded: false
+
     readonly property string thumbDir: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/cliphist-thumbs/"
     readonly property string thumbScript: Quickshell.env("HOME") + "/.config/hypr/scripts/cliphist-thumbs.sh"
 
@@ -122,48 +129,68 @@ Singleton {
         onExited: listProc.running = true
     }
 
+    /**
+     * A failed read (boot-time store lock, db hiccup) must not wipe the last
+     * good snapshot; one quiet retry heals the race without looping.
+     */
+    Timer {
+        id: listRetry
+        interval: 2000
+        onTriggered: root.refresh()
+    }
+
+    function applyList(text) {
+        var lines = text.split("\n");
+        var out = [];
+        var metaRe = /^\[\[ binary data (.*) \]\]$/;
+        var imgRe = /\b(png|jpg|jpeg|gif|bmp|webp)\b/;
+        var splitRe = /^(\S+ \S+) (\w+) (\d+)x(\d+)$/;
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            var tab = line.indexOf("\t");
+            if (tab < 1)
+                continue;
+            var id = line.substring(0, tab);
+            if (!/^\d+$/.test(id))
+                continue;
+            var preview = line.substring(tab + 1);
+            var m = metaRe.exec(preview);
+            var isImage = m !== null && imgRe.test(m[1]);
+            var label = "";
+            var sizeLabel = "";
+            if (isImage) {
+                var p = splitRe.exec(m[1]);
+                label = p ? p[2] + " " + p[3] + "×" + p[4] : m[1];
+                sizeLabel = p ? p[1] : "";
+            }
+            out.push({
+                id: id,
+                preview: preview,
+                isImage: isImage,
+                label: label,
+                sizeLabel: sizeLabel,
+                thumb: isImage ? root.thumbDir + id + ".png" : ""
+            });
+        }
+        root.entries = out;
+        root.loaded = true;
+    }
+
     Process {
         id: listProc
         command: ["cliphist", "list"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var lines = this.text.split("\n");
-                var out = [];
-                var metaRe = /^\[\[ binary data (.*) \]\]$/;
-                var imgRe = /\b(png|jpg|jpeg|gif|bmp|webp)\b/;
-                var splitRe = /^(\S+ \S+) (\w+) (\d+)x(\d+)$/;
-                for (var i = 0; i < lines.length; i++) {
-                    var line = lines[i];
-                    var tab = line.indexOf("\t");
-                    if (tab < 1)
-                        continue;
-                    var id = line.substring(0, tab);
-                    if (!/^\d+$/.test(id))
-                        continue;
-                    var preview = line.substring(tab + 1);
-                    var m = metaRe.exec(preview);
-                    var isImage = m !== null && imgRe.test(m[1]);
-                    var label = "";
-                    var sizeLabel = "";
-                    if (isImage) {
-                        var p = splitRe.exec(m[1]);
-                        label = p ? p[2] + " " + p[3] + "×" + p[4] : m[1];
-                        sizeLabel = p ? p[1] : "";
-                    }
-                    out.push({
-                        id: id,
-                        preview: preview,
-                        isImage: isImage,
-                        label: label,
-                        sizeLabel: sizeLabel,
-                        thumb: isImage ? root.thumbDir + id + ".png" : ""
-                    });
-                }
-                root.entries = out;
-                if (root.pending) {
-                    root.pending = false;
-                    Qt.callLater(root.refresh);
-                }
+        stdout: StdioCollector { id: collected }
+        onExited: (exitCode) => {
+            if (exitCode !== 0) {
+                console.warn("cliphist list failed with exit code " + exitCode + ", retrying once");
+                root.pending = false;
+                listRetry.restart();
+                return;
+            }
+            root.applyList(collected.text);
+            if (root.pending) {
+                root.pending = false;
+                Qt.callLater(root.refresh);
             }
         }
     }

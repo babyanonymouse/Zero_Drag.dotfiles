@@ -1,10 +1,10 @@
 local mod = "SUPER"
 
-hl.bind(mod .. " + Q",         hl.dsp.window.kill())
-hl.bind("CTRL + SHIFT + Q",    hl.dsp.window.close())
+hl.bind(mod .. " + W",         hl.dsp.window.close())
+hl.bind("CTRL + SHIFT + W",    hl.dsp.window.close())
 hl.bind(mod .. " + Return",    hl.dsp.exec_cmd("kitty"))
 hl.bind(mod .. " + F",         hl.dsp.window.fullscreen())
-hl.bind(mod .. " + E",         hl.dsp.exec_cmd("dolphin"))
+hl.bind(mod .. " + E",         hl.dsp.exec_cmd("thunar"))
 hl.bind(mod .. " + T",         hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mod .. " + M",         hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/minimize-toggle.sh"))
 hl.bind(mod .. " + SHIFT + M", hl.dsp.workspace.toggle_special("minimized"))
@@ -57,7 +57,7 @@ hl.bind(mod .. " + C",          hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/h
 hl.bind(mod .. " + D",          hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/record.sh"))
 hl.bind(mod .. " + G",          hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/open-surface.sh gameMode"))
 
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/volume.sh"), { locked = true, repeating = true })
 hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),      { locked = true, repeating = true })
 hl.bind("XF86AudioMute",        hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),     { locked = true })
 hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl set 5%+"), { locked = true, repeating = true })

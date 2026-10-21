@@ -15,16 +15,26 @@ Item {
     readonly property bool authenticating: auth ? auth.authenticating : false
     property bool showError: false
 
+    /**
+     * Password visibility toggle for the capsule eye. Masked renders no text at
+     * all: each char lights one ember bead instead of the usual bullet row, and
+     * the freshest bead burns cream like a wick tip. Reveal swaps beads for the
+     * plain string. Reset on every auth attempt so a retry never leaks state.
+     */
+    property bool reveal: false
+
     Connections {
         target: content.auth
         enabled: content.auth !== null
         function onFailed() {
             content.showError = true;
+            content.reveal = false;
             input.text = "";
             shake.restart();
         }
         function onSucceeded() {
             content.showError = false;
+            content.reveal = false;
             input.text = "";
         }
     }
@@ -294,12 +304,11 @@ Item {
             id: input
             anchors.fill: parent
             anchors.leftMargin: 24 * content.s
-            anchors.rightMargin: 24 * content.s
+            anchors.rightMargin: 46 * content.s
             verticalAlignment: TextInput.AlignVCenter
             horizontalAlignment: TextInput.AlignHCenter
-            echoMode: TextInput.Password
-            passwordCharacter: "•"
-            color: Theme.bright
+            echoMode: TextInput.Normal
+            color: content.reveal ? Theme.bright : "transparent"
             font.family: Theme.font
             font.pixelSize: 15 * content.s
             font.letterSpacing: 2 * content.s
@@ -311,6 +320,10 @@ Item {
                     content.showError = false;
                 if (Pw.text !== text)
                     Pw.text = text;
+                while (beadModel.count < text.length)
+                    beadModel.append({});
+                while (beadModel.count > text.length)
+                    beadModel.remove(beadModel.count - 1);
             }
 
             Connections {
@@ -326,7 +339,7 @@ Item {
             }
 
             cursorDelegate: Rectangle {
-                visible: input.text.length > 0
+                visible: content.reveal && input.text.length > 0
                 width: 2 * content.s
                 height: input.cursorRectangle.height
                 color: Theme.verm
@@ -339,20 +352,76 @@ Item {
                     PauseAnimation { duration: 550 }
                 }
             }
+        }
 
-            Text {
-                anchors.centerIn: parent
-                visible: input.text.length === 0
-                text: {
-                    if (!content.showError)
-                        return "password";
-                    var pamMsg = content.auth ? content.auth.lastError : "";
-                    return pamMsg.length > 0 ? pamMsg.toLowerCase() : "wrong password";
+        Text {
+            anchors.centerIn: parent
+            visible: input.text.length === 0
+            text: {
+                if (!content.showError)
+                    return "password";
+                var pamMsg = content.auth ? content.auth.lastError : "";
+                return pamMsg.length > 0 ? pamMsg.toLowerCase() : "wrong password";
+            }
+            color: content.showError ? Theme.error : Theme.dim
+            font.family: Theme.font
+            font.pixelSize: 14 * content.s
+            font.letterSpacing: 1 * content.s
+        }
+
+        /**
+         * One bead per typed char instead of the usual bullets, fed by a
+         * ListModel so existing beads survive each keystroke untouched (a plain
+         * number model rebuilds every delegate and flickers). Only the freshest
+         * bead pulses, as the wick tip.
+         */
+        ListModel { id: beadModel }
+
+        Row {
+            anchors.centerIn: parent
+            spacing: 9 * content.s
+            visible: !content.reveal && input.text.length > 0
+
+            Repeater {
+                model: beadModel
+                delegate: Rectangle {
+                    id: bead
+                    required property int index
+                    width: 7 * content.s
+                    height: width
+                    radius: width / 2
+                    color: bead.index === input.text.length - 1 ? Theme.cream : Theme.verm
+                    scale: 0
+                    Component.onCompleted: pop.start()
+                    NumberAnimation { id: pop; target: bead; property: "scale"; to: 1; duration: 170; easing.type: Easing.OutBack }
+                    SequentialAnimation on opacity {
+                        running: bead.index === input.text.length - 1
+                        loops: Animation.Infinite
+                        NumberAnimation { to: 0.35; duration: 480 }
+                        NumberAnimation { to: 1; duration: 480 }
+                    }
                 }
-                color: content.showError ? Theme.error : Theme.dim
-                font.family: Theme.font
-                font.pixelSize: 14 * content.s
-                font.letterSpacing: 1 * content.s
+            }
+        }
+
+        GlyphIcon {
+            id: eye
+            anchors.right: parent.right
+            anchors.rightMargin: 16 * content.s
+            anchors.verticalCenter: parent.verticalCenter
+            width: 20 * content.s
+            height: 20 * content.s
+            name: content.reveal ? "eye-off" : "eye"
+            color: eyeArea.containsMouse ? Theme.cream : Theme.dim
+            stroke: 1.8
+
+            MouseArea {
+                id: eyeArea
+                anchors.fill: parent
+                anchors.margins: -6 * content.s
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: content.reveal = !content.reveal
             }
         }
     }

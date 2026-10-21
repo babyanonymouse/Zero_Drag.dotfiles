@@ -266,7 +266,12 @@ Item {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        height: parent.height * 0.55
+        /**
+         * Full height: the shader already fades the glow out across the top
+         * 15% of the field, so capping the field at half the screen stamped a
+         * visible hard stop into the middle of it.
+         */
+        height: parent.height
     }
 
     Content {

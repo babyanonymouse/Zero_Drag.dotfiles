@@ -42,7 +42,7 @@ void main() {
 
     float t = clamp(yUp / h, 0.0, 1.0);
     vec3 deep = accent.rgb * 0.55;
-    vec3 tip = mix(accent.rgb, vec3(1.0, 0.83, 0.66), 0.5);
+    vec3 tip = accent.rgb;
     vec3 col = mix(deep, tip, t);
 
     float a = g * qt_Opacity;

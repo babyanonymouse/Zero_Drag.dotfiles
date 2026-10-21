@@ -16,11 +16,6 @@ set -euo pipefail
 
 . "$(dirname "$0")/appimage-install.sh"
 
-# The sourced cleanup ends on a failing test when no tmpdir was made, and an EXIT
-# trap that fails clobbers the script's real exit code; preserve $? here so the
-# font, wallpaper and native paths (which make no tmpdir) still report success.
-cleanup() { local rc=$?; [ -n "${_tmpdir:-}" ] && rm -rf "$_tmpdir"; return "$rc"; }
-
 # Locate the first executable ELF in an extracted tree, ignoring shared-lib dirs,
 # preferring one under a bin/ dir and otherwise the largest. Empty when the tree
 # holds no binary (source-only tarballs fail honestly on that).
@@ -205,6 +200,7 @@ install_wallpaper() {
 	local src="$1" base="$2" name wpdir dest
 	name="${base%.*}"
 	wpdir="$(jq -r '.wallpaperDir // ""' "${XDG_STATE_HOME:-$HOME/.local/state}/ricelin/flags.json" 2>/dev/null || echo "")"
+	[ -n "$wpdir" ] || wpdir="$(cat "${XDG_STATE_HOME:-$HOME/.local/state}/ricelin-wallpaper-dir" 2>/dev/null || true)"
 	[ -n "$wpdir" ] || wpdir="$HOME/Ricelin/wallpapers"
 	mkdir -p "$wpdir"
 	case "$(printf '%s' "$base" | tr '[:upper:]' '[:lower:]')" in

@@ -8,19 +8,20 @@ import Quickshell.Networking
 import "Singletons"
 
 /**
- * WLAN drill-in for the link surface: back chevron, wifi enable toggle and the
- * live network list sorted by signal strength. Security and known-profile
- * ground truth come from nmcli; clicking a secured unknown network expands an
- * inline password row that connects through `nmcli dev wifi connect`. The pill
- * body provides the surface material, so this item draws no background.
+ * 波 WIFI surface: kanji header, wifi enable toggle and the live network list
+ * sorted by signal strength. Security and known-profile ground truth come from
+ * nmcli; clicking a secured unknown network expands an inline password row that
+ * connects through `nmcli dev wifi connect`. Standalone root surface, so Escape
+ * and the backdrop dismiss it like every other surface; the pill body provides
+ * the material, this item draws no background.
  */
-Item {
+PillSurface {
     id: root
 
-    property real s: 1
-    property bool active: false
-
-    signal back()
+    mTop: 13
+    mLeft: 16
+    mRight: 16
+    mBottom: 13
 
     readonly property var devices: (typeof Networking !== "undefined" && Networking && Networking.devices) ? Networking.devices.values : []
     readonly property var wifiDev: devices.find(function(d) { return d && d.type === DeviceType.Wifi }) || null
@@ -38,7 +39,18 @@ Item {
     property string expandedSsid: ""
     property bool connecting: false
     property bool connectFailed: false
+    property string connFailReason: ""
     property bool scanning: false
+
+    /** Detail line under the connected row: IPv4 address plus band and bitrate from nmcli. */
+    property string connIp: ""
+    property string connBandRate: ""
+    readonly property string connDetail: {
+        var p = [];
+        if (connIp.length) p.push(connIp);
+        if (connBandRate.length) p.push(connBandRate);
+        return p.join(" · ");
+    }
 
     /**
      * SSID of the saved network whose stored password is currently shown, plus
@@ -79,6 +91,8 @@ Item {
     function refresh() {
         secProc.running = true;
         profProc.running = true;
+        if (root.wifiDev)
+            detailProc.running = true;
     }
 
     /**
@@ -127,12 +141,17 @@ Item {
 
     /**
      * Connects a saved profile from its confirm row. Known profiles connect by
-     * name through the device so no password prompt is needed.
+     * name through the device so no password prompt is needed. The row shows a
+     * spinner until the active network lands or the safety timer gives up.
      */
     function connectKnown(net) {
         if (!net)
             return;
         expandedSsid = "";
+        connecting = true;
+        connectFailed = false;
+        attemptSsid = net.name || "";
+        connSpinTimer.restart();
         if (typeof net.connect === "function")
             net.connect();
         refresh();
@@ -197,6 +216,7 @@ Item {
             return;
         connecting = true;
         connectFailed = false;
+        connFailReason = "";
         attemptSsid = ssid;
         attemptWasKnown = knownProfiles[ssid] === true;
         pendingPw = pw;
@@ -206,7 +226,7 @@ Item {
 
     /**
      * Reload pulse: forces a fresh nmcli rescan and spins the control for up to
-     * 10s. The device scanner already runs while the drill-in is open, so the
+     * 10s. The device scanner already runs while the surface is open, so the
      * list never empties; this only refreshes results and drives the spinner.
      */
     function startScan() {
@@ -226,9 +246,12 @@ Item {
         if (active) {
             refresh();
             refreshHotspot();
+            startScan();
         } else {
             stopScan();
             expandedSsid = "";
+            connecting = false;
+            connSpinTimer.stop();
             connectFailed = false;
             hsEdit = "";
             hidePassword();
@@ -238,6 +261,16 @@ Item {
     onWifiOnChanged: if (!wifiOn) stopScan()
 
     onExpandedSsidChanged: if (revealedSsid !== expandedSsid) hidePassword()
+
+    /** The known-profile spinner ends when the attempted network reports connected; the detail line follows every active-network change. */
+    onActiveNetChanged: {
+        if (root.activeNet && root.attemptSsid.length && (root.activeNet.name || "") === root.attemptSsid) {
+            root.connecting = false;
+            connSpinTimer.stop();
+        }
+        if (root.active && root.wifiDev)
+            detailProc.running = true;
+    }
 
     Binding {
         target: root.wifiDev
@@ -250,6 +283,13 @@ Item {
         id: scanTimer
         interval: 10000
         onTriggered: root.stopScan()
+    }
+
+    /** Safety net for the known-profile spinner when a connect silently never lands. */
+    Timer {
+        id: connSpinTimer
+        interval: 10000
+        onTriggered: root.connecting = false
     }
 
     Process {
@@ -293,8 +333,10 @@ Item {
 
     /**
      * Commits an inline name or password edit, ignoring a password shorter than
-     * the 8-character WPA2 minimum. A live hotspot is re-applied so the change
-     * takes effect at once.
+     * the 8-character WPA2 minimum. The connection profile is written either
+     * way, so an edit made while the hotspot is down survives a pill restart;
+     * a live hotspot is additionally re-applied so the change takes effect at
+     * once. The NM profile stays the single source of truth for both fields.
      */
     function commitHotspotEdit() {
         if (hsEdit === "name") {
@@ -307,6 +349,28 @@ Item {
         hsEdit = "";
         if (hsActive)
             applyHotspot();
+        else
+            saveHotspot();
+    }
+
+    /**
+     * Persists name and password into the RicelinHotspot profile without
+     * bringing it up, creating the profile on first edit. A missing or short
+     * password is generated here, since a WPA profile with an empty psk would
+     * be broken; the field shows the generated value right away.
+     */
+    function saveHotspot() {
+        if (hsPw.length < 8)
+            hsPw = generatePw();
+        hsSaveProc.command = ["sh", "-c",
+            'c="' + hsCon + '"; '
+            + 'if nmcli -t connection show "$c" >/dev/null 2>&1; then '
+            +   'nmcli connection modify "$c" 802-11-wireless.ssid "$1" 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk "$2"; '
+            + 'else '
+            +   'nmcli connection add type wifi ifname "$3" con-name "$c" autoconnect no 802-11-wireless.ssid "$1" 802-11-wireless.mode ap 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk "$2" ipv4.method shared; '
+            + 'fi',
+            "sh", hsName, hsPw, hsIface];
+        hsSaveProc.running = true;
     }
 
     /**
@@ -327,6 +391,11 @@ Item {
             root.hsBusy = false;
             root.refreshHotspot();
         }
+    }
+
+    Process {
+        id: hsSaveProc
+        onExited: root.refreshHotspot()
     }
 
     Process {
@@ -396,11 +465,38 @@ Item {
         }
     }
 
+    /**
+     * Connected-network detail: band and bitrate of the ACTIVE nmcli row plus the
+     * interface IPv4, marker-prefixed so a missing half can't shift the parse.
+     */
+    Process {
+        id: detailProc
+        command: ["sh", "-c",
+            "nmcli -t -f ACTIVE,BAND,RATE dev wifi list | awk -F: '$1==\"yes\"{print \"BR \" $2 \" \" $3}'; "
+            + "ip -4 -o addr show dev \"$1\" scope global | awk '{split($4,a,\"/\"); print \"IP \" a[1]; exit}'",
+            "sh", root.hsIface]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var br = "";
+                var ip = "";
+                var lines = this.text.split("\n");
+                for (var i = 0; i < lines.length; i++) {
+                    if (lines[i].indexOf("BR ") === 0)
+                        br = lines[i].slice(3).trim();
+                    else if (lines[i].indexOf("IP ") === 0)
+                        ip = lines[i].slice(3).trim();
+                }
+                root.connBandRate = br;
+                root.connIp = ip;
+            }
+        }
+    }
+
     Process {
         id: connProc
         stdinEnabled: true
         stdout: StdioCollector {}
-        stderr: StdioCollector {}
+        stderr: StdioCollector { id: connErr }
         onStarted: {
             write(root.pendingPw + "\n");
             root.pendingPw = "";
@@ -411,9 +507,13 @@ Item {
                 root.expandedSsid = "";
                 root.pwDraft = "";
                 root.connectFailed = false;
+                root.connFailReason = "";
                 root.refresh();
             } else {
                 root.connectFailed = true;
+                var err = connErr.text.split("\n").filter(function(l) { return l.trim().length > 0; });
+                var last = err.length ? err[err.length - 1].trim() : "";
+                root.connFailReason = last.replace(/^Error:\s*/, "").replace(/\.$/, "");
                 if (!root.attemptWasKnown && root.attemptSsid.length) {
                     cleanupProc.command = ["nmcli", "connection", "delete", "id", root.attemptSsid];
                     cleanupProc.running = true;
@@ -476,60 +576,24 @@ Item {
         values: root.netsSorted
     }
 
-    Item {
+    SettingsHeader {
         id: header
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
         height: 24 * root.s
-
-        Row {
-            anchors.left: parent.left
+        s: root.s
+        glyph: "波"
+        title: "WIFI"
+        showIcon: false
+        titleContent: Text {
             anchors.verticalCenter: parent.verticalCenter
-            spacing: 8 * root.s
-
-            Item {
-                anchors.verticalCenter: parent.verticalCenter
-                width: 17 * root.s
-                height: 17 * root.s
-
-                GlyphIcon {
-                    anchors.fill: parent
-                    name: "chevron-left"
-                    color: backArea.containsMouse ? Theme.cream : Theme.iconDim
-                    stroke: 1.8
-                }
-
-                MouseArea {
-                    id: backArea
-                    anchors.fill: parent
-                    anchors.margins: -6 * root.s
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: root.back()
-                }
-            }
-
-            Text {
-                anchors.verticalCenter: parent.verticalCenter
-                text: "WIFI"
-                color: Theme.subtle
-                font.family: Theme.font
-                font.pixelSize: 10 * root.s
-                font.weight: Font.DemiBold
-                font.capitalization: Font.AllUppercase
-                font.letterSpacing: 1.6 * root.s
-            }
-
-            Text {
-                anchors.verticalCenter: parent.verticalCenter
-                text: "· " + root.statusText
-                color: root.activeNet ? Theme.vermLit : Theme.faint
-                font.family: Theme.font
-                font.pixelSize: 9.5 * root.s
-                font.weight: Font.Medium
-                elide: Text.ElideRight
-            }
+            text: "· " + root.statusText
+            color: root.activeNet ? Theme.vermLit : Theme.faint
+            font.family: Theme.font
+            font.pixelSize: 9.5 * root.s
+            font.weight: Font.Medium
+            elide: Text.ElideRight
         }
 
         Row {
@@ -683,6 +747,22 @@ Item {
                                 anchors.verticalCenter: parent.verticalCenter
                                 spacing: 7 * root.s
 
+                                Rectangle {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    visible: root.connecting && root.attemptSsid === netItem.ssid
+                                    width: 4 * root.s
+                                    height: 4 * root.s
+                                    radius: width / 2
+                                    color: Theme.flameGlow
+
+                                    SequentialAnimation on opacity {
+                                        running: root.connecting && root.attemptSsid === netItem.ssid
+                                        loops: Animation.Infinite
+                                        NumberAnimation { from: 0.35; to: 1; duration: Motion.pulse; easing.type: Easing.InOutSine }
+                                        NumberAnimation { from: 1; to: 0.35; duration: Motion.pulse; easing.type: Easing.InOutSine }
+                                    }
+                                }
+
                                 Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     anchors.verticalCenterOffset: -1.4 * root.s
@@ -707,6 +787,20 @@ Item {
                                     level: (netItem.modelData && netItem.modelData.signalStrength) || 0
                                 }
                             }
+                        }
+
+                        Text {
+                            visible: netItem.isActive && root.connDetail.length > 0
+                            width: parent.width
+                            text: root.connDetail
+                            color: Theme.faint
+                            font.family: Theme.font
+                            font.pixelSize: 9.5 * root.s
+                            font.weight: Font.Medium
+                            leftPadding: 10 * root.s
+                            bottomPadding: 2 * root.s
+                            elide: Text.ElideRight
+                            maximumLineCount: 1
                         }
 
                         Item {
@@ -735,102 +829,32 @@ Item {
                                 anchors.verticalCenter: parent.verticalCenter
                                 spacing: 6 * root.s
 
-                                Rectangle {
-                                    id: primaryBtn
+                                ChipButton {
                                     anchors.verticalCenter: parent.verticalCenter
-                                    width: primaryLabel.implicitWidth + 20 * root.s
-                                    height: 22 * root.s
-                                    radius: 7 * root.s
-                                    color: primaryArea.containsMouse ? Theme.tileBg : "transparent"
-                                    border.width: 1
-                                    border.color: primaryArea.containsMouse ? Theme.vermDim : Theme.border
-
-                                    Text {
-                                        id: primaryLabel
-                                        anchors.centerIn: parent
-                                        text: netItem.isActive ? "Disconnect" : "Connect"
-                                        color: Theme.cream
-                                        font.family: Theme.font
-                                        font.pixelSize: 10 * root.s
-                                        font.weight: Font.DemiBold
-                                        font.letterSpacing: 0.3 * root.s
-                                    }
-
-                                    MouseArea {
-                                        id: primaryArea
-                                        anchors.fill: parent
-                                        hoverEnabled: true
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: netItem.isActive
-                                            ? root.disconnectNetwork(netItem.modelData)
-                                            : root.connectKnown(netItem.modelData)
-                                    }
+                                    s: root.s
+                                    text: netItem.isActive ? "Disconnect" : "Connect"
+                                    onClicked: netItem.isActive
+                                        ? root.disconnectNetwork(netItem.modelData)
+                                        : root.connectKnown(netItem.modelData)
                                 }
 
-                                Rectangle {
+                                ChipButton {
                                     id: revealBtn
                                     anchors.verticalCenter: parent.verticalCenter
                                     visible: netItem.known
                                     readonly property bool shown: root.revealedSsid === netItem.ssid
-                                    width: revealLabel.implicitWidth + 20 * root.s
-                                    height: 22 * root.s
-                                    radius: 7 * root.s
-                                    color: revealArea.containsMouse ? Theme.tileBg : "transparent"
-                                    border.width: 1
-                                    border.color: revealBtn.shown
-                                        ? Theme.vermDim
-                                        : (revealArea.containsMouse ? Theme.vermDim : Theme.border)
-
-                                    Text {
-                                        id: revealLabel
-                                        anchors.centerIn: parent
-                                        text: revealBtn.shown ? "Hide" : "Show"
-                                        color: Theme.cream
-                                        font.family: Theme.font
-                                        font.pixelSize: 10 * root.s
-                                        font.weight: Font.DemiBold
-                                        font.letterSpacing: 0.3 * root.s
-                                    }
-
-                                    MouseArea {
-                                        id: revealArea
-                                        anchors.fill: parent
-                                        hoverEnabled: true
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: root.revealPassword(netItem.ssid)
-                                    }
+                                    s: root.s
+                                    text: revealBtn.shown ? "Hide" : "Show"
+                                    lit: revealBtn.shown
+                                    onClicked: root.revealPassword(netItem.ssid)
                                 }
 
-                                Rectangle {
-                                    id: forgetBtn
+                                ChipButton {
                                     anchors.verticalCenter: parent.verticalCenter
-                                    width: forgetLabel.implicitWidth + 20 * root.s
-                                    height: 22 * root.s
-                                    radius: 7 * root.s
-                                    color: forgetArea.containsMouse
-                                        ? Qt.rgba(Theme.verm.r, Theme.verm.g, Theme.verm.b, 0.2)
-                                        : Qt.rgba(Theme.verm.r, Theme.verm.g, Theme.verm.b, 0.12)
-                                    border.width: 1
-                                    border.color: Qt.rgba(Theme.vermLit.r, Theme.vermLit.g, Theme.vermLit.b, 0.45)
-
-                                    Text {
-                                        id: forgetLabel
-                                        anchors.centerIn: parent
-                                        text: "Forget"
-                                        color: Theme.vermLit
-                                        font.family: Theme.font
-                                        font.pixelSize: 10 * root.s
-                                        font.weight: Font.DemiBold
-                                        font.letterSpacing: 0.3 * root.s
-                                    }
-
-                                    MouseArea {
-                                        id: forgetArea
-                                        anchors.fill: parent
-                                        hoverEnabled: true
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: root.forgetNetwork(netItem.ssid)
-                                    }
+                                    s: root.s
+                                    text: "Forget"
+                                    danger: true
+                                    onClicked: root.forgetNetwork(netItem.ssid)
                                 }
                             }
                         }
@@ -959,11 +983,14 @@ Item {
 
                         Text {
                             visible: netItem.asking && root.connectFailed
-                            text: "Connection failed"
+                            width: parent.width
+                            text: "Connection failed" + (root.connFailReason.length ? " · " + root.connFailReason : "")
                             color: Theme.vermLit
                             font.family: Theme.font
                             font.pixelSize: 9.5 * root.s
                             leftPadding: 10 * root.s
+                            elide: Text.ElideRight
+                            maximumLineCount: 1
                         }
                     }
                 }

@@ -6,6 +6,7 @@ import QtQuick.Shapes
 import Quickshell
 import Quickshell.Io
 import Quickshell.Networking
+import Quickshell.Bluetooth
 import Quickshell.Hyprland
 import "Singletons"
 
@@ -27,12 +28,28 @@ Item {
     property var barWindow
     property string surface: ""
 
+    /**
+     * Toast swipe offset and fade, written by Toast while dragging and applied
+     * by the host in shell.qml. Once the last card is flung the pill sits
+     * behind the mask at zero opacity; it snaps home unseen and only the fade
+     * animates back.
+     */
+    property real swipeX: 0
+    property real swipeY: 0
+    property real swipeFade: 1
+    Behavior on swipeFade {
+        enabled: !toastLoader.active
+        NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard }
+    }
+    onToastActiveChanged: if (!toastActive) { swipeX = 0; swipeY = 0; swipeFade = 1; }
+
     property bool hovered: false
     property bool pinned: false
     property bool forcePinned: false
 
     readonly property bool held: pinned || forcePinned
     readonly property bool mixerOpen: surface === "mixer"
+    readonly property bool soundOpen: surface === "sound"
     readonly property bool calendarOpen: surface === "calendar"
     readonly property bool launcherOpen: surface === "launcher"
     readonly property bool clipboardOpen: surface === "clipboard"
@@ -40,6 +57,8 @@ Item {
     readonly property bool powerOpen: surface === "power"
     readonly property bool mediaOpen: surface === "media"
     readonly property bool linkOpen: surface === "link"
+    readonly property bool wifiOpen: surface === "wifi"
+    readonly property bool btOpen: surface === "bt"
     readonly property bool batteryOpen: surface === "battery"
     readonly property bool settingsOpen: surface === "settings"
     readonly property bool keybindsOpen: surface === "keybinds"
@@ -60,21 +79,32 @@ Item {
         || lookOpen || inputOpen || displayOpen || animationOpen || idlelockOpen || fontpickerOpen
     readonly property bool hasMedia: Players.list.length > 0
 
-    /**
-     * Subview the link surface should land on when next opened. The wifi glance
-     * sets "wifi" to drill straight to the network list; the inbox glance and
-     * toast set "main". Reset once the surface closes so IPC opens land on main.
-     */
-    property string linkInitialView: "main"
-
     readonly property var netDevices: (typeof Networking !== "undefined" && Networking && Networking.devices) ? Networking.devices.values : []
     readonly property var wifiDev: netDevices.find(function(d) { return d && d.type === DeviceType.Wifi }) || null
     readonly property bool wifiOn: (typeof Networking !== "undefined" && Networking) ? Networking.wifiEnabled : false
     readonly property var wifiNets: (wifiDev && wifiDev.networks) ? wifiDev.networks.values : []
     readonly property var wifiActive: wifiNets.find(function(n) { return n && n.connected }) || null
     readonly property real wifiLevel: (wifiActive && wifiActive.signalStrength) || 0
+    readonly property var btAdapter: (typeof Bluetooth !== "undefined" && Bluetooth) ? Bluetooth.defaultAdapter : null
+    readonly property bool btOn: btAdapter ? btAdapter.enabled === true : false
     readonly property bool surfaceOpen: surface.length > 0
     property bool hoverLatch: false
+
+    /**
+     * False for the first seconds after the shell maps. Hyprland hands pointer
+     * focus to a freshly mapped layer surface at the cursor's position, which
+     * the window-level HoverHandler reads as a pill hover and latches the pill
+     * open (issue #20). Latching only after boot settles filters that spurious
+     * enter; a real hover during the window just expands late, harmlessly.
+     */
+    property bool bootSettled: false
+
+    Timer {
+        interval: 3000
+        running: true
+        onTriggered: pill.bootSettled = true
+    }
+
     readonly property bool expanded: surfaceOpen || held || hoverLatch
 
     /**
@@ -96,15 +126,15 @@ Item {
             if (ms[i] && ms[i].name === pill.screenName) {
                 var o = ms[i].lastIpcObject;
                 var sw = (o && o.specialWorkspace) ? o.specialWorkspace.name : "";
-                if (sw === "special:minimized") return "Minimized";
-                if (sw === "special:private") return "Private";
-                if (sw === "special:stash") return "Stash";
                 if (sw && sw.indexOf("special:") === 0) {
                     var id = sw.slice("special:".length);
                     var sl = Spaces.list;
                     for (var j = 0; j < sl.length; j++)
                         if (sl[j] && sl[j].id === id)
                             return sl[j].name;
+                    if (id === "minimized") return "Minimized";
+                    if (id === "private") return "Private";
+                    if (id === "stash") return "Stash";
                     return id.charAt(0).toUpperCase() + id.slice(1);
                 }
                 return "";
@@ -143,6 +173,9 @@ Item {
     readonly property real mediaW: (Players.pickable.length > 1 ? 460 : 390) * s
     readonly property real mediaH: 150 * s
     readonly property real batteryW: 316 * s
+    readonly property real wifiW: 272 * s
+    readonly property real soundW: 400 * s
+    readonly property real btW: 286 * s
     readonly property real settingsW: 392 * s
     readonly property real keybindsW: 460 * s
     readonly property real workspacesW: 392 * s
@@ -178,7 +211,7 @@ Item {
      * fires mid-evaluation (that read-then-write would be a binding loop). The
      * write is idempotent and the Loader loads synchronously, so a first open
      * reads the real implicitHeight in the same evaluation and the morph target
-     * is exact. Nothing ever deactivates a loaded surface.
+     * is exact. unloadIdle drops it again after the pill closes.
      */
     function surfaceItem(ld) {
         ld.active = true;
@@ -203,6 +236,9 @@ Item {
         media:     { size: () => { surfaceItem(ldMedia); return Qt.size(mediaW, mediaH); }, ame: () => surfaceItem(ldMedia) },
         mixer:     { size: () => Qt.size(93 * Math.max(4, surfaceItem(ldMixer).faderCount) * s, mixerH), ame: () => surfaceItem(ldMixer) },
         link:      { size: () => { const it = surfaceItem(ldLink); return Qt.size(it.desiredW, it.implicitHeight + 26 * s); }, ame: () => surfaceItem(ldLink) },
+        wifi:      { size: () => Qt.size(wifiW, surfaceItem(ldWifi).implicitHeight + 26 * s), ame: () => surfaceItem(ldWifi) },
+        sound:     { size: () => Qt.size(soundW, surfaceItem(ldSound).implicitHeight + 34 * s), ame: () => surfaceItem(ldSound) },
+        bt:        { size: () => Qt.size(btW, surfaceItem(ldBt).implicitHeight + 26 * s), ame: () => surfaceItem(ldBt) },
         battery:   { size: () => Qt.size(batteryW, surfaceItem(ldBattery).implicitHeight + 26 * s), ame: () => surfaceItem(ldBattery) },
         settings:  { size: () => Qt.size(settingsW, surfaceItem(ldSettings).implicitHeight + 29 * s), ame: () => surfaceItem(ldSettings) },
         keybinds:  { size: () => Qt.size(keybindsW, surfaceItem(ldKeybinds).implicitHeight + 29 * s), ame: () => surfaceItem(ldKeybinds) },
@@ -373,15 +409,6 @@ Item {
     }
 
     /**
-     * Pop the open link surface one subview back. Returns true when the step was
-     * consumed, false when the surface is already at its root (or not open) and
-     * Escape should close the surface instead.
-     */
-    function linkBack() {
-        return (pill.linkOpen && ldLink.item) ? ldLink.item.back() : false;
-    }
-
-    /**
      * Step the open surface back one level when its header bar is clicked: a
      * settings sub-surface returns to the index, the font picker to appearance,
      * a keybinds form to its list, and any other surface dismisses to the hover
@@ -495,10 +522,27 @@ Item {
     }
 
     onSurfaceOpenChanged: if (surfaceOpen) {
+        unloadIdle.stop();
         pinned = false;
         if (quickHere && ScreenRec.quickChoosing) {
             ScreenRec.quickChoosing = false;
             ScreenRec.quickScreenChoosing = false;
+        }
+    } else {
+        unloadIdle.restart();
+    }
+
+    /** Closed surfaces unload after two idle minutes; the preloaded trio and a busy surface stay. */
+    Timer {
+        id: unloadIdle
+        interval: 120000
+        onTriggered: {
+            const cold = [ldSound, ldCalendar, ldLauncher, ldClip, ldWall, ldPower, ldWifi, ldBt, ldBattery,
+                          ldSettings, ldKeybinds, ldWorkspaces, ldStash, ldSpaceapps, ldRecorder, ldSysmon,
+                          ldAppearance, ldUpdates, ldDisplay, ldInput, ldLook, ldIdlelock, ldAnimation, ldFontpicker];
+            for (const ld of cold)
+                if (ld.active && !(ld.item && ld.item.busy === true))
+                    ld.active = false;
         }
     }
 
@@ -601,9 +645,17 @@ Item {
         NumberAnimation { target: pill; property: "kanjiFlash"; to: 0; duration: 320; easing.type: Easing.OutCubic }
     }
 
-    Behavior on width { NumberAnimation { duration: pill.hoverHop ? Motion.glide : Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
-    Behavior on height { NumberAnimation { duration: pill.hoverHop ? Motion.glide : Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
-    Behavior on morphRadius { NumberAnimation { duration: pill.hoverHop ? Motion.glide : Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
+    Behavior on width { NumberAnimation { id: morphAnimW; duration: pill.hoverHop ? Motion.glide : Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
+    Behavior on height { NumberAnimation { id: morphAnimH; duration: pill.hoverHop ? Motion.glide : Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
+    Behavior on morphRadius { NumberAnimation { id: morphAnimR; duration: pill.hoverHop ? Motion.glide : Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
+
+    /**
+     * True while any morph axis animates. The body's effect layer (live drop
+     * shadow) re-renders its offscreen buffer at every size step, on every
+     * monitor, so it is the top per-frame cost of a morph; dropping the shadow
+     * mid-flight and restoring it on settle keeps the morph cheap (issue #20).
+     */
+    readonly property bool morphing: morphAnimW.running || morphAnimH.running || morphAnimR.running
 
     Rectangle {
         id: bud
@@ -686,7 +738,7 @@ Item {
             GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Flags.pillOpacity) }
         }
 
-        layer.enabled: true
+        layer.enabled: !pill.morphing
         layer.effect: MultiEffect {
             shadowEnabled: true
             shadowColor: Qt.rgba(0, 0, 0, Theme.shadowOpacity)
@@ -729,12 +781,16 @@ Item {
         const drop = 12 * pill.s;
         if (soulTarget === "wifi")
             return wifiIcon.mapToItem(pill, wifiIcon.width / 2, wifiIcon.height + drop * 0.55);
+        if (soulTarget === "bt")
+            return btIcon.mapToItem(pill, btIcon.width / 2, btIcon.height + drop * 0.55);
         if (soulTarget === "battery")
             return batteryIcon.mapToItem(pill, batteryIcon.width / 2, batteryIcon.height + drop * 0.55);
         if (soulTarget === "inbox")
             return inboxIcon.mapToItem(pill, inboxIcon.width / 2, inboxIcon.height + drop * 0.55);
         if (soulTarget === "mixer")
             return mixerIcon.mapToItem(pill, mixerIcon.width / 2, mixerIcon.height + drop * 0.55);
+        if (soulTarget === "sound")
+            return soundIcon.mapToItem(pill, soundIcon.width / 2, soundIcon.height + drop * 0.55);
         if (soulTarget === "power")
             return powerIcon.mapToItem(pill, powerIcon.width / 2, powerIcon.height + drop * 0.55);
         if (soulTarget === "settings")
@@ -788,7 +844,8 @@ Item {
 
     onHoveredChanged: {
         if (hovered) {
-            hoverLatch = true;
+            if (bootSettled)
+                hoverLatch = true;
             graceTimer.stop();
         } else {
             graceTimer.restart();
@@ -1134,6 +1191,7 @@ Item {
                 Image {
                     anchors.fill: parent
                     source: Players.artUrl
+                    sourceSize: Qt.size(Math.ceil(width * 2), Math.ceil(height * 2))
                     fillMode: Image.PreserveAspectCrop
                     asynchronous: true
                     visible: status === Image.Ready
@@ -1518,21 +1576,22 @@ Item {
 
                 Row {
                     anchors.verticalCenter: parent.verticalCenter
-                    visible: (pill.wifiDev !== null && pill.wifiOn) || Battery.present
+                    visible: pill.wifiDev !== null || pill.btAdapter !== null || Battery.present
                     spacing: 12 * pill.s
 
                     Item {
                         id: wifiIcon
                         anchors.verticalCenter: parent.verticalCenter
-                        visible: pill.wifiDev !== null && pill.wifiOn
-                        width: 17 * pill.s
-                        height: 17 * pill.s
+                        visible: pill.wifiDev !== null
+                        width: 15 * pill.s
+                        height: 15 * pill.s
 
                         WifiGlyph {
                             anchors.centerIn: parent
                             s: pill.s
                             level: pill.wifiLevel
                             on: pill.wifiOn
+                            stroke: 1.7
                         }
 
                         MouseArea {
@@ -1541,12 +1600,69 @@ Item {
                             anchors.margins: -6 * pill.s
                             hoverEnabled: true
                             enabled: hover.live
+                            acceptedButtons: Qt.LeftButton | Qt.RightButton
                             cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                pill.linkInitialView = "wifi";
-                                pill.requestSurface("link");
+                            onClicked: (e) => {
+                                if (e.button === Qt.RightButton) {
+                                    if (typeof Networking !== "undefined" && Networking)
+                                        Networking.wifiEnabled = !Networking.wifiEnabled;
+                                    return;
+                                }
+                                pill.requestSurface("wifi");
                             }
                             onContainsMouseChanged: if (containsMouse) pill.soulTarget = "wifi"
+                        }
+                    }
+
+                    Item {
+                        id: btIcon
+                        anchors.verticalCenter: parent.verticalCenter
+                        visible: pill.btAdapter !== null
+                        width: 15 * pill.s + (btLowPct.visible ? btLowPct.implicitWidth + 4 * pill.s : 0)
+                        height: 15 * pill.s
+
+                        GlyphIcon {
+                            anchors.left: parent.left
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 15 * pill.s
+                            height: 15 * pill.s
+                            name: "bluetooth"
+                            color: btArea.containsMouse ? Theme.cream
+                                : (Peripherals.connectedCount > 0 ? Theme.vermLit
+                                : (pill.btOn ? Theme.iconDim : Qt.alpha(Theme.iconDim, 0.4)))
+                            stroke: 1.7
+                        }
+
+                        Text {
+                            id: btLowPct
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            visible: Peripherals.lowestPct >= 0 && Peripherals.lowestPct <= Peripherals.lowAt
+                            text: Peripherals.lowestPct + "%"
+                            color: Theme.vermLit
+                            font.family: Theme.font
+                            font.pixelSize: 11 * pill.s
+                            font.weight: Font.DemiBold
+                            font.features: { "tnum": 1 }
+                        }
+
+                        MouseArea {
+                            id: btArea
+                            anchors.fill: parent
+                            anchors.margins: -6 * pill.s
+                            hoverEnabled: true
+                            enabled: hover.live
+                            acceptedButtons: Qt.LeftButton | Qt.RightButton
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: (e) => {
+                                if (e.button === Qt.RightButton) {
+                                    if (pill.btAdapter)
+                                        pill.btAdapter.enabled = !pill.btAdapter.enabled;
+                                    return;
+                                }
+                                pill.requestSurface("bt");
+                            }
+                            onContainsMouseChanged: if (containsMouse) pill.soulTarget = "bt"
                         }
                     }
 
@@ -1613,10 +1729,7 @@ Item {
                         hoverEnabled: true
                         enabled: hover.live
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            pill.linkInitialView = "main";
-                            pill.requestSurface("link");
-                        }
+                        onClicked: pill.requestSurface("link")
                         onContainsMouseChanged: if (containsMouse) pill.soulTarget = "inbox"
                     }
                 }
@@ -1643,6 +1756,31 @@ Item {
                         cursorShape: Qt.PointingHandCursor
                         onClicked: pill.requestSurface("mixer")
                         onContainsMouseChanged: if (containsMouse) pill.soulTarget = "mixer"
+                    }
+                }
+
+                Item {
+                    id: soundIcon
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 17 * pill.s
+                    height: 17 * pill.s
+
+                    GlyphIcon {
+                        anchors.fill: parent
+                        name: "music"
+                        color: soundArea.containsMouse ? Theme.cream : (Sound.eq ? Theme.vermLit : Theme.iconDim)
+                        stroke: 1.7
+                    }
+
+                    MouseArea {
+                        id: soundArea
+                        anchors.fill: parent
+                        anchors.margins: -6 * pill.s
+                        hoverEnabled: true
+                        enabled: hover.live
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: pill.requestSurface("sound")
+                        onContainsMouseChanged: if (containsMouse) pill.soulTarget = "sound"
                     }
                 }
 
@@ -1780,7 +1918,7 @@ Item {
     /**
      * Morphing surfaces, one latch-once Loader each (see surfaceItem). Eager,
      * they dominated startup and per-monitor RAM; now a surface is built
-     * synchronously on its first open and kept. Each loader fills the pill so
+     * synchronously on its first open. Each loader fills the pill so
      * the PillSurface inside anchors exactly as it did as a direct child.
      *
      * The hot trio preloads shortly after startup: the mixer needs its Pipewire
@@ -1805,6 +1943,19 @@ Item {
             s: pill.s
             open: pill.mixerOpen
             morphCloseness: pill.morphCloseness
+        }
+    }
+
+    Loader {
+        id: ldSound
+        active: false
+        anchors.fill: parent
+        sourceComponent: SoundSurface {
+            s: pill.s
+            open: pill.soundOpen
+            morphCloseness: pill.morphCloseness
+            onRequestClose: pill.requestClose()
+            onRequestSurface: (name) => pill.requestSurface(name)
         }
     }
 
@@ -1876,6 +2027,7 @@ Item {
             open: pill.mediaOpen
             morphCloseness: pill.morphCloseness
             onRequestClose: pill.requestClose()
+            onRequestSurface: (name) => pill.requestSurface(name)
         }
     }
 
@@ -1886,13 +2038,34 @@ Item {
         sourceComponent: Link {
             s: pill.s
             open: pill.linkOpen
-            initialView: pill.linkInitialView
             morphCloseness: pill.morphCloseness
             onRequestClose: pill.requestClose()
         }
     }
 
-    onLinkOpenChanged: if (!linkOpen) linkInitialView = "main"
+    Loader {
+        id: ldWifi
+        active: false
+        anchors.fill: parent
+        sourceComponent: WifiSurface {
+            s: pill.s
+            open: pill.wifiOpen
+            morphCloseness: pill.morphCloseness
+            onRequestClose: pill.requestClose()
+        }
+    }
+
+    Loader {
+        id: ldBt
+        active: false
+        anchors.fill: parent
+        sourceComponent: BtSurface {
+            s: pill.s
+            open: pill.btOpen
+            morphCloseness: pill.morphCloseness
+            onRequestClose: pill.requestClose()
+        }
+    }
 
     Loader {
         id: ldBattery
@@ -1928,7 +2101,6 @@ Item {
             open: pill.keybindsOpen
             morphCloseness: pill.morphCloseness
             onRequestClose: pill.requestClose()
-            onRequestSurface: (name) => pill.requestSurface(name)
         }
     }
 
@@ -1954,7 +2126,6 @@ Item {
             open: pill.stashOpen
             morphCloseness: pill.morphCloseness
             onRequestClose: pill.requestClose()
-            onRequestSurface: (name) => pill.requestSurface(name)
         }
     }
 
@@ -1967,7 +2138,6 @@ Item {
             open: pill.spaceappsOpen
             morphCloseness: pill.morphCloseness
             onRequestClose: pill.requestClose()
-            onRequestSurface: (name) => pill.requestSurface(name)
         }
     }
 
@@ -2144,6 +2314,7 @@ Item {
                 anchors.top: parent.top
                 s: pill.s
                 live: pill.mode === "toast"
+                host: pill
                 notif: Notifs.popups.length > 0 ? Notifs.popups[Notifs.popups.length - 1] : null
             }
 

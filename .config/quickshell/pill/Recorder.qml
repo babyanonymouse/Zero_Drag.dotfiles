@@ -299,7 +299,6 @@ PillSurface {
         property bool on: false
         property int faderIndex: -1
         property real level: 0.5
-        signal toggled()
         signal faderMoved(real v)
 
         width: parent ? parent.width : 0
@@ -1271,7 +1270,7 @@ PillSurface {
                             source: frame.modelData.thumb ? "file://" + frame.modelData.thumb : ""
                             fillMode: Image.PreserveAspectCrop
                             asynchronous: true
-                            cache: true
+                            cache: false
                             smooth: true
                             sourceSize.width: 216 * root.s
                             sourceSize.height: 96 * root.s

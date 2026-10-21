@@ -10,7 +10,7 @@ Item {
     readonly property bool live: Cava.active && !Cava.quiet
     property var levels: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-    opacity: live ? 0.52 : 0
+    opacity: live ? 0.74 : 0
     visible: opacity > 0.004
 
     Behavior on opacity {
@@ -30,7 +30,8 @@ Item {
             var next = [];
             for (var i = 0; i < Cava.bars; i++) {
                 var cur = glow.levels[i] !== undefined ? glow.levels[i] : 0;
-                var target = src && src[i] !== undefined ? src[i] : 0;
+                /** 1.6 gain so quiet tracks still read as a glow, clamped so loud ones never blow out. */
+                var target = Math.min(1, (src && src[i] !== undefined ? src[i] : 0) * 1.6);
                 var tau = target > cur ? 0.18 : 1.1;
                 var k = 1 - Math.exp(-dt / tau);
                 next.push(cur + (target - cur) * k);
